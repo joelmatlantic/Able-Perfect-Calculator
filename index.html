@@ -245,6 +245,7 @@ td{padding:9px 12px;vertical-align:middle}
 }
 </style>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <script>
@@ -466,7 +467,7 @@ td{padding:9px 12px;vertical-align:middle}
           <button id="rptTab" onclick="setRptMode('table')">Table View</button>
         </div>
         <button class="btn-s btn-grn" id="btnCopy" onclick="copyReport()">&#x1F4CB; Copy</button>
-        <button onclick="generatePDF()" style="background:#c0392b;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:.82rem;font-weight:700;cursor:pointer">&#x1F4BE; Save PDF</button>
+        <button onclick="saveAsPDF()" style="background:#c0392b;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:.82rem;font-weight:700;cursor:pointer">&#x1F4C4; Save PDF</button>
         <button onclick="copyAsImage()" style="background:#8e44ad;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:.82rem;font-weight:700;cursor:pointer">&#x1F5BC; Image</button>
       </div>
     </div>
@@ -2077,6 +2078,203 @@ function copyAsImage(){
 
 
 
+function saveAsPDF(){
+  if(!QITEMS.length){alert('Add items to the quote first.');return;}
+  // Show loading
+  el('printContent').innerHTML='<div style="text-align:center;padding:40px;font-size:14px;color:#666;">&#x23F3; Generating PDF&hellip;<br><small style="color:#aaa">Please wait a moment</small></div>';
+  if(document.getElementById('pmBarLabel'))document.getElementById('pmBarLabel').textContent='&#x1F4C4; Saving PDF...';
+  el('printModal').style.display='block';
+  el('printModal').scrollTop=0;
+
+  setTimeout(function(){
+    try{
+      var pm=PRICE_MODE||'fob';
+      var hasCifItem=QITEMS.some(function(x){return x.mode==='CIF'&&x.port;});
+      var showFob=(pm==='fob'||pm==='both');
+      var showCif=(pm==='cif'||pm==='both')&&hasCifItem;
+      var modeLabel=pm==='cif'?'CIF':pm==='both'?'FOB & CIF':'FOB';
+      var cust=el('qCust').value||'';
+      var delVal=el('qDel')?el('qDel').value||'':'';
+      var d=new Date();
+      var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var ds=d.getDate()+' '+MO[d.getMonth()]+' '+d.getFullYear();
+      var allSameOil=QITEMS.length>0&&QITEMS.every(function(x){return x.oilName===QITEMS[0].oilName;});
+      var oilLabel=allSameOil&&QITEMS.length>0?QITEMS[0].oilName.replace(' (USD)',''):'';
+      var W=900,MARG=24,sc=2;
+      var CARD_H=function(item){
+        var isCif=item.mode==='CIF'&&item.port;
+        var h=130;
+        if(showFob)h+=80;
+        if(showCif&&isCif)h+=96;
+        return h+20;
+      };
+      var HEAD_H=90,REM_H=80,SUM_H=(QITEMS.length>1?80:0),GAP=12;
+      var totalH=HEAD_H+GAP;
+      for(var i=0;i<QITEMS.length;i++)totalH+=CARD_H(QITEMS[i])+GAP;
+      totalH+=SUM_H+(SUM_H?GAP:0)+REM_H+GAP;
+      var canvas=document.createElement('canvas');
+      canvas.width=W*sc;canvas.height=totalH*sc;
+      var ctx=canvas.getContext('2d');
+      ctx.scale(sc,sc);
+      function R(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x,y,w,h);}
+      function RR(x,y,w,h,r,c){ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fill();}
+      function T(s,x,y,o){o=o||{};ctx.fillStyle=o.c||'#1a2332';ctx.font=(o.b?'bold ':'')+((o.sz||11)+'px')+' Arial,sans-serif';ctx.textAlign=o.a||'left';ctx.textBaseline='middle';ctx.fillText(String(s||''),x,y);}
+      function row2(lbl,val,y,yBase){T(lbl,MARG+8,yBase+y,{c:'#6b7a95',sz:10});T(val,W-MARG-8,yBase+y,{c:'#1a2332',b:true,sz:10,a:'right'});ctx.strokeStyle='#eef2f8';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(MARG+4,yBase+y+8);ctx.lineTo(W-MARG-4,yBase+y+8);ctx.stroke();}
+      R(0,0,W,totalH,'#f0f4f9');
+      RR(MARG,0,W-2*MARG,HEAD_H-GAP,10,'#0a3d62');
+      T('ABLE PERFECT SDN BHD',MARG+14,14,{c:'rgba(255,255,255,.6)',sz:9});
+      T(modeLabel+' PRICE QUOTATION',MARG+14,36,{c:'#fff',b:true,sz:18});
+      var info=[];
+      if(oilLabel)info.push('Oil: '+oilLabel);
+      if(cust)info.push('Attn: '+cust);
+      if(delVal)info.push(delVal);
+      if(info.length)T(info.join('  |  '),MARG+14,56,{c:'rgba(255,255,255,.7)',sz:9});
+      T('Date: '+ds,W-MARG-14,14,{c:'rgba(255,255,255,.6)',sz:9,a:'right'});
+      T('Items: '+QITEMS.length,W-MARG-14,30,{c:'rgba(255,255,255,.6)',sz:9,a:'right'});
+      var y=HEAD_H;
+      var gFob=0,gCif=0,gMt=0,gFcl=0;
+      for(var i=0;i<QITEMS.length;i++){
+        var item=QITEMS[i];
+        var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
+        var tu=item.fcl*item.sku.sku_fcl,tm=tu*item.sku.net_wt/1000;
+        var isCif=item.mode==='CIF'&&item.port;
+        var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
+        gFob+=tfob;gCif+=(tcif?tcif:tfob);gMt+=tm;gFcl+=item.fcl;
+        var ch=CARD_H(item);
+        RR(MARG,y,W-2*MARG,ch,8,'#fff');
+        RR(MARG,y,W-2*MARG,38,8,'#0a3d62');
+        R(MARG,y+20,W-2*MARG,18,'#0a3d62');
+        ctx.fillStyle='#e8a020';ctx.beginPath();ctx.arc(MARG+20,y+19,12,0,Math.PI*2);ctx.fill();
+        T(i+1,MARG+20,y+19,{c:'#fff',b:true,sz:10,a:'center'});
+        T(skuDisplayName(item.sku),MARG+38,y+19,{c:'#fff',b:true,sz:12});
+        T(item.sku.type,W-MARG-10,y+19,{c:'rgba(255,255,255,.7)',sz:8,a:'right'});
+        var dy=y+48;
+        row2('Oil',item.oilName.replace(' (USD)',''),0,dy);
+        row2('Net Weight',item.sku.net_wt+' kg  |  Units/SKU: '+item.sku.units,18,dy);
+        row2('SKU/FCL',fmt(item.sku.sku_fcl,0)+'  |  No. FCL: '+item.fcl,36,dy);
+        row2('Total Units',fmt(tu,0)+'  |  Volume: '+fmt(tm,3)+' MT',54,dy);
+        var py=dy+72;
+        if(showFob){
+          RR(MARG+8,py,W-2*MARG-16,70,6,'#edf7f1');
+          T('FOB PRICING',MARG+16,py+12,{c:'#1a7a4a',b:true,sz:8});
+          T('Price / Carton',MARG+16,py+30,{c:'#555',sz:10});T('USD '+fmt(p.fs,4),W-MARG-16,py+30,{c:'#1a7a4a',b:true,sz:10,a:'right'});
+          T('Price / MT',MARG+16,py+46,{c:'#555',sz:10});T('USD '+fmt(p.fm,2),W-MARG-16,py+46,{c:'#1a7a4a',b:true,sz:10,a:'right'});
+          ctx.strokeStyle='#c8ebd8';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(MARG+16,py+54);ctx.lineTo(W-MARG-16,py+54);ctx.stroke();
+          T('Total FOB',MARG+16,py+64,{c:'#555',sz:10});T('USD '+fmt(tfob,2),W-MARG-16,py+64,{c:'#1a7a4a',b:true,sz:11,a:'right'});
+          py+=80;
+        }
+        if(showCif&&isCif){
+          RR(MARG+8,py,W-2*MARG-16,86,6,'#e8f0fa');
+          T('CIF -- '+item.port.country+' ('+item.port.port+')',MARG+16,py+12,{c:'#1e5f8a',b:true,sz:8});
+          T('Price / Carton',MARG+16,py+30,{c:'#555',sz:10});T('USD '+fmt(p.cs,4),W-MARG-16,py+30,{c:'#1e5f8a',b:true,sz:10,a:'right'});
+          T('Price / MT',MARG+16,py+46,{c:'#555',sz:10});T('USD '+fmt(p.cm,2),W-MARG-16,py+46,{c:'#1e5f8a',b:true,sz:10,a:'right'});
+          ctx.strokeStyle='#b8d4f0';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(MARG+16,py+54);ctx.lineTo(W-MARG-16,py+54);ctx.stroke();
+          T('Total CIF',MARG+16,py+64,{c:'#555',sz:10});T('USD '+fmt(tcif,2),W-MARG-16,py+64,{c:'#1e5f8a',b:true,sz:11,a:'right'});
+        }
+        y+=ch+GAP;
+      }
+      if(QITEMS.length>1){
+        RR(MARG,y,W-2*MARG,SUM_H-GAP,8,'#0a3d62');
+        T('SUMMARY',MARG+14,y+14,{c:'rgba(255,255,255,.6)',b:true,sz:8});
+        T(QITEMS.length+' items  |  '+gFcl+' FCL  |  '+fmt(gMt,3)+' MT',MARG+14,y+30,{c:'#fff',sz:10});
+        if(showFob)T('Grand FOB: USD '+fmt(gFob,2),MARG+14,y+50,{c:'#a8f0c0',b:true,sz:11});
+        if(showCif&&hasCifItem)T('Grand CIF: USD '+fmt(gCif,2),showFob?W-MARG-14:MARG+14,y+50,{c:'#aed6f1',b:true,sz:11,a:showFob?'right':'left'});
+        y+=SUM_H;
+      }
+      RR(MARG,y,W-2*MARG,REM_H-GAP,8,'#fff');
+      ctx.strokeStyle='#d0dae8';ctx.lineWidth=0.75;ctx.strokeRect(MARG,y,W-2*MARG,REM_H-GAP);
+      T('Remarks',MARG+10,y+14,{c:'#0a3d62',b:true,sz:10});
+      ['All quotations are subject to final confirmation.',
+       'Pricing are volatile. Do obtain latest pricing from marketer.',
+       'Pricing does not include 3rd party documentation/certification charges.']
+      .forEach(function(rl,ri){T('- '+rl,MARG+10,y+30+ri*16,{c:'#6b7a95',sz:9});});
+
+      // Convert canvas to image and create PDF
+      var imgData=canvas.toDataURL('image/jpeg',0.95);
+      var fname_='Able_Perfect_'+modeLabel.replace(' & ','_')+'_'+ds.replace(/ /g,'')+'.pdf';
+
+      if(!window.jspdf||!window.jspdf.jsPDF){
+        el('printContent').innerHTML='<div style="color:#e74c3c;padding:20px;text-align:center;">PDF library not loaded.<br>Check your internet connection and try again.</div>';
+        return;
+      }
+      var jsPDF=window.jspdf.jsPDF;
+      var pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+      var pW=pdf.internal.pageSize.getWidth();
+      var pH=pdf.internal.pageSize.getHeight();
+      var cRatio=canvas.height/canvas.width;
+      var imgH=pW*cRatio;
+      if(imgH<=pH){
+        pdf.addImage(imgData,'JPEG',0,0,pW,imgH);
+      }else{
+        var pagesNeeded=Math.ceil(imgH/pH);
+        for(var pg=0;pg<pagesNeeded;pg++){
+          if(pg>0)pdf.addPage();
+          pdf.addImage(imgData,'JPEG',0,-(pg*pH),pW,imgH);
+        }
+      }
+
+      // Get PDF as blob
+      var pdfBlob=pdf.output('blob');
+
+      // SUCCESS message shown after share/download starts
+      function showSuccess(){
+        el('printContent').innerHTML=
+          '<div style="background:#edf7f1;border-radius:10px;padding:20px;text-align:center;">'+
+          '<div style="font-size:28px;margin-bottom:8px">&#x2705;</div>'+
+          '<div style="font-size:14px;font-weight:700;color:#1a7a4a;margin-bottom:6px">PDF Ready!</div>'+
+          '<div style="font-size:12px;color:#555;line-height:1.8;">Share to WhatsApp or save to Downloads</div>'+
+          '</div>';
+        if(document.getElementById('pmBarLabel'))document.getElementById('pmBarLabel').textContent='&#x1F4C4; PDF Ready';
+      }
+
+      // FALLBACK: open blob URL in new tab (user can download from Chrome menu)
+      function openInTab(){
+        var url=URL.createObjectURL(pdfBlob);
+        var w=window.open(url,'_blank');
+        if(w){
+          showSuccess();
+          el('printContent').innerHTML+=
+            '<div style="background:#fff3cd;border-radius:8px;padding:14px;margin-top:10px;font-size:13px;color:#856404;line-height:1.8;">'+
+            '&#x2139; PDF opened in new tab.<br>'+
+            'Tap the <b>&#x22EE; menu</b> (3 dots) &rarr; <b>Download</b><br>'+
+            'Then share from Downloads to WhatsApp.</div>';
+        }else{
+          el('printContent').innerHTML=
+            '<div style="color:#e74c3c;padding:20px;text-align:center;">'+
+            'Popup blocked. Please allow popups for this site and try again.</div>';
+        }
+      }
+
+      // PRIMARY: navigator.share with file (Android native share sheet)
+      // This lets user save to Downloads OR share directly to WhatsApp in ONE step
+      if(navigator.share && navigator.canShare){
+        var pdfFile=new File([pdfBlob],fname_,{type:'application/pdf'});
+        if(navigator.canShare({files:[pdfFile]})){
+          navigator.share({files:[pdfFile],title:'Able Perfect Quotation'})
+          .then(function(){showSuccess();})
+          .catch(function(e){
+            if(e.name!=='AbortError') openInTab();
+            else showSuccess();
+          });
+        }else{
+          openInTab();
+        }
+      }else{
+        // Desktop: standard download
+        try{
+          pdf.save(fname_);
+          showSuccess();
+        }catch(e){
+          openInTab();
+        }
+      }
+    }catch(err){
+      el('printContent').innerHTML='<div style="color:#e74c3c;padding:20px;">Error: '+String(err.message||err)+'</div>';
+    }
+  },300);
+}
+
+
 function generatePDF(){
   if(!QITEMS.length){alert('Add items to the quote first.');return;}
   try{
@@ -2275,7 +2473,7 @@ function generatePDF(){
       +'<title>'+fname+'</title><style>'+css+'</style>'+savePdfFn+'</head><body>'
       +'<div class="bar"><h3>ABLE PERFECT SDN BHD &mdash; '+modeLabel+' Price Quotation</h3>'
       +'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
-      +'<button class="sbtn" onclick="doPrint()">&#128424; SAVE AS PDF</button>'
+      +'<button id="topPrintBtn" class="sbtn" onclick="doPrint()" style="font-size:16px;padding:14px 32px">&#128424; SAVE AS PDF &mdash; Tap Here</button>'
       +'<span style="font-size:.75rem;color:#555">If button does nothing: press <b>Ctrl+P</b> (Win) / <b>Cmd+P</b> (Mac) &rarr; Destination: <b>Save as PDF</b></span>'
       +'</div></div>'
       +'<div class="wrap">'
@@ -2294,7 +2492,15 @@ function generatePDF(){
       +'<div class="bot"><button class="sbtn" onclick="doPrint()">&#128424; SAVE AS PDF</button></div>'
       +'</body></html>';
 
-    // Store blob — download is triggered by the button in the modal (direct user gesture = reliable on all devices)
+    // Open the quotation in a new tab — works on ALL devices on GitHub Pages
+    var newTab = window.open('','_blank');
+    if(newTab){
+      newTab.document.open();
+      newTab.document.write(page);
+      newTab.document.close();
+      return; // done — user sees quotation with Save as PDF button in new tab
+    }
+    // Fallback if popup blocked: use blob in modal
     var blob=new Blob([page],{type:'text/html;charset=utf-8'});
     openPrintPreview._lastPage = blob;
     openPrintPreview._lastPageHtml = page;
