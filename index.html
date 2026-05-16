@@ -2281,11 +2281,17 @@ function generatePDF(){
     var pm=PRICE_MODE||'fob';
     // Determine what types of items are actually in the cart
     var hasCifI=QITEMS.some(function(x){return x.mode==='CIF'&&x.port;});
-    var hasFobI=QITEMS.some(function(x){return !(x.mode==='CIF'&&x.port);}); // FOB, or CIF without port
-    // showF must be true in 'both' mode even when all items are CIF
-    var showF=pm==='both'||pm==='fob'||hasFobI;
-    var showC=hasCifI;
-    var modeLabel=(!showF&&showC)?'CIF':(showF&&showC)?'FOB & CIF':'FOB';
+    var hasFobI=QITEMS.some(function(x){return !(x.mode==='CIF'&&x.port);});
+    // showF/showC driven STRICTLY by the pricing mode button chosen
+    // FOB mode  → FOB columns only, no CIF
+    // CIF mode  → CIF columns only, no FOB
+    // Both mode → both columns shown
+    var showF=(pm==='fob')||(pm==='both');
+    var showC=(pm==='cif')||(pm==='both');
+    // Safety: only show CIF cols if there are actually CIF items with ports
+    if(pm==='cif'&&!hasCifI) showC=false;
+    if(pm==='both'&&!hasCifI) showC=false;
+    var modeLabel=(pm==='cif')?'CIF':(pm==='both')?'FOB & CIF':'FOB';
     var cust=el('qCust')?el('qCust').value||''  :'';
     var delVal=el('qDel')?el('qDel').value||'':'';
     var dn=new Date();
@@ -2374,7 +2380,7 @@ function generatePDF(){
 
     // T&C
     var tcHtml='';
-    if(hasFobI){
+    if(showF){
       tcHtml+='<div class="tc tcfob">';
       tcHtml+='<b class="tcf">&#x1F7E2; FOB Terms &amp; Conditions</b>';
       tcHtml+='<div class="tci">(1) Payment: 30% deposit, balance 70% — 15 working days before loading</div>';
@@ -2384,7 +2390,7 @@ function generatePDF(){
       tcHtml+='<div class="tci">(5) Buyer to ensure all required documents are informed to seller prior to sales contract.</div>';
       tcHtml+='</div>';
     }
-    if(hasCifI){
+    if(showC){
       tcHtml+='<div class="tc tccif">';
       tcHtml+='<b class="tcc">&#x1F535; CIF Terms &amp; Conditions</b>';
       tcHtml+='<div class="tci">(1) Payment: 30% deposit, balance 70% against copy Bill of Lading (BL)</div>';
