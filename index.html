@@ -540,6 +540,34 @@ PRICING MODE -- enforced in 7 places (see CHANGELOG.md):
 CSS PRINT RULES:
   - @media print must stay INSIDE @media block or it blanks the whole page
   - Do NOT use regex to remove @media print blocks
+
+==========================================================================
+CHANGELOG
+==========================================================================
+
+v2026-05-16 (Joel's amendments — batch 1):
+  [1] USD/MT toggle (YES/NO) now propagates to ALL outputs:
+      - Quotation cart cards (FOB/MT & CIF/MT hidden when NO)
+      - openPrintPreview() HTML cards
+      - copyAsImage() canvas cards (CARD_H dynamically adjusted)
+      - saveAsPDF() canvas cards (CARD_H dynamically adjusted)
+      - buildRpt() WhatsApp text report
+      - generatePDF() table PDF (was already correct via showMT flag)
+
+  [2] Quotation cart cards now show ONLY the pricing relevant to each
+      item's locked priceMode (FOB=FOB only, CIF=CIF only, BOTH=both).
+      Previously FOB price was always shown even for CIF-only items.
+
+  [3] FOB / CIF / FOB+CIF pricing modes are now strictly segregated:
+      - Each item locks its priceMode at the moment "Add to Quote" is
+        clicked (stored as item.priceMode = 'fob' | 'cif' | 'both').
+      - Cart cards, WhatsApp report, table view, image, and PDF all
+        render each item strictly from its own locked priceMode.
+      - Mode badge colour-coded: green=FOB, blue=CIF, purple=FOB+CIF.
+
+  [4] FCL quantity is now LOCKED (read-only) once an item is quoted.
+      Displayed as a static number with "(locked)" label.
+      Remove button remains available to delete items from the cart.
 ==========================================================================
 */
 var OIL_DEF={
@@ -967,16 +995,31 @@ function rQuote(){
       var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
       var tu=item.fcl*item.sku.sku_fcl,tm=tu*item.sku.net_wt/1000;
       var isCif=item.mode==='CIF'&&item.port;
-      var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null,tdis=tcif!==null?tcif:tfob;
+      var ipm2=item.priceMode||'fob';
+      var showIF=(ipm2==='fob'||ipm2==='both');
+      var showIC=(ipm2==='cif'||ipm2==='both')&&isCif;
+      var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
+      var tdis=showIC&&tcif!==null?tcif:tfob;
       gFob+=tfob;gCif+=(tcif!==null?tcif:tfob);gMt+=tm;gFcl+=item.fcl;
       var div=document.createElement('div');div.className='q-item';
-      var cifP=isCif?'<div class="qprice cif"><span class="ql">CIF/carton</span><span class="qv">USD '+fmt(p.cs,4)+'</span></div><div class="qprice cif"><span class="ql">CIF/MT</span><span class="qv">USD '+fmt(p.cm,2)+'</span></div>':'';
-      var portB=isCif?'CIF: <b>'+item.port.country+' - '+item.port.port+'</b>':'<b>FOB</b>';
+      // Build price row based ONLY on item's locked priceMode
+      var priceHtml='';
+      if(showIF){
+        priceHtml+='<div class="qprice"><span class="ql">FOB/carton</span><span class="qv">USD '+fmt(p.fs,4)+'</span></div>';
+        if(SHOW_MT_PRICE)priceHtml+='<div class="qprice"><span class="ql">FOB/MT</span><span class="qv">USD '+fmt(p.fm,2)+'</span></div>';
+      }
+      if(showIC){
+        priceHtml+='<div class="qprice cif"><span class="ql">CIF/carton</span><span class="qv">USD '+fmt(p.cs,4)+'</span></div>';
+        if(SHOW_MT_PRICE)priceHtml+='<div class="qprice cif"><span class="ql">CIF/MT</span><span class="qv">USD '+fmt(p.cm,2)+'</span></div>';
+      }
+      var modeTag=ipm2==='both'?'<b style="color:#8e44ad">FOB+CIF</b>':ipm2==='cif'?'<b style="color:#1e5f8a">CIF</b>':'<b style="color:#1a7a4a">FOB</b>';
+      var portB=isCif?modeTag+': <b>'+item.port.country+' - '+item.port.port+'</b>':modeTag;
+      var totalLabel=(showIC&&!showIF)?'CIF':(showIF&&showIC)?'FOB+CIF':'FOB';
       div.innerHTML='<div class="q-item-num">'+(idx+1)+'</div>'
         +'<div class="q-item-body"><div class="q-item-title">'+skuDisplayName(item.sku)+'</div>'
         +'<div class="q-item-details"><span>Oil: <b>'+item.oilName.replace(' (USD)','')+'</b></span><span>Net: <b>'+item.sku.net_wt+'kg</b></span><span>SKU/FCL: <b>'+fmt(item.sku.sku_fcl,0)+'</b></span>'+(item.add>0?'<span>Add: <b>USD '+fmt(item.add,2)+'/MT</b></span>':'')+'<span>'+portB+'</span></div>'
-        +'<div class="q-price-row"><div class="qprice"><span class="ql">FOB/carton</span><span class="qv">USD '+fmt(p.fs,4)+'</span></div><div class="qprice"><span class="ql">FOB/MT</span><span class="qv">USD '+fmt(p.fm,2)+'</span></div>'+cifP+'<div class="qprice"><span class="ql">Units</span><span class="qv">'+fmt(tu,0)+'</span></div><div class="qprice"><span class="ql">Vol (MT)</span><span class="qv">'+fmt(tm,3)+'</span></div><div class="qprice tot"><span class="ql">Total '+(isCif?'CIF':'FOB')+'</span><span class="qv">USD '+fmt(tdis,2)+'</span></div></div></div>'
-        +'<div class="q-item-right"><div class="q-fcl-wrap"><label>FCL</label><input type="number" value="'+item.fcl+'" min="1" step="1" onchange="updItemFcl('+item.id+',this.value)"></div><button class="btn-rm" onclick="rmItem('+item.id+')">Remove</button></div>';
+        +'<div class="q-price-row">'+priceHtml+'<div class="qprice"><span class="ql">Units</span><span class="qv">'+fmt(tu,0)+'</span></div><div class="qprice"><span class="ql">Vol (MT)</span><span class="qv">'+fmt(tm,3)+'</span></div><div class="qprice tot"><span class="ql">Total '+totalLabel+'</span><span class="qv">USD '+fmt(tdis,2)+'</span></div></div></div>'
+        +'<div class="q-item-right"><div class="q-fcl-wrap"><label style="font-size:.6rem;color:var(--mut)">FCL (locked)</label><div style="font-size:1.2rem;font-weight:800;color:var(--brand);text-align:center;padding:4px 0">'+item.fcl+'</div></div><button class="btn-rm" onclick="rmItem('+item.id+')">Remove</button></div>';
       cards.appendChild(div);})(QITEMS[i],i);
   }
   var tot=el('qTotals');tot.style.display='flex';
@@ -1404,8 +1447,8 @@ function buildRpt(){
     r+='SKU/FCL: '+fmt(item.sku.sku_fcl,0)+NL;
     r+='Volume: '+fmt(tm,3)+' MT'+NL;
     if(item.add>0)r+='Additive: USD '+fmt(item.add,2)+'/MT'+NL;
-    if(ipm==='fob'||ipm==='both')r+='FOB Price: USD '+fmt(p.fs,4)+'/carton  |  USD '+fmt(p.fm,2)+'/MT'+NL;
-    if((ipm==='cif'||ipm==='both')&&isCif)r+='CIF '+item.port.country+' ('+item.port.port+'): USD '+fmt(p.cs,4)+'/carton  |  USD '+fmt(p.cm,2)+'/MT'+NL;
+    if(ipm==='fob'||ipm==='both')r+='FOB Price: USD '+fmt(p.fs,4)+'/carton'+(SHOW_MT_PRICE?'  |  USD '+fmt(p.fm,2)+'/MT':'')+NL;
+    if((ipm==='cif'||ipm==='both')&&isCif)r+='CIF '+item.port.country+' ('+item.port.port+'): USD '+fmt(p.cs,4)+'/carton'+(SHOW_MT_PRICE?'  |  USD '+fmt(p.cm,2)+'/MT':'')+NL;
     if(ipm==='both'){
       r+='*Total FOB (USD): USD '+fmt(tfob,2)+'*'+NL;
       if(isCif)r+='*Total CIF (USD): USD '+fmt(tcif,2)+'*'+NL;
@@ -1666,14 +1709,14 @@ function generatePdfHtml(){
       s+='<div style="background:#edf7f1;margin:0 12px 8px;border-radius:6px;padding:7px 10px">';
       s+='<div style="font-size:.67rem;font-weight:700;color:#1a7a4a;text-transform:uppercase;margin-bottom:4px">FOB Pricing</div>';
       s+='<div style="display:flex;justify-content:space-between;font-size:.78rem;padding:2px 0"><span style="color:#555">Price / Carton</span><b style="color:#1a7a4a">USD '+fmt(p.fs,4)+'</b></div>';
-      s+='<div style="display:flex;justify-content:space-between;font-size:.78rem;padding:2px 0"><span style="color:#555">Price / MT</span><b style="color:#1a7a4a">USD '+fmt(p.fm,2)+'</b></div>';
+      if(SHOW_MT_PRICE)s+='<div style="display:flex;justify-content:space-between;font-size:.78rem;padding:2px 0"><span style="color:#555">Price / MT</span><b style="color:#1a7a4a">USD '+fmt(p.fm,2)+'</b></div>';
       s+='<div style="display:flex;justify-content:space-between;font-size:.8rem;padding:3px 0;margin-top:3px;border-top:1px solid #c8ebd8"><span style="color:#555">Total FOB</span><b style="color:#1a7a4a">USD '+fmt(tfob,2)+'</b></div></div>';
     }
     if(showItemCif){
       s+='<div style="background:#e8f0fa;margin:0 12px 8px;border-radius:6px;padding:7px 10px">';
       s+='<div style="font-size:.67rem;font-weight:700;color:#1e5f8a;text-transform:uppercase;margin-bottom:4px">CIF -- '+item.port.country+' ('+item.port.port+')</div>';
       s+='<div style="display:flex;justify-content:space-between;font-size:.78rem;padding:2px 0"><span style="color:#555">Price / Carton</span><b style="color:#1e5f8a">USD '+fmt(p.cs,4)+'</b></div>';
-      s+='<div style="display:flex;justify-content:space-between;font-size:.78rem;padding:2px 0"><span style="color:#555">Price / MT</span><b style="color:#1e5f8a">USD '+fmt(p.cm,2)+'</b></div>';
+      if(SHOW_MT_PRICE)s+='<div style="display:flex;justify-content:space-between;font-size:.78rem;padding:2px 0"><span style="color:#555">Price / MT</span><b style="color:#1e5f8a">USD '+fmt(p.cm,2)+'</b></div>';
       // Freight/FCL not shown to customer
       s+='<div style="display:flex;justify-content:space-between;font-size:.8rem;padding:3px 0;margin-top:3px;border-top:1px solid #b8d4f0"><span style="color:#555">Total CIF</span><b style="color:#1e5f8a">USD '+fmt(tcif,2)+'</b></div></div>';
     }
@@ -1788,7 +1831,7 @@ function openPrintPreview(){
       html_+='<div style="background:#edf7f1;border-radius:7px;padding:10px 12px;margin-top:10px">';
       html_+='<div style="font-size:.7rem;font-weight:700;color:#1a7a4a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">FOB Pricing</div>';
       html_+='<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:2px 0"><span style="color:#555">Price / Carton</span><b style="color:#1a7a4a">USD '+fmt(p.fs,4)+'</b></div>';
-      html_+='<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:2px 0"><span style="color:#555">Price / MT</span><b style="color:#1a7a4a">USD '+fmt(p.fm,2)+'</b></div>';
+      if(SHOW_MT_PRICE)html_+='<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:2px 0"><span style="color:#555">Price / MT</span><b style="color:#1a7a4a">USD '+fmt(p.fm,2)+'</b></div>';
       html_+='<div style="display:flex;justify-content:space-between;font-size:.84rem;border-top:1px solid #c8ebd8;margin-top:5px;padding-top:5px"><span style="color:#555">Total FOB</span><b style="color:#1a7a4a;font-size:.92rem">USD '+fmt(tfob,2)+'</b></div></div>';
     }
     // CIF pricing
@@ -1796,7 +1839,7 @@ function openPrintPreview(){
       html_+='<div style="background:#e8f0fa;border-radius:7px;padding:10px 12px;margin-top:8px">';
       html_+='<div style="font-size:.7rem;font-weight:700;color:#1e5f8a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">CIF &mdash; '+item.port.country+' ('+item.port.port+')</div>';
       html_+='<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:2px 0"><span style="color:#555">Price / Carton</span><b style="color:#1e5f8a">USD '+fmt(p.cs,4)+'</b></div>';
-      html_+='<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:2px 0"><span style="color:#555">Price / MT</span><b style="color:#1e5f8a">USD '+fmt(p.cm,2)+'</b></div>';
+      if(SHOW_MT_PRICE)html_+='<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:2px 0"><span style="color:#555">Price / MT</span><b style="color:#1e5f8a">USD '+fmt(p.cm,2)+'</b></div>';
       html_+='<div style="display:flex;justify-content:space-between;font-size:.84rem;border-top:1px solid #b8d4f0;margin-top:5px;padding-top:5px"><span style="color:#555">Total CIF</span><b style="color:#1e5f8a;font-size:.92rem">USD '+fmt(tcif,2)+'</b></div></div>';
     }
     html_+='</div></div>';
@@ -1933,9 +1976,12 @@ function copyAsImage(){
   // Per-item card height calculation
   var CARD_H=function(item){
     var isCif=item.mode==='CIF'&&item.port;
+    var ipm_=item.priceMode||'fob';
+    var hasFob=(ipm_==='fob'||ipm_==='both');
+    var hasCif=(ipm_==='cif'||ipm_==='both')&&isCif;
     var h=130; // base: header + 5 detail rows
-    if(showFob) h+=80;   // FOB block
-    if(showCif&&isCif) h+=96; // CIF block
+    if(hasFob) h+=(SHOW_MT_PRICE?80:64);   // FOB block (smaller if no MT row)
+    if(hasCif) h+=(SHOW_MT_PRICE?96:80);   // CIF block
     return h+20;
   };
   var HEAD_H=90, REM_H=80, SUM_H=(QITEMS.length>1?80:0), GAP=12;
@@ -2015,24 +2061,30 @@ function copyAsImage(){
     row2('SKU/FCL',fmt(item.sku.sku_fcl,0)+'  |  No. FCL: '+item.fcl,36,dy);
     row2('Total Units',fmt(tu,0)+'  |  Volume: '+fmt(tm,3)+' MT',54,dy);
     var py=dy+72;
-    // FOB pricing block
-    if(showFob){
-      RR(MARG+8,py,W-2*MARG-16,70,6,'#edf7f1');
+    // FOB pricing block — only when THIS item's priceMode includes FOB
+    var ipm_ci=item.priceMode||'fob';
+    var drawFob=(ipm_ci==='fob'||ipm_ci==='both');
+    var drawCif=(ipm_ci==='cif'||ipm_ci==='both')&&isCif;
+    if(drawFob){
+      var fobH=SHOW_MT_PRICE?70:54;
+      RR(MARG+8,py,W-2*MARG-16,fobH,6,'#edf7f1');
       T('FOB PRICING',MARG+16,py+12,{c:'#1a7a4a',b:true,sz:8});
       T('Price / Carton',MARG+16,py+30,{c:'#555',sz:10});T('USD '+fmt(p.fs,4),W-MARG-16,py+30,{c:'#1a7a4a',b:true,sz:10,a:'right'});
-      T('Price / MT',MARG+16,py+46,{c:'#555',sz:10});T('USD '+fmt(p.fm,2),W-MARG-16,py+46,{c:'#1a7a4a',b:true,sz:10,a:'right'});
-      ctx.strokeStyle='#c8ebd8';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(MARG+16,py+54);ctx.lineTo(W-MARG-16,py+54);ctx.stroke();
-      T('Total FOB',MARG+16,py+64,{c:'#555',sz:10});T('USD '+fmt(tfob,2),W-MARG-16,py+64,{c:'#1a7a4a',b:true,sz:11,a:'right'});
-      py+=80;
+      if(SHOW_MT_PRICE){T('Price / MT',MARG+16,py+46,{c:'#555',sz:10});T('USD '+fmt(p.fm,2),W-MARG-16,py+46,{c:'#1a7a4a',b:true,sz:10,a:'right'});}
+      var totY=SHOW_MT_PRICE?64:48;
+      ctx.strokeStyle='#c8ebd8';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(MARG+16,py+totY-10);ctx.lineTo(W-MARG-16,py+totY-10);ctx.stroke();
+      T('Total FOB',MARG+16,py+totY,{c:'#555',sz:10});T('USD '+fmt(tfob,2),W-MARG-16,py+totY,{c:'#1a7a4a',b:true,sz:11,a:'right'});
+      py+=fobH+10;
     }
-    // CIF pricing block
-    if(showCif&&isCif){
-      RR(MARG+8,py,W-2*MARG-16,86,6,'#e8f0fa');
+    if(drawCif){
+      var cifH=SHOW_MT_PRICE?86:70;
+      RR(MARG+8,py,W-2*MARG-16,cifH,6,'#e8f0fa');
       T('CIF -- '+item.port.country+' ('+item.port.port+')',MARG+16,py+12,{c:'#1e5f8a',b:true,sz:8});
       T('Price / Carton',MARG+16,py+30,{c:'#555',sz:10});T('USD '+fmt(p.cs,4),W-MARG-16,py+30,{c:'#1e5f8a',b:true,sz:10,a:'right'});
-      T('Price / MT',MARG+16,py+46,{c:'#555',sz:10});T('USD '+fmt(p.cm,2),W-MARG-16,py+46,{c:'#1e5f8a',b:true,sz:10,a:'right'});
-      ctx.strokeStyle='#b8d4f0';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(MARG+16,py+54);ctx.lineTo(W-MARG-16,py+54);ctx.stroke();
-      T('Total CIF',MARG+16,py+64,{c:'#555',sz:10});T('USD '+fmt(tcif,2),W-MARG-16,py+64,{c:'#1e5f8a',b:true,sz:11,a:'right'});
+      if(SHOW_MT_PRICE){T('Price / MT',MARG+16,py+46,{c:'#555',sz:10});T('USD '+fmt(p.cm,2),W-MARG-16,py+46,{c:'#1e5f8a',b:true,sz:10,a:'right'});}
+      var totYc=SHOW_MT_PRICE?64:48;
+      ctx.strokeStyle='#b8d4f0';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(MARG+16,py+totYc-10);ctx.lineTo(W-MARG-16,py+totYc-10);ctx.stroke();
+      T('Total CIF',MARG+16,py+totYc,{c:'#555',sz:10});T('USD '+fmt(tcif,2),W-MARG-16,py+totYc,{c:'#1e5f8a',b:true,sz:11,a:'right'});
     }
     y+=ch+GAP;
   }
@@ -2103,9 +2155,12 @@ function saveAsPDF(){
       var W=900,MARG=24,sc=2;
       var CARD_H=function(item){
         var isCif=item.mode==='CIF'&&item.port;
+        var ipm_s=item.priceMode||'fob';
+        var hasFobS=(ipm_s==='fob'||ipm_s==='both');
+        var hasCifS=(ipm_s==='cif'||ipm_s==='both')&&isCif;
         var h=130;
-        if(showFob)h+=80;
-        if(showCif&&isCif)h+=96;
+        if(hasFobS)h+=(SHOW_MT_PRICE?80:64);
+        if(hasCifS)h+=(SHOW_MT_PRICE?96:80);
         return h+20;
       };
       var HEAD_H=90,REM_H=80,SUM_H=(QITEMS.length>1?80:0),GAP=12;
@@ -2154,22 +2209,29 @@ function saveAsPDF(){
         row2('SKU/FCL',fmt(item.sku.sku_fcl,0)+'  |  No. FCL: '+item.fcl,36,dy);
         row2('Total Units',fmt(tu,0)+'  |  Volume: '+fmt(tm,3)+' MT',54,dy);
         var py=dy+72;
-        if(showFob){
-          RR(MARG+8,py,W-2*MARG-16,70,6,'#edf7f1');
+        var ipm_sp=item.priceMode||'fob';
+        var drawFobSP=(ipm_sp==='fob'||ipm_sp==='both');
+        var drawCifSP=(ipm_sp==='cif'||ipm_sp==='both')&&isCif;
+        if(drawFobSP){
+          var fobHS=SHOW_MT_PRICE?70:54;
+          RR(MARG+8,py,W-2*MARG-16,fobHS,6,'#edf7f1');
           T('FOB PRICING',MARG+16,py+12,{c:'#1a7a4a',b:true,sz:8});
           T('Price / Carton',MARG+16,py+30,{c:'#555',sz:10});T('USD '+fmt(p.fs,4),W-MARG-16,py+30,{c:'#1a7a4a',b:true,sz:10,a:'right'});
-          T('Price / MT',MARG+16,py+46,{c:'#555',sz:10});T('USD '+fmt(p.fm,2),W-MARG-16,py+46,{c:'#1a7a4a',b:true,sz:10,a:'right'});
-          ctx.strokeStyle='#c8ebd8';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(MARG+16,py+54);ctx.lineTo(W-MARG-16,py+54);ctx.stroke();
-          T('Total FOB',MARG+16,py+64,{c:'#555',sz:10});T('USD '+fmt(tfob,2),W-MARG-16,py+64,{c:'#1a7a4a',b:true,sz:11,a:'right'});
-          py+=80;
+          if(SHOW_MT_PRICE){T('Price / MT',MARG+16,py+46,{c:'#555',sz:10});T('USD '+fmt(p.fm,2),W-MARG-16,py+46,{c:'#1a7a4a',b:true,sz:10,a:'right'});}
+          var totYS=SHOW_MT_PRICE?64:48;
+          ctx.strokeStyle='#c8ebd8';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(MARG+16,py+totYS-10);ctx.lineTo(W-MARG-16,py+totYS-10);ctx.stroke();
+          T('Total FOB',MARG+16,py+totYS,{c:'#555',sz:10});T('USD '+fmt(tfob,2),W-MARG-16,py+totYS,{c:'#1a7a4a',b:true,sz:11,a:'right'});
+          py+=fobHS+10;
         }
-        if(showCif&&isCif){
-          RR(MARG+8,py,W-2*MARG-16,86,6,'#e8f0fa');
+        if(drawCifSP){
+          var cifHS=SHOW_MT_PRICE?86:70;
+          RR(MARG+8,py,W-2*MARG-16,cifHS,6,'#e8f0fa');
           T('CIF -- '+item.port.country+' ('+item.port.port+')',MARG+16,py+12,{c:'#1e5f8a',b:true,sz:8});
           T('Price / Carton',MARG+16,py+30,{c:'#555',sz:10});T('USD '+fmt(p.cs,4),W-MARG-16,py+30,{c:'#1e5f8a',b:true,sz:10,a:'right'});
-          T('Price / MT',MARG+16,py+46,{c:'#555',sz:10});T('USD '+fmt(p.cm,2),W-MARG-16,py+46,{c:'#1e5f8a',b:true,sz:10,a:'right'});
-          ctx.strokeStyle='#b8d4f0';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(MARG+16,py+54);ctx.lineTo(W-MARG-16,py+54);ctx.stroke();
-          T('Total CIF',MARG+16,py+64,{c:'#555',sz:10});T('USD '+fmt(tcif,2),W-MARG-16,py+64,{c:'#1e5f8a',b:true,sz:11,a:'right'});
+          if(SHOW_MT_PRICE){T('Price / MT',MARG+16,py+46,{c:'#555',sz:10});T('USD '+fmt(p.cm,2),W-MARG-16,py+46,{c:'#1e5f8a',b:true,sz:10,a:'right'});}
+          var totYCS=SHOW_MT_PRICE?64:48;
+          ctx.strokeStyle='#b8d4f0';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(MARG+16,py+totYCS-10);ctx.lineTo(W-MARG-16,py+totYCS-10);ctx.stroke();
+          T('Total CIF',MARG+16,py+totYCS,{c:'#555',sz:10});T('USD '+fmt(tcif,2),W-MARG-16,py+totYCS,{c:'#1e5f8a',b:true,sz:11,a:'right'});
         }
         y+=ch+GAP;
       }
