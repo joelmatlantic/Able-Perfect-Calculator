@@ -467,7 +467,7 @@ td{padding:9px 12px;vertical-align:middle}
           <button id="rptTab" onclick="setRptMode('table')">Table View</button>
         </div>
         <button class="btn-s btn-grn" id="btnCopy" onclick="copyReport()">&#x1F4CB; Copy</button>
-        <button onclick="saveAsPDF()" style="background:#c0392b;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:.82rem;font-weight:700;cursor:pointer">&#x1F4C4; Save PDF</button>
+        <button onclick="generatePDF()" style="background:#c0392b;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:.82rem;font-weight:700;cursor:pointer">&#x1F4BE; Save PDF</button>
         <button onclick="copyAsImage()" style="background:#8e44ad;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:.82rem;font-weight:700;cursor:pointer">&#x1F5BC; Image</button>
       </div>
     </div>
@@ -2500,7 +2500,18 @@ function generatePDF(){
       newTab.document.close();
       return; // done — user sees quotation with Save as PDF button in new tab
     }
-    // Fallback if popup blocked: use blob in modal
+    // Fallback if popup blocked
+    // Show the page content inside the modal with a print button
+    el('printContent').innerHTML=
+      '<div style="background:#fff3cd;border:2px solid #ffc107;border-radius:10px;padding:16px;margin-bottom:14px;font-size:13px;color:#856404">'
+      +'<b>&#x26A0; Popup was blocked.</b><br><br>'
+      +'To fix: In Chrome tap the <b>address bar</b> &rarr; you will see a popup blocked icon &rarr; tap it &rarr; select <b>Always allow</b> &rarr; tap Save PDF again.</div>'
+      +'<div style="text-align:center">'
+      +'<button onclick="generatePDF()" style="background:#27ae60;color:#fff;border:none;border-radius:10px;padding:14px 36px;font-size:1rem;font-weight:800;cursor:pointer;width:100%;max-width:320px">'
+      +'&#x1F4BE; Try Again</button></div>';
+    el('printModal').style.display='block';
+    el('printModal').scrollTop=0;
+    // Also store blob as backup
     var blob=new Blob([page],{type:'text/html;charset=utf-8'});
     openPrintPreview._lastPage = blob;
     openPrintPreview._lastPageHtml = page;
