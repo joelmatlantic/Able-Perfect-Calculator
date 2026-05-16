@@ -77,3 +77,31 @@
 - Image export (copyAsImage) via Canvas API for WhatsApp sharing
 - 634 ports across all regions with freshness indicators
 - Password protection via session storage
+
+## v2026-05-16c — Joel's Amendments Batch 3
+
+### 8. Packaging costs updated (source: ABLE_UPDATED_EXHIBITION_CALCULATOR_2026_V1May13.xlsx)
+- All 96 existing SKUs updated with new packaging cost/MT values from the Excel file
+  - Fuzzy name matching used to handle minor spacing differences (e.g. "6 x 2kg" vs "6 x 2 kg")
+  - Existing SKU names preserved exactly as-is to avoid breaking changes
+- 8 genuinely new SKUs added:
+  - **SQ TINS**: 17kg SM tin, 20L SM tin (Gross 17kgs), 15kg SM tin, 15kg SM tin w CTN, 15kg SM tin w CTN (Palletise @ 40'ft)
+  - **FLEXIBAGS**: Flexible bag (21.5MT), Flexible bag + HP (21.5MT)
+  - **BIB**: 15kg BAG IN BOX
+- Total SKU count: **104** (up from 96)
+
+### 9. Freight costs updated (source: ABLE_UPDATED_EXHIBITION_CALCULATOR_2026_V1May13.xlsx)
+- 36 ports updated with new freight rates, including:
+  - Africa: LOBITO, NAMIBE, DOUALA, MATADI, POINTE NOIRE, BATA (CMA), MALABO (CMA), LIBREVILLE, MONROVIA, NOUAKCHOTT, NIGERIA ports, SENEGAL DAKAR, FREETOWN, and more
+  - Americas/Caribbean: PANAMA ports, HAITI ports, TRINIDAD & TOBAGO ports, PUERTO RICO, and more
+  - Middle East: KHOR FAKKAN
+- 2 new ports added: ALGERIA/ALGIERS (USD 6,200), ALGERIA/ALGIERS(40") (USD 9,800)
+- Total port count: **636** (up from 634)
+
+### 10. Port selection UX — selected port shown clearly
+- Previously: after selecting a port, the user had to re-read the port list highlight or the small freight badge to know which port was chosen, which was easy to miss
+- Now: clicking any port in the list immediately:
+  1. Collapses the search panel (search box, region/country dropdowns, port list)
+  2. Shows a prominent green confirmation box: **"✅ Port Selected — COUNTRY — PORT NAME | Freight: USD X/FCL | freshness"**
+  3. Displays a **"Change Port"** button to re-open the search panel if needed
+- `clearPortSelection()` function added — resets to search panel when "Change Port" is clicked
