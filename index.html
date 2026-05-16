@@ -341,6 +341,24 @@ td{padding:9px 12px;vertical-align:middle}
         <div class="field"><label>Additive (USD/MT)</label><input type="number" id="additive" value="0" min="0" step="0.01" placeholder="0"></div>
         <div class="field"><label>Margin (%)</label><input type="number" id="margin" value="0" min="0" step="0.01" placeholder="0"></div>
       </div>
+      <div class="field" style="margin-top:4px">
+        <label>Additive Type <span style="font-size:.67rem;color:var(--mut);font-weight:400">(optional — will appear on quotation &amp; reports)</span></label>
+        <div class="sw"><select id="additiveSel" onchange="onAdditiveSelChange()">
+          <option value="">-- None / Not specified --</option>
+          <option>TBHQ</option>
+          <option>BHA + TBHQ</option>
+          <option>BHA</option>
+          <option>Vit A</option>
+          <option>Vit D</option>
+          <option>Vit A + Vit D</option>
+          <option>Anti Foaming</option>
+          <option>Anti Clouding</option>
+          <option>Vit A + Antioxidant</option>
+          <option>Vit A + Antioxidant + Anti Foaming</option>
+          <option>Vit A + Anti Clouding</option>
+          <option>Vit A + Antioxidant + Anti Foaming + Anti Clouding</option>
+        </select></div>
+      </div>
       <div class="note"><span>&#x2139;</span><span>Final/MT = (Oil + Pkg/MT + Freight/MT + Additive) x (1 + Margin%)</span></div>
     </div>
   </div>
@@ -568,6 +586,26 @@ v2026-05-16 (Joel's amendments — batch 1):
   [4] FCL quantity is now LOCKED (read-only) once an item is quoted.
       Displayed as a static number with "(locked)" label.
       Remove button remains available to delete items from the cart.
+
+v2026-05-16b (Joel's amendments — batch 2):
+  [5] Additive Type dropdown added in Step 3 beside Additive (USD/MT).
+      Options: TBHQ / BHA+TBHQ / BHA / Vit A / Vit D / Vit A+Vit D /
+      Anti Foaming / Anti Clouding / Vit A+Antioxidant /
+      Vit A+Antioxidant+Anti Foaming / Vit A+Anti Clouding /
+      Vit A+Antioxidant+Anti Foaming+Anti Clouding.
+      Locked per item at "Add to Quote" time — independent across
+      all quotations. Appears as [Type] suffix in Product & SKU
+      column across cart, WhatsApp text, table, PDF, image.
+
+  [6] Summary labels renamed — "Grand Total" → "Total":
+      GRAND FOB → Total FOB | GRAND CIF → Total CIF
+      "See above" in PDF footer replaced with computed value.
+
+  [7] ESTIMATED GRAND TOTAL OF SALES added to all summary sections
+      when both FOB and CIF items coexist. Value = Total FOB + Total CIF.
+      Appears in: cart bar, mobile table, renderVTable, generatePdfHtml,
+      openPrintPreview, canvas Image, canvas PDF, PDF table footer,
+      buildRpt WhatsApp text.
 ==========================================================================
 */
 var OIL_DEF={
@@ -712,7 +750,7 @@ var SKUS=[
 ];
 
 var S={cat:null,types:[],skuSearch:'',oilCat:'Palm Olein',oilName:'P.Olein-CP10 (USD)',
-  cp10:1215,oilPrice:1215,oilManual:false,additive:0,margin:0,
+  cp10:1215,oilPrice:1215,oilManual:false,additive:0,additiveType:'',margin:0,
   mode:'FOB',portObj:null,portSearch:'',region:'ALL',country:'ALL',sel:null};
 var QITEMS=[],QID=0,PRICE_MODE='fob',SHOW_MT_PRICE=true;
 
@@ -958,6 +996,16 @@ function skuDisplayName(sku){
   }
   return name;}
 
+// Per-item display name — appends locked additive type if set
+function itemDisplayName(item){
+  var base=skuDisplayName(item.sku);
+  if(item.additiveType)base+=' ['+item.additiveType+']';
+  return base;}
+
+function onAdditiveSelChange(){
+  S.additiveType=el('additiveSel').value;
+  rSum();}
+
 function setPriceMode(m){
   PRICE_MODE=m;
   var ids=['pmFob','pmCif','pmBoth'];
@@ -972,7 +1020,7 @@ function addToQuote(){
   if(!S.sel||!isOK(S.sel))return;
   if(QITEMS.length>=50){alert('Maximum 50 items per quote.');return;}
   var sku=S.sel,fcl=parseInt(el('quoteFcl').value)||1;
-  QITEMS.push({id:++QID,oilName:S.oilName,oilPrice:S.oilPrice,cp10:S.cp10,sku:sku,fcl:fcl,add:S.additive,mgn:S.margin,mode:S.mode,port:S.portObj?JSON.parse(JSON.stringify(S.portObj)):null,priceMode:PRICE_MODE||'fob'});
+  QITEMS.push({id:++QID,oilName:S.oilName,oilPrice:S.oilPrice,cp10:S.cp10,sku:sku,fcl:fcl,add:S.additive,additiveType:S.additiveType||'',mgn:S.margin,mode:S.mode,port:S.portObj?JSON.parse(JSON.stringify(S.portObj)):null,priceMode:PRICE_MODE||'fob'});
   rQuote();rSum();
   var i=el('atqInfo');i.textContent='Added! ('+QITEMS.length+'/50)';i.style.color='var(--grn)';
   setTimeout(function(){rSum();if(i)i.style.color='';},1500);}
@@ -1016,8 +1064,8 @@ function rQuote(){
       var portB=isCif?modeTag+': <b>'+item.port.country+' - '+item.port.port+'</b>':modeTag;
       var totalLabel=(showIC&&!showIF)?'CIF':(showIF&&showIC)?'FOB+CIF':'FOB';
       div.innerHTML='<div class="q-item-num">'+(idx+1)+'</div>'
-        +'<div class="q-item-body"><div class="q-item-title">'+skuDisplayName(item.sku)+'</div>'
-        +'<div class="q-item-details"><span>Oil: <b>'+item.oilName.replace(' (USD)','')+'</b></span><span>Net: <b>'+item.sku.net_wt+'kg</b></span><span>SKU/FCL: <b>'+fmt(item.sku.sku_fcl,0)+'</b></span>'+(item.add>0?'<span>Add: <b>USD '+fmt(item.add,2)+'/MT</b></span>':'')+'<span>'+portB+'</span></div>'
+        +'<div class="q-item-body"><div class="q-item-title">'+itemDisplayName(item)+'</div>'
+        +'<div class="q-item-details"><span>Oil: <b>'+item.oilName.replace(' (USD)','')+'</b></span><span>Net: <b>'+item.sku.net_wt+'kg</b></span><span>SKU/FCL: <b>'+fmt(item.sku.sku_fcl,0)+'</b></span>'+(item.add>0?'<span>Add: <b>USD '+fmt(item.add,2)+'/MT</b>'+(item.additiveType?' ('+item.additiveType+')':'')+'</b></span>':'')+'<span>'+portB+'</span></div>'
         +'<div class="q-price-row">'+priceHtml+'<div class="qprice"><span class="ql">Units</span><span class="qv">'+fmt(tu,0)+'</span></div><div class="qprice"><span class="ql">Vol (MT)</span><span class="qv">'+fmt(tm,3)+'</span></div><div class="qprice tot"><span class="ql">Total '+totalLabel+'</span><span class="qv">USD '+fmt(tdis,2)+'</span></div></div></div>'
         +'<div class="q-item-right"><div class="q-fcl-wrap"><label style="font-size:.6rem;color:var(--mut)">FCL (locked)</label><div style="font-size:1.2rem;font-weight:800;color:var(--brand);text-align:center;padding:4px 0">'+item.fcl+'</div></div><button class="btn-rm" onclick="rmItem('+item.id+')">Remove</button></div>';
       cards.appendChild(div);})(QITEMS[i],i);
@@ -1031,13 +1079,16 @@ function rQuote(){
     +'<div class="qtot-item"><span class="ql">Total FCL</span><span class="qv">'+gFcl+'</span></div>'
     +'<div class="qtot-item"><span class="ql">Volume</span><span class="qv">'+fmt(gMt,3)+' MT</span></div>';
   if(hasFobItems){
-    totHtml+='<div class="qtot-item" style="margin-left:auto"><span class="ql">GRAND FOB</span><span class="qv" style="color:#a8f0c0">USD '+fmt(gFob,2)+'</span></div>';
+    totHtml+='<div class="qtot-item" style="margin-left:auto"><span class="ql">Total FOB</span><span class="qv" style="color:#a8f0c0">USD '+fmt(gFob,2)+'</span></div>';
   }
   if(hasCifItems){
-    totHtml+='<div class="qtot-item"'+(hasFobItems?'':' style="margin-left:auto"')+'><span class="ql">GRAND CIF</span><span class="qv" style="color:#aed6f1">USD '+fmt(gCif,2)+'</span></div>';
+    totHtml+='<div class="qtot-item"'+(hasFobItems?'':' style="margin-left:auto"')+'><span class="ql">Total CIF</span><span class="qv" style="color:#aed6f1">USD '+fmt(gCif,2)+'</span></div>';
   }
   if(!hasFobItems&&!hasCifItems){
-    totHtml+='<div class="qtot-item" style="margin-left:auto"><span class="ql">GRAND FOB</span><span class="qv" style="color:#a8f0c0">USD '+fmt(gFob,2)+'</span></div>';
+    totHtml+='<div class="qtot-item" style="margin-left:auto"><span class="ql">Total FOB</span><span class="qv" style="color:#a8f0c0">USD '+fmt(gFob,2)+'</span></div>';
+  }
+  if(hasFobItems&&hasCifItems){
+    totHtml+='<div class="qtot-item" style="border-left:2px solid rgba(255,255,255,.3);padding-left:14px;margin-left:8px"><span class="ql" style="color:#ffd700;font-size:.72rem">EST. GRAND TOTAL OF SALES</span><span class="qv" style="color:#ffd700;font-size:1.1rem">USD '+fmt(gFob+gCif,2)+'</span></div>';
   }
   tot.innerHTML=totHtml;
   rReport();}
@@ -1150,7 +1201,7 @@ function buildTableHTML(forWindow){
     s+='<tr style="background:'+bg+'">';
     s+='<td style="'+TDbase+'font-weight:700">'+(i+1)+'</td>';
     s+='<td style="'+TDL+'font-size:.73rem;font-weight:700;color:#6b7a95">'+item.sku.type+'</td>';
-    s+='<td style="'+TDL+'font-weight:600;color:#0a3d62">'+skuDisplayName(item.sku)+portNote+'</td>';
+    s+='<td style="'+TDL+'font-weight:600;color:#0a3d62">'+itemDisplayName(item)+portNote+'</td>';
     if(!allSameOil)s+='<td style="'+TDbase+'font-size:.73rem">'+item.oilName.replace(' (USD)','')+'</td>';
     s+='<td style="'+TDbase+'">'+item.sku.units+'.00</td>';
     s+='<td style="'+TDbase+'">'+item.sku.net_wt.toFixed(2)+'</td>';
@@ -1187,10 +1238,10 @@ function buildTableHTML(forWindow){
     s+='<td style="'+FS+'text-align:left" colspan="'+nBase+'">TOTAL - '+QITEMS.length+' item'+(QITEMS.length>1?'s':'')+' | '+fmt(gMt,3)+' MT | '+gFcl+' FCL</td>';
     s+='<td style="'+FS+'text-align:center">'+fmt(gMt,3)+' MT</td>'; // vol col
     if(showFob){
-      s+='<td style="'+FS+'text-align:right" colspan="2">Grand FOB: USD '+fmt(gFob,2)+'</td>';
+      s+='<td style="'+FS+'text-align:right" colspan="2">Total FOB: USD '+fmt(gFob,2)+'</td>';
     }
     if(showCif){
-      s+='<td style="'+FS+'text-align:right" colspan="2">Grand CIF: USD '+fmt(gCif,2)+'</td>';
+      s+='<td style="'+FS+'text-align:right" colspan="2">Total CIF: USD '+fmt(gCif,2)+'</td>';
     }
     s+='<td style="'+FS+'text-align:right;font-size:.86rem;border-right:none">USD '+fmt(pm==='cif'?gCif:gFob,2)+'</td>';
     s+='</tr></tfoot>';
@@ -1261,7 +1312,7 @@ function renderVTable(){
       // Card header
       wrap+='<div style="background:#0a3d62;color:#fff;padding:9px 12px;display:flex;align-items:center;gap:9px">';
       wrap+='<div style="background:#e8a020;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0">'+(i+1)+'</div>';
-      wrap+='<div style="flex:1;font-size:.84rem;font-weight:700">'+skuDisplayName(item.sku)+'</div>';
+      wrap+='<div style="flex:1;font-size:.84rem;font-weight:700">'+itemDisplayName(item)+'</div>';
       wrap+='<div style="font-size:.67rem;opacity:.75;white-space:nowrap">'+item.sku.type+'</div></div>';
       wrap+='<div style="padding:10px 12px">';
       // Base info rows
@@ -1306,8 +1357,9 @@ function renderVTable(){
       wrap+='<div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:2px"><span style="color:#6b7a95">Total Items</span><span style="font-weight:600">'+QITEMS.length+'</span></div>';
       wrap+='<div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:2px"><span style="color:#6b7a95">Total FCL</span><span style="font-weight:600">'+gFcl+'</span></div>';
       wrap+='<div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:5px"><span style="color:#6b7a95">Total Volume</span><span style="font-weight:600">'+fmt(gMt,3)+' MT</span></div>';
-      if(showFob){wrap+='<div style="display:flex;justify-content:space-between;font-size:.82rem;padding-top:5px;border-top:1px solid #b8d4f0"><span style="color:#1a7a4a;font-weight:700">Grand Total FOB</span><span style="font-weight:800;color:#1a7a4a">USD '+fmt(gFob,2)+'</span></div>';}
-      if(showCif&&hasCifItem){wrap+='<div style="display:flex;justify-content:space-between;font-size:.82rem;margin-top:3px"><span style="color:#1e5f8a;font-weight:700">Grand Total CIF</span><span style="font-weight:800;color:#1e5f8a">USD '+fmt(gCif,2)+'</span></div>';}
+      if(showFob){wrap+='<div style="display:flex;justify-content:space-between;font-size:.82rem;padding-top:5px;border-top:1px solid #b8d4f0"><span style="color:#1a7a4a;font-weight:700">Total FOB</span><span style="font-weight:800;color:#1a7a4a">USD '+fmt(gFob,2)+'</span></div>';}
+      if(showCif&&hasCifItem){wrap+='<div style="display:flex;justify-content:space-between;font-size:.82rem;margin-top:3px"><span style="color:#1e5f8a;font-weight:700">Total CIF</span><span style="font-weight:800;color:#1e5f8a">USD '+fmt(gCif,2)+'</span></div>';}
+      if(showFob&&showCif&&hasCifItem){wrap+='<div style="display:flex;justify-content:space-between;font-size:.86rem;margin-top:5px;padding-top:5px;border-top:2px solid #0a3d62"><span style="color:#0a3d62;font-weight:800">Est. Grand Total of Sales</span><span style="font-weight:800;color:#0a3d62">USD '+fmt(gFob+gCif,2)+'</span></div>';}
       wrap+='</div>';
     }
     wrap+='</div>';
@@ -1397,7 +1449,7 @@ function buildTxtTable(){
     var isCif=item.mode==='CIF'&&item.port;
     var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
     gFob+=tfob;gCif+=(tcif!==null?tcif:tfob);gMt+=tm;gFcl+=item.fcl;
-    var vals=[(i+1)+'',item.sku.type.slice(0,12),skuDisplayName(item.sku).slice(0,24),item.fcl+'',fmt(tm,3)];
+    var vals=[(i+1)+'',item.sku.type.slice(0,12),itemDisplayName(item).slice(0,24),item.fcl+'',fmt(tm,3)];
     if(showFob){vals.push(fmt(p.fs,4));vals.push(fmt(p.fm,2));}
     if(showCif){vals.push(isCif?fmt(p.cs,4):'-');vals.push(isCif?fmt(p.cm,2):'-');}
     vals.push(fmt((pm==='cif'&&isCif)?tcif:tfob,2));
@@ -1442,7 +1494,7 @@ function buildRpt(){
     var ipm=item.priceMode||'fob';
     r+='*Item '+(i+1)+'*'+NL;
     if(!allSameOil)r+='Type of Oil: '+item.oilName.replace(' (USD)','')+NL;
-    r+='Packaging: '+skuDisplayName(item.sku)+NL;
+    r+='Packaging: '+itemDisplayName(item)+NL;
     r+='No. of FCL: '+item.fcl+NL;
     r+='SKU/FCL: '+fmt(item.sku.sku_fcl,0)+NL;
     r+='Volume: '+fmt(tm,3)+' MT'+NL;
@@ -1461,9 +1513,9 @@ function buildRpt(){
   if(QITEMS.length>1){
     r+=DIV+NL+'*SUMMARY*'+NL;
     r+='Total Volume: '+fmt(gMt,3)+' MT'+NL;
-    if(pm==='cif'&&hasCif)r+='Grand Total CIF (USD): USD '+fmt(gCif,2)+NL;
-    else if(pm==='both'){r+='Grand Total FOB (USD): USD '+fmt(gFob,2)+NL;if(hasCif)r+='Grand Total CIF (USD): USD '+fmt(gCif,2)+NL;}
-    else r+='Grand Total FOB (USD): USD '+fmt(gFob,2)+NL;
+    if(pm==='cif'&&hasCif)r+='Total CIF (USD): USD '+fmt(gCif,2)+NL;
+    else if(pm==='both'){r+='Total FOB (USD): USD '+fmt(gFob,2)+NL;if(hasCif){r+='Total CIF (USD): USD '+fmt(gCif,2)+NL;r+='*Est. Grand Total of Sales: USD '+fmt(gFob+gCif,2)+'*'+NL;}}
+    else r+='Total FOB (USD): USD '+fmt(gFob,2)+NL;
     r+=NL;
   }
   r+='Delivery: '+del_+NL+NL;
@@ -1591,7 +1643,7 @@ function renderFm(){
       // Card header
       html_+='<div class="q-card-head">';
       html_+='<div class="q-card-num">'+(i+1)+'</div>';
-      html_+='<div class="q-card-title">'+skuDisplayName(item.sku)+'</div>';
+      html_+='<div class="q-card-title">'+itemDisplayName(item)+'</div>';
       html_+='<div class="q-card-type">'+item.sku.type+'</div>';
       html_+='</div>';
       html_+='<div class="q-card-body">';
@@ -1645,8 +1697,9 @@ function renderFm(){
   html_+='<div class="fm-sum-item"><div class="sl">Items</div><div class="sv">'+QITEMS.length+'</div></div>';
   html_+='<div class="fm-sum-item"><div class="sl">Total FCL</div><div class="sv">'+gFcl+'</div></div>';
   html_+='<div class="fm-sum-item"><div class="sl">Total Volume</div><div class="sv">'+fmt(gMt,3)+' MT</div></div>';
-  html_+='<div class="fm-sum-item"><div class="sl">Grand Total FOB</div><div class="sv">USD '+fmt(gFob,2)+'</div></div>';
-  if(hasCifItem&&showCif)html_+='<div class="fm-sum-item"><div class="sl">Grand Total CIF</div><div class="sv">USD '+fmt(gCif,2)+'</div></div>';
+  html_+='<div class="fm-sum-item"><div class="sl">Total FOB</div><div class="sv">USD '+fmt(gFob,2)+'</div></div>';
+  if(hasCifItem&&showCif)html_+='<div class="fm-sum-item"><div class="sl">Total CIF</div><div class="sv">USD '+fmt(gCif,2)+'</div></div>';
+  if(hasCifItem&&showCif&&showFob)html_+='<div class="fm-sum-item" style="border-left:2px solid #0a3d62;padding-left:10px"><div class="sl" style="color:#0a3d62;font-weight:800">Est. Grand Total of Sales</div><div class="sv" style="color:#0a3d62">USD '+fmt(gFob+gCif,2)+'</div></div>';
   html_+='</div>';
 
   // Remarks
@@ -1696,7 +1749,7 @@ function generatePdfHtml(){
     s+='<div style="border:1.5px solid #d0dae8;border-radius:8px;margin-bottom:10px;overflow:hidden;page-break-inside:avoid">';
     s+='<div style="background:#0a3d62;color:#fff;padding:8px 12px;display:flex;align-items:center;gap:9px">';
     s+='<div style="background:#e8a020;border-radius:50%;width:22px;height:22px;min-width:22px;display:flex;align-items:center;justify-content:center;font-size:.71rem;font-weight:800">'+(i+1)+'</div>';
-    s+='<div style="flex:1;font-size:.88rem;font-weight:700">'+skuDisplayName(item.sku)+'</div>';
+    s+='<div style="flex:1;font-size:.88rem;font-weight:700">'+itemDisplayName(item)+'</div>';
     s+='<div style="font-size:.68rem;opacity:.75">'+item.sku.type+'</div></div>';
     s+='<div style="padding:8px 12px;display:grid;grid-template-columns:1fr 1fr;gap:0">';
     var rows=[['Oil',item.oilName.replace(' (USD)','')],['Net Wt',item.sku.net_wt+' kg'],['Units/SKU',item.sku.units+''],['SKU/FCL',fmt(item.sku.sku_fcl,0)],['No. FCL',item.fcl+''],['Total Units',fmt(tu,0)],['Volume',fmt(tm,3)+' MT']];
@@ -1728,8 +1781,9 @@ function generatePdfHtml(){
     s+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px;font-size:.79rem">';
     s+='<span style="color:#6b7a95">Total FCL:</span><b>'+gFcl+'</b>';
     s+='<span style="color:#6b7a95">Total Volume:</span><b>'+fmt(gMt,3)+' MT</b>';
-    if(showFob)s+='<span style="color:#1a7a4a;font-weight:600">Grand Total FOB:</span><b style="color:#1a7a4a">USD '+fmt(gFob,2)+'</b>';
-    if(showCif&&hasCifItem)s+='<span style="color:#1e5f8a;font-weight:600">Grand Total CIF:</span><b style="color:#1e5f8a">USD '+fmt(gCif,2)+'</b>';
+    if(showFob)s+='<span style="color:#1a7a4a;font-weight:600">Total FOB:</span><b style="color:#1a7a4a">USD '+fmt(gFob,2)+'</b>';
+    if(showCif&&hasCifItem)s+='<span style="color:#1e5f8a;font-weight:600">Total CIF:</span><b style="color:#1e5f8a">USD '+fmt(gCif,2)+'</b>';
+    if(showFob&&showCif&&hasCifItem)s+='<span style="color:#0a3d62;font-weight:800;grid-column:1/3;border-top:1px solid #b8d4f0;padding-top:5px;margin-top:3px">Est. Grand Total of Sales:</span><b style="color:#0a3d62;grid-column:2/3;border-top:1px solid #b8d4f0;padding-top:5px;margin-top:3px">USD '+fmt(gFob+gCif,2)+'</b>';
     s+='</div></div>';
   }
   s+='<div style="background:#f8fafc;border:1px solid #e0e8f0;border-radius:7px;padding:10px 12px;margin-bottom:10px;font-size:.72rem;color:#6b7a95;line-height:1.9;page-break-inside:avoid">';
@@ -1807,7 +1861,7 @@ function openPrintPreview(){
     // Card title
     html_+='<div style="background:#1e5f8a;color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px">';
     html_+='<div style="background:#e8a020;border-radius:50%;width:26px;height:26px;min-width:26px;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800">'+(i+1)+'</div>';
-    html_+='<div style="flex:1;font-size:.88rem;font-weight:700">'+skuDisplayName(item.sku)+'</div>';
+    html_+='<div style="flex:1;font-size:.88rem;font-weight:700">'+itemDisplayName(item)+'</div>';
     html_+='<div style="font-size:.68rem;opacity:.75">'+item.sku.type+'</div></div>';
     // Details
     html_+='<div style="padding:10px 14px">';
@@ -1852,8 +1906,9 @@ function openPrintPreview(){
     html_+='<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.15)"><span style="opacity:.75">Total Items</span><b>'+QITEMS.length+'</b></div>';
     html_+='<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.15)"><span style="opacity:.75">Total FCL</span><b>'+gFcl+'</b></div>';
     html_+='<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.15)"><span style="opacity:.75">Total Volume</span><b>'+fmt(gMt,3)+' MT</b></div>';
-    if(showFob)html_+='<div style="display:flex;justify-content:space-between;font-size:.9rem;padding:6px 0;margin-top:3px"><span style="color:#a8f0c0;font-weight:600">Grand Total FOB</span><b style="color:#a8f0c0">USD '+fmt(gFob,2)+'</b></div>';
-    if(showCif&&hasCifItem)html_+='<div style="display:flex;justify-content:space-between;font-size:.9rem;padding:3px 0"><span style="color:#aed6f1;font-weight:600">Grand Total CIF</span><b style="color:#aed6f1">USD '+fmt(gCif,2)+'</b></div>';
+    if(showFob)html_+='<div style="display:flex;justify-content:space-between;font-size:.9rem;padding:6px 0;margin-top:3px"><span style="color:#a8f0c0;font-weight:600">Total FOB</span><b style="color:#a8f0c0">USD '+fmt(gFob,2)+'</b></div>';
+    if(showCif&&hasCifItem)html_+='<div style="display:flex;justify-content:space-between;font-size:.9rem;padding:3px 0"><span style="color:#aed6f1;font-weight:600">Total CIF</span><b style="color:#aed6f1">USD '+fmt(gCif,2)+'</b></div>';
+    if(showFob&&showCif&&hasCifItem)html_+='<div style="display:flex;justify-content:space-between;font-size:.88rem;padding:6px 0;margin-top:4px;border-top:1px solid rgba(255,255,255,.3)"><span style="color:#ffd700;font-weight:700">Est. Grand Total of Sales</span><b style="color:#ffd700">USD '+fmt(gFob+gCif,2)+'</b></div>';
     html_+='</div>';
   }
 
@@ -2052,7 +2107,7 @@ function copyAsImage(){
     // Item number circle
     ctx.fillStyle='#e8a020';ctx.beginPath();ctx.arc(MARG+20,y+19,12,0,Math.PI*2);ctx.fill();
     T(i+1,MARG+20,y+19,{c:'#fff',b:true,sz:10,a:'center'});
-    T(skuDisplayName(item.sku),MARG+38,y+19,{c:'#fff',b:true,sz:12});
+    T(itemDisplayName(item),MARG+38,y+19,{c:'#fff',b:true,sz:12});
     T(item.sku.type,W-MARG-10,y+19,{c:'rgba(255,255,255,.7)',sz:8,a:'right'});
     // Details
     var dy=y+48;
@@ -2094,8 +2149,13 @@ function copyAsImage(){
     RR(MARG,y,W-2*MARG,SUM_H-GAP,8,'#0a3d62');
     T('SUMMARY',MARG+14,y+14,{c:'rgba(255,255,255,.6)',b:true,sz:8});
     T(QITEMS.length+' items  |  '+gFcl+' FCL  |  '+fmt(gMt,3)+' MT',MARG+14,y+30,{c:'#fff',sz:10});
-    if(showFob)T('Grand FOB: USD '+fmt(gFob,2),MARG+14,y+50,{c:'#a8f0c0',b:true,sz:11});
-    if(showCif&&hasCifItem)T('Grand CIF: USD '+fmt(gCif,2),showFob?W-MARG-14:MARG+14,y+50,{c:'#aed6f1',b:true,sz:11,a:showFob?'right':'left'});
+    if(showFob&&!showCif)T('Total FOB: USD '+fmt(gFob,2),MARG+14,y+50,{c:'#a8f0c0',b:true,sz:11});
+    if(showCif&&!showFob&&hasCifItem)T('Total CIF: USD '+fmt(gCif,2),MARG+14,y+50,{c:'#aed6f1',b:true,sz:11});
+    if(showFob&&showCif&&hasCifItem){
+      T('Total FOB: USD '+fmt(gFob,2),MARG+14,y+48,{c:'#a8f0c0',b:true,sz:10});
+      T('Total CIF: USD '+fmt(gCif,2),MARG+14,y+62,{c:'#aed6f1',b:true,sz:10});
+      T('Est. Grand Total: USD '+fmt(gFob+gCif,2),W-MARG-14,y+55,{c:'#ffd700',b:true,sz:10,a:'right'});
+    }
     y+=SUM_H;
   }
 
@@ -2201,7 +2261,7 @@ function saveAsPDF(){
         R(MARG,y+20,W-2*MARG,18,'#0a3d62');
         ctx.fillStyle='#e8a020';ctx.beginPath();ctx.arc(MARG+20,y+19,12,0,Math.PI*2);ctx.fill();
         T(i+1,MARG+20,y+19,{c:'#fff',b:true,sz:10,a:'center'});
-        T(skuDisplayName(item.sku),MARG+38,y+19,{c:'#fff',b:true,sz:12});
+        T(itemDisplayName(item),MARG+38,y+19,{c:'#fff',b:true,sz:12});
         T(item.sku.type,W-MARG-10,y+19,{c:'rgba(255,255,255,.7)',sz:8,a:'right'});
         var dy=y+48;
         row2('Oil',item.oilName.replace(' (USD)',''),0,dy);
@@ -2239,8 +2299,13 @@ function saveAsPDF(){
         RR(MARG,y,W-2*MARG,SUM_H-GAP,8,'#0a3d62');
         T('SUMMARY',MARG+14,y+14,{c:'rgba(255,255,255,.6)',b:true,sz:8});
         T(QITEMS.length+' items  |  '+gFcl+' FCL  |  '+fmt(gMt,3)+' MT',MARG+14,y+30,{c:'#fff',sz:10});
-        if(showFob)T('Grand FOB: USD '+fmt(gFob,2),MARG+14,y+50,{c:'#a8f0c0',b:true,sz:11});
-        if(showCif&&hasCifItem)T('Grand CIF: USD '+fmt(gCif,2),showFob?W-MARG-14:MARG+14,y+50,{c:'#aed6f1',b:true,sz:11,a:showFob?'right':'left'});
+        if(showFob&&!showCif)T('Total FOB: USD '+fmt(gFob,2),MARG+14,y+50,{c:'#a8f0c0',b:true,sz:11});
+        if(showCif&&!showFob&&hasCifItem)T('Total CIF: USD '+fmt(gCif,2),MARG+14,y+50,{c:'#aed6f1',b:true,sz:11});
+        if(showFob&&showCif&&hasCifItem){
+          T('Total FOB: USD '+fmt(gFob,2),MARG+14,y+48,{c:'#a8f0c0',b:true,sz:10});
+          T('Total CIF: USD '+fmt(gCif,2),MARG+14,y+62,{c:'#aed6f1',b:true,sz:10});
+          T('Est. Grand Total: USD '+fmt(gFob+gCif,2),W-MARG-14,y+55,{c:'#ffd700',b:true,sz:10,a:'right'});
+        }
         y+=SUM_H;
       }
       RR(MARG,y,W-2*MARG,REM_H-GAP,8,'#fff');
@@ -2421,7 +2486,7 @@ function generatePDF(){
       tbody+='<tr style="background:'+rowBg+'">';
       tbody+='<td class="c">'+(i+1)+'</td>';
       tbody+='<td class="c">'+mBadge+'</td>';
-      tbody+='<td>'+skuDisplayName(item.sku)+oilSub+'</td>';
+      tbody+='<td>'+itemDisplayName(item)+oilSub+'</td>';
       tbody+='<td class="r">'+item.sku.net_wt+'</td>';
       tbody+='<td class="r">'+fmt(item.sku.sku_fcl,0)+'</td>';
       tbody+='<td class="c">'+item.fcl+'</td>';
@@ -2450,10 +2515,10 @@ function generatePDF(){
     var colspan=7+fobCols+cifCols;
     var tfoot='<tr>';
     tfoot+='<td colspan="'+colspan+'" class="sum">TOTAL &mdash; '+QITEMS.length+' item'+(QITEMS.length>1?'s':'')+' &nbsp;|&nbsp; Vol: '+fmt(gMt,3)+' MT &nbsp;|&nbsp; FCL: '+gFcl+'</td>';
-    if(showF)tfoot+='<td colspan="'+fobCols+'" class="sumfob r">Grand Total FOB<br><b>USD '+fmt(gFob,2)+'</b></td>';
-    if(showC)tfoot+='<td colspan="'+cifCols+'" class="sumcif r">Grand Total CIF<br><b>USD '+fmt(gCif,2)+'</b></td>';
+    if(showF)tfoot+='<td colspan="'+fobCols+'" class="sumfob r">Total FOB<br><b>USD '+fmt(gFob,2)+'</b></td>';
+    if(showC)tfoot+='<td colspan="'+cifCols+'" class="sumcif r">Total CIF<br><b>USD '+fmt(gCif,2)+'</b></td>';
     if(showF&&showC){
-      tfoot+='<td class="sum grand r" style="font-size:9px">See above</td></tr>';
+      tfoot+='<td class="sum grand r" style="font-size:8px;line-height:1.5">EST. GRAND TOTAL<br>OF SALES<br><b style="font-size:10px">USD '+fmt(gFob+gCif,2)+'</b></td></tr>';
     }else{
       tfoot+='<td class="sum grand r">USD<br>'+fmt(!showF?gCif:gFob,2)+'</td></tr>';
     }

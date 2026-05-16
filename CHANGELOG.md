@@ -33,7 +33,43 @@
 
 ---
 
-## v2026-05-10 — Initial confirmed working build
+## v2026-05-16b — Joel's Amendments Batch 2
+
+### 5. Additive Type dropdown — new column in Step 3
+- New dropdown placed beside the Additive (USD/MT) field in Step 3
+- Full list of options:
+  - TBHQ, BHA + TBHQ, BHA, Vit A, Vit D, Vit A + Vit D
+  - Anti Foaming, Anti Clouding, Vit A + Antioxidant
+  - Vit A + Antioxidant + Anti Foaming
+  - Vit A + Anti Clouding
+  - Vit A + Antioxidant + Anti Foaming + Anti Clouding
+- Selection is locked per item the moment "Add to Quote" is clicked (`item.additiveType`)
+- Each quotation item is fully independent — changing the dropdown after quoting does not affect already-quoted items
+- Appears as `[Additive Type]` suffix appended to the product name in the Product & SKU column across all outputs:
+  - Quotation cart item title
+  - WhatsApp text report (Packaging line)
+  - Table view (SKU Name column)
+  - Text table (SKU Name column)
+  - Mobile card view (product header)
+  - Full modal card view
+  - openPrintPreview() HTML cards
+  - copyAsImage() canvas header
+  - saveAsPDF() canvas header
+  - generatePDF() PDF table (Product & SKU column)
+
+### 6. Summary labels renamed
+- "GRAND FOB" / "Grand Total FOB" → **Total FOB** everywhere
+- "GRAND CIF" / "Grand Total CIF" → **Total CIF** everywhere
+- "See above" in PDF table footer replaced with a calculated value
+
+### 7. Estimated Grand Total of Sales
+- When both FOB and CIF items are present in the quotation, all summary sections now show: **ESTIMATED GRAND TOTAL OF SALES = Total FOB + Total CIF**
+- Displayed in gold/yellow to distinguish from individual totals
+- Appears in: quotation cart bar, mobile table summary, renderVTable, generatePdfHtml, openPrintPreview summary card, canvas Image summary, canvas PDF summary, PDF table footer, buildRpt WhatsApp SUMMARY section
+
+---
+
+
 - FOB / CIF / Both pricing modes — each item locks its mode when added to quote
 - Save PDF opens a new tab → user taps "Save as PDF" button → Chrome print dialog
 - Price/MT column toggle (YES/NO) affects PDF layout
