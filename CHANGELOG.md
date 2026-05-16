@@ -105,3 +105,32 @@
   2. Shows a prominent green confirmation box: **"✅ Port Selected — COUNTRY — PORT NAME | Freight: USD X/FCL | freshness"**
   3. Displays a **"Change Port"** button to re-open the search panel if needed
 - `clearPortSelection()` function added — resets to search panel when "Change Port" is clicked
+
+## v2026-05-16d — Joel's Amendments Batch 4
+
+### 11. Customer Profiles — up to 100 saved customer templates
+
+#### Overview
+A full customer profile manager stored in the browser's localStorage. Profiles survive page refreshes and browser restarts. Each profile holds the customer's full usual requirements (SKUs, FCLs, mode, ports, additive, margin) so you can instantly load a pre-built quotation cart for any customer.
+
+#### Key design: oil price is NEVER stored
+When a profile is saved, the oil price is deliberately **not** saved. When a profile is loaded, every item is recalculated using the current CP10 price (`getOilPrice(oilName, S.cp10)`). This ensures quotes always reflect today's market — no stale prices.
+
+#### How to use
+1. Build a quote cart as normal (add items with their SKUs, FCLs, modes, ports)
+2. Click **"💾 Save Profile"** (in the Quotation Report header) — fill in customer name, company, phone, email, notes → **Create Profile**
+3. Next time: click **"👥 Customers"** → find the customer → **"⚡ Load Quote"**
+4. Items load into the cart at current oil prices. Customer/Attn field is auto-filled.
+5. If the cart already has items: prompted to Replace or Append
+
+#### Update Prices button
+A **"🔄 Update Prices"** button appears in the quote cart header whenever the cart has items. Clicking it recalculates every item's price to the current CP10 in one tap — useful when the oil price changes while the cart is open, or when loading from a profile and the price has shifted.
+
+#### Profile management
+- **Edit**: Update name, company, phone, email, notes (not items — reload + re-save to update items)
+- **Delete**: Remove profile (confirmation required)
+- **Search**: Filter profiles by name or company in real time
+- Slot count displayed: `X/100 profiles used`
+
+#### Storage
+Profiles saved to `localStorage` under key `ablecalc_customers`. Each profile stores: `id, name, company, phone, email, notes, items[], createdAt, updatedAt`. Items include: `oilName, sku, fcl, add, additiveType, mgn, mode, port, priceMode` — but **not** `oilPrice` (always recalculated on load).

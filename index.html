@@ -229,6 +229,59 @@ td{padding:9px 12px;vertical-align:middle}
 .fm-sum-item .sv{font-size:1.05rem;font-weight:800;color:var(--brand)}
 .fm-rem{margin-top:14px;padding:10px 12px;background:#f8fafc;border:1px solid #e0e8f0;border-radius:7px;font-size:.73rem;color:#6b7a95;line-height:1.8}
 
+/* ===== CUSTOMER PROFILES ===== */
+#custModal{display:none;position:fixed;inset:0;background:rgba(5,25,50,.72);z-index:9997;overflow:hidden}
+#custModal.open{display:flex;flex-direction:column}
+#custHead{background:linear-gradient(135deg,var(--brand),var(--bm));color:#fff;padding:13px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+#custHead h2{flex:1;font-size:.98rem;font-weight:800}
+#custBody{flex:1;overflow-y:auto;background:#f0f4f9;padding:16px}
+.cust-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.cust-srch{flex:1;min-width:180px;display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--bdr);border-radius:8px;padding:7px 12px}
+.cust-srch input{border:none;outline:none;font-size:.85rem;color:var(--txt);width:100%;background:transparent}
+.cust-slots{font-size:.72rem;color:var(--mut);font-weight:700;white-space:nowrap}
+.cust-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:13px}
+.cust-card{background:#fff;border-radius:10px;border:1.5px solid var(--bdr);box-shadow:0 2px 8px rgba(10,61,98,.07);overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .15s}
+.cust-card:hover{box-shadow:0 4px 18px rgba(10,61,98,.14)}
+.cc-head{background:var(--brand);color:#fff;padding:11px 14px;display:flex;align-items:flex-start;gap:9px}
+.cc-avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.cc-info{flex:1;min-width:0}
+.cc-name{font-size:.88rem;font-weight:800;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-company{font-size:.7rem;opacity:.8;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-body{padding:11px 14px;flex:1}
+.cc-pills{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.cc-pill{font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:10px;background:#e8f0fa;color:var(--bm)}
+.cc-pill.grn{background:#edf7f1;color:var(--grn)}
+.cc-pill.pur{background:#f3eef9;color:#6c3483}
+.cc-pill.ora{background:#fef5e7;color:#b87800}
+.cc-meta{font-size:.7rem;color:var(--mut);line-height:1.7}
+.cc-meta b{color:var(--txt)}
+.cc-notes{font-size:.7rem;color:var(--mut);font-style:italic;margin-top:5px;border-top:1px dashed #eee;padding-top:5px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cc-foot{padding:9px 14px;background:#f8fafc;border-top:1px solid var(--bdr);display:flex;gap:5px;flex-wrap:wrap}
+.cc-btn{border:none;border-radius:6px;padding:6px 13px;font-size:.74rem;font-weight:700;cursor:pointer;transition:opacity .15s}
+.cc-btn:hover{opacity:.85}
+.cc-btn.load{background:var(--grn);color:#fff;flex:1}
+.cc-btn.edit{background:#e8f0fa;color:var(--bm)}
+.cc-btn.del{background:#fce8e8;color:var(--red)}
+/* Empty slot card */
+.cust-empty{border:2px dashed #c8d4e8;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 16px;gap:7px;cursor:pointer;transition:all .15s;color:var(--mut)}
+.cust-empty:hover{border-color:var(--bm);color:var(--bm);background:#f5f9ff}
+/* Create / Edit form */
+.cust-form{background:#fff;border-radius:10px;border:1.5px solid var(--bdr);box-shadow:0 2px 12px rgba(10,61,98,.1);padding:18px;max-width:560px;margin:0 auto}
+.cust-form h3{font-size:.92rem;font-weight:800;color:var(--brand);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.cf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cf-items-list{border:1.5px solid var(--bdr);border-radius:8px;overflow:hidden;margin-top:6px}
+.cf-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--bdr);font-size:.76rem}
+.cf-item:last-child{border-bottom:none}
+.cf-item:nth-child(even){background:#f8fafc}
+.cf-item-name{flex:1;font-weight:600;color:var(--brand)}
+.cf-item-meta{color:var(--mut);font-size:.69rem;white-space:nowrap}
+/* Toast */
+.cust-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--brand);color:#fff;padding:10px 22px;border-radius:8px;font-size:.82rem;font-weight:700;z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,.25);opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+.cust-toast.show{opacity:1}
+/* Update prices btn */
+.uprice-btn{background:linear-gradient(90deg,#e8a020,#f0bc40);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:.76rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px;transition:opacity .15s}
+.uprice-btn:hover{opacity:.87}
+
 
   #pdfPrintArea { display: block !important; font-family: 'Segoe UI', Arial, sans-serif; }
   @page { size: A4 portrait; margin: 12mm 14mm; }
@@ -459,7 +512,11 @@ td{padding:9px 12px;vertical-align:middle}
 <div id="quoteSection">
   <div class="qs-head">
     <h2>&#x1F4CB; Quotation Cart &nbsp;<span id="qBadge"></span></h2>
-<button class="btn-s btn-wht" onclick="clearQuote()">&#x2715; Clear All</button>
+    <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+      <button onclick="openCustModal()" style="background:linear-gradient(90deg,#1e5f8a,#2980b9);color:#fff;border:none;border-radius:8px;padding:8px 15px;font-size:.79rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px">&#x1F465; Customers</button>
+      <button class="uprice-btn" id="btnUpdatePrices" onclick="updateCartPrices()" style="display:none" title="Recalculate all cart items at current oil prices">&#x1F504; Update Prices</button>
+      <button class="btn-s btn-wht" onclick="clearQuote()">&#x2715; Clear All</button>
+    </div>
   </div>
   <div class="qs-meta" style="grid-template-columns:1fr 1fr">
     <div class="field"><label>Customer / Attention</label><input type="text" id="qCust" placeholder="e.g. ABC Trading Co." oninput="rReport()"></div>
@@ -497,6 +554,7 @@ td{padding:9px 12px;vertical-align:middle}
         <button class="btn-s btn-grn" id="btnCopy" onclick="copyReport()">&#x1F4CB; Copy</button>
         <button onclick="generatePDF()" style="background:#c0392b;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:.82rem;font-weight:700;cursor:pointer">&#x1F4BE; Save PDF</button>
         <button onclick="copyAsImage()" style="background:#8e44ad;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:.82rem;font-weight:700;cursor:pointer">&#x1F5BC; Image</button>
+        <button onclick="openSaveAsCustomer()" style="background:linear-gradient(90deg,#1e5f8a,#2980b9);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:.82rem;font-weight:700;cursor:pointer" title="Save this quote cart as a customer profile">&#x1F465; Save Profile</button>
       </div>
     </div>
     <!-- TEXT MODE: editable textarea -->
@@ -636,6 +694,25 @@ v2026-05-16c (Joel's amendments — batch 3):
          COUNTRY — PORT NAME | Freight: USD X/FCL | freshness
        - A "Change Port" button restores the search panel for re-selection
        - This makes the chosen port unambiguous at all times
+
+v2026-05-16d (Joel's amendments — batch 4):
+  [11] Customer Profiles feature added — up to 100 profiles in localStorage:
+       - "👥 Customers" button in quote cart header opens profile manager
+       - "Save Profile" button in report area saves current cart as a profile
+       - Each profile stores: name, company, phone, email, notes + all items
+         (SKU, FCL, additive, additive type, margin, mode, port, priceMode)
+       - OIL PRICE IS NOT STORED — always recalculated at current CP10 on load
+         so quotes are always at today's market prices
+       - Load Quote: pre-fills the cart from a saved profile; prompts Replace
+         or Append when cart already has items; auto-fills Customer/Attn field
+       - Edit: update name/company/phone/email/notes (items updated by reload
+         and re-save)
+       - Delete: removes profile (with confirmation)
+       - "🔄 Update Prices" button in cart header: recalculates ALL current cart
+         items to current CP10 price with one tap — handles oil price changes
+         after items are already in the cart
+       - Profile search: filter profiles by name or company
+       - Max 100 slots; count shown in modal header and toolbar
 ==========================================================================
 */
 var OIL_DEF={
@@ -1097,8 +1174,9 @@ function rmItem(id){QITEMS=QITEMS.filter(function(x){return x.id!==id;});rQuote(
 function clearQuote(){if(QITEMS.length>0&&!confirm('Clear all quote items?'))return;QITEMS=[];rQuote();rSum();}
 function rQuote(){
   var sec=el('quoteSection');
-  if(!QITEMS.length){sec.style.display='none';return;}
+  if(!QITEMS.length){sec.style.display='none';var ub=el('btnUpdatePrices');if(ub)ub.style.display='none';return;}
   sec.style.display='block';
+  var ub=el('btnUpdatePrices');if(ub)ub.style.display='flex';
   el('qBadge').textContent=QITEMS.length+' item'+(QITEMS.length>1?'s':'');
   var hasCif=QITEMS.some(function(x){return x.mode==='CIF'&&x.port;});
   var cards=el('qCards');cards.innerHTML='';
@@ -2059,6 +2137,270 @@ function doFileDownload(){
   },500);
 }
 
+
+// ============================================================
+// CUSTOMER PROFILES  — localStorage-backed, up to 100 slots
+// ============================================================
+var CUST_KEY='ablecalc_customers';
+var CUSTOMERS=[];
+
+function loadCust(){
+  try{var s=localStorage.getItem(CUST_KEY);CUSTOMERS=s?JSON.parse(s):[];}
+  catch(e){CUSTOMERS=[];}
+}
+
+function saveCust(){
+  try{localStorage.setItem(CUST_KEY,JSON.stringify(CUSTOMERS));}
+  catch(e){showCustToast('⚠ Storage full — could not save profile');}
+}
+
+// Initialise on page load
+loadCust();
+
+// ---- Modal open/close ----
+function openCustModal(){
+  loadCust();
+  el('custModal').classList.add('open');
+  el('custSearch').value='';
+  renderCustList();
+}
+function closeCustModal(){el('custModal').classList.remove('open');}
+
+// ---- Toast ----
+function showCustToast(msg,dur){
+  var t=el('custToast');t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},dur||2800);
+}
+
+// ---- Render customer card list ----
+function renderCustList(){
+  var q=(el('custSearch').value||'').toLowerCase();
+  var list=q?CUSTOMERS.filter(function(c){
+    return (c.name+' '+c.company).toLowerCase().indexOf(q)>=0;
+  }):CUSTOMERS;
+
+  // Update slot badge
+  var n=CUSTOMERS.length;
+  el('custSlotBadge').textContent=n+'/100';
+  el('custSlotLabel').textContent=n+'/100 profiles used';
+
+  var html='<div class="cust-grid">';
+
+  list.forEach(function(c){
+    // Summarise items
+    var modeSet={};
+    (c.items||[]).forEach(function(it){modeSet[it.priceMode||'fob']=1;});
+    var modeTags=Object.keys(modeSet).map(function(m){
+      return '<span class="cc-pill '+(m==='cif'?'':'m'==='both'?'pur':'grn')+'">'+(m==='fob'?'FOB':m==='cif'?'CIF':'FOB+CIF')+'</span>';
+    }).join('');
+    var itemCount=(c.items||[]).length;
+    var ports=[],seen={};
+    (c.items||[]).forEach(function(it){if(it.port&&!seen[it.port.port]){seen[it.port.port]=1;ports.push(it.port.country+'/'+it.port.port);}});
+    var portText=ports.slice(0,2).join(', ')+(ports.length>2?'…':'');
+    var upd=c.updatedAt?c.updatedAt.slice(0,10):'';
+    var initials=(c.name||'?').split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();
+
+    html+='<div class="cust-card">'
+      +'<div class="cc-head">'
+        +'<div class="cc-avatar">'+initials+'</div>'
+        +'<div class="cc-info">'
+          +'<div class="cc-name">'+(c.name||'Unnamed Customer')+'</div>'
+          +'<div class="cc-company">'+(c.company||'')+'</div>'
+        +'</div>'
+      +'</div>'
+      +'<div class="cc-body">'
+        +'<div class="cc-pills">'+modeTags+'<span class="cc-pill ora">'+itemCount+' item'+(itemCount!==1?'s':'')+'</span></div>'
+        +'<div class="cc-meta">'
+          +(c.phone?'<div>&#x1F4F1; <b>'+c.phone+'</b></div>':'')
+          +(c.email?'<div>&#x2709; <b>'+c.email+'</b></div>':'')
+          +(portText?'<div>&#x1F6A2; <b>'+portText+'</b></div>':'')
+          +(upd?'<div>Updated: <b>'+upd+'</b></div>':'')
+        +'</div>'
+        +(c.notes?'<div class="cc-notes">'+escHtml(c.notes)+'</div>':'')
+      +'</div>'
+      +'<div class="cc-foot">'
+        +'<button class="cc-btn load" onclick="loadCustProfile(\''+c.id+'\')">&#x26A1; Load Quote</button>'
+        +'<button class="cc-btn edit" onclick="showNewCustForm(\''+c.id+'\')">&#x270F; Edit</button>'
+        +'<button class="cc-btn del" onclick="deleteCust(\''+c.id+'\')">&#x1F5D1;</button>'
+      +'</div>'
+    +'</div>';
+  });
+
+  // Add "New profile" card if space
+  if(CUSTOMERS.length<100&&!q){
+    html+='<div class="cust-empty" onclick="showNewCustForm(null)">'
+      +'<div style="font-size:2rem;opacity:.4">&#x2795;</div>'
+      +'<div style="font-size:.78rem;font-weight:700">New Profile</div>'
+      +'<div style="font-size:.68rem;opacity:.7">'+(100-CUSTOMERS.length)+' slots available</div>'
+    +'</div>';
+  }
+  html+='</div>';
+
+  if(!list.length&&q){
+    html='<div style="text-align:center;padding:40px;color:var(--mut);font-size:.85rem">No profiles match "'+escHtml(q)+'"</div>';
+  }else if(!CUSTOMERS.length){
+    html='<div style="text-align:center;padding:40px;color:var(--mut)">'
+      +'<div style="font-size:2.5rem;margin-bottom:10px">&#x1F465;</div>'
+      +'<div style="font-weight:700;font-size:.9rem;margin-bottom:6px">No customer profiles yet</div>'
+      +'<div style="font-size:.78rem">Build your first profile by adding items to the quote cart, then click <b>"Save Profile"</b></div>'
+    +'</div>';
+  }
+
+  el('custContent').innerHTML=html;
+}
+
+function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ---- Create / Edit form ----
+function showNewCustForm(editId){
+  var c=editId?CUSTOMERS.find(function(x){return x.id===editId;}):null;
+  var isEdit=!!c;
+  var items=c?(c.items||[]):QITEMS.map(function(it){
+    return {oilName:it.oilName,sku:it.sku,fcl:it.fcl,add:it.add,additiveType:it.additiveType||'',mgn:it.mgn,mode:it.mode,port:it.port?JSON.parse(JSON.stringify(it.port)):null,priceMode:it.priceMode||'fob'};
+  });
+
+  var itemRows=items.map(function(it,i){
+    var modeBadge=it.priceMode==='both'?'FOB+CIF':it.priceMode==='cif'?'CIF':'FOB';
+    return '<div class="cf-item"><span class="cf-item-name">'+(i+1)+'. '+escHtml(skuDisplayName(it.sku))+(it.additiveType?' ['+escHtml(it.additiveType)+']':'')+'</span>'
+      +'<span class="cf-item-meta">'+it.fcl+' FCL &nbsp;'+modeBadge+(it.port?' &rarr; '+it.port.port:'')+'</span></div>';
+  }).join('');
+  if(!itemRows)itemRows='<div style="padding:12px;text-align:center;color:var(--mut);font-size:.76rem">No items — add items to the cart first, then save</div>';
+
+  var html='<div class="cust-form">'
+    +'<h3>'+(isEdit?'&#x270F; Edit':'&#x2B; New')+' Customer Profile</h3>'
+    +'<div class="cf-row">'
+      +'<div class="field"><label>Customer / Attention *</label><input type="text" id="cf_name" value="'+escHtml(c?c.name:'')+((!c&&el('qCust')&&el('qCust').value)?escHtml(el('qCust').value):'')+'" placeholder="Mr. Ahmad / ABC Trading" maxlength="60"></div>'
+      +'<div class="field"><label>Company</label><input type="text" id="cf_company" value="'+escHtml(c?c.company:'')+'" placeholder="Company name" maxlength="80"></div>'
+    +'</div>'
+    +'<div class="cf-row">'
+      +'<div class="field"><label>Phone</label><input type="text" id="cf_phone" value="'+escHtml(c?c.phone:'')+'" placeholder="+60 12-345 6789" maxlength="40"></div>'
+      +'<div class="field"><label>Email</label><input type="text" id="cf_email" value="'+escHtml(c?c.email:'')+'" placeholder="email@company.com" maxlength="80"></div>'
+    +'</div>'
+    +'<div class="field"><label>Reference / Notes</label><textarea id="cf_notes" rows="2" placeholder="Preferred delivery, special instructions, usual order notes..." maxlength="300">'+escHtml(c?c.notes:'')+'</textarea></div>'
+    +'<div class="field">'
+      +'<label>Items to Save ('+items.length+')'+(isEdit?'':' — from current cart')+'</label>'
+      +'<div class="cf-items-list">'+itemRows+'</div>'
+      +(isEdit?'<div style="font-size:.68rem;color:var(--mut);margin-top:5px">To update items: load this profile, modify the cart, then click &#x1F465; Save Profile again.</div>':'')
+    +'</div>'
+    +'<div style="display:flex;gap:8px;margin-top:4px">'
+      +'<button onclick="saveCustFromForm(\''+( isEdit?editId:'')+'\','+isEdit+')" style="background:var(--grn);color:#fff;border:none;border-radius:7px;padding:9px 20px;font-size:.82rem;font-weight:700;cursor:pointer;flex:1">&#x2705; '+(isEdit?'Save Changes':'Create Profile')+'</button>'
+      +'<button onclick="renderCustList()" style="background:#f0f4f9;color:var(--mut);border:1.5px solid var(--bdr);border-radius:7px;padding:9px 18px;font-size:.82rem;font-weight:700;cursor:pointer">Cancel</button>'
+    +'</div>'
+  +'</div>';
+
+  el('custContent').innerHTML=html;
+  var ni=el('cf_name');if(ni)setTimeout(function(){ni.focus();},80);
+}
+
+function saveCustFromForm(editId, isEdit){
+  var name=(el('cf_name').value||'').trim();
+  if(!name){showCustToast('⚠ Please enter a customer name');el('cf_name').focus();return;}
+
+  if(CUSTOMERS.length>=100&&!isEdit){showCustToast('⚠ Maximum 100 profiles reached — delete one first');return;}
+
+  var now=new Date().toISOString();
+  if(isEdit){
+    var idx=CUSTOMERS.findIndex(function(x){return x.id===editId;});
+    if(idx<0)return;
+    CUSTOMERS[idx].name=name;
+    CUSTOMERS[idx].company=(el('cf_company').value||'').trim();
+    CUSTOMERS[idx].phone=(el('cf_phone').value||'').trim();
+    CUSTOMERS[idx].email=(el('cf_email').value||'').trim();
+    CUSTOMERS[idx].notes=(el('cf_notes').value||'').trim();
+    CUSTOMERS[idx].updatedAt=now;
+    saveCust();showCustToast('✅ Profile updated');
+  }else{
+    // Capture current cart items (oil price NOT saved — will be recalculated on load)
+    var items=QITEMS.map(function(it){
+      return {oilName:it.oilName,sku:JSON.parse(JSON.stringify(it.sku)),fcl:it.fcl,add:it.add,additiveType:it.additiveType||'',mgn:it.mgn,mode:it.mode,port:it.port?JSON.parse(JSON.stringify(it.port)):null,priceMode:it.priceMode||'fob'};
+    });
+    CUSTOMERS.push({
+      id:'c'+Date.now(),
+      name:name,
+      company:(el('cf_company').value||'').trim(),
+      phone:(el('cf_phone').value||'').trim(),
+      email:(el('cf_email').value||'').trim(),
+      notes:(el('cf_notes').value||'').trim(),
+      items:items,
+      createdAt:now,
+      updatedAt:now
+    });
+    saveCust();showCustToast('✅ Profile "'+name+'" saved ('+items.length+' items)');
+  }
+  renderCustList();
+}
+
+function deleteCust(id){
+  var c=CUSTOMERS.find(function(x){return x.id===id;});
+  if(!c)return;
+  if(!confirm('Delete profile "'+c.name+'"? This cannot be undone.'))return;
+  CUSTOMERS=CUSTOMERS.filter(function(x){return x.id!==id;});
+  saveCust();renderCustList();showCustToast('🗑 Profile deleted');
+}
+
+// ---- Load a customer profile into the cart ----
+function loadCustProfile(id){
+  var c=CUSTOMERS.find(function(x){return x.id===id;});
+  if(!c||!c.items||!c.items.length){showCustToast('⚠ Profile has no items');return;}
+
+  var action='replace';
+  if(QITEMS.length>0){
+    var choice=confirm(c.name+' has '+c.items.length+' item(s).\n\nOK = Replace current cart\nCancel = Append to cart');
+    action=choice?'replace':'append';
+  }
+
+  if(action==='replace')QITEMS=[];
+
+  var loaded=0;
+  c.items.forEach(function(it){
+    if(QITEMS.length>=50)return;
+    // Always recalculate oil price at current market rates
+    var currentOilPrice=getOilPrice(it.oilName,S.cp10);
+    QITEMS.push({
+      id:++QID,
+      oilName:it.oilName,
+      oilPrice:currentOilPrice,
+      cp10:S.cp10,
+      sku:JSON.parse(JSON.stringify(it.sku)),
+      fcl:it.fcl,
+      add:it.add,
+      additiveType:it.additiveType||'',
+      mgn:it.mgn,
+      mode:it.mode,
+      port:it.port?JSON.parse(JSON.stringify(it.port)):null,
+      priceMode:it.priceMode||'fob'
+    });
+    loaded++;
+  });
+
+  // Pre-fill customer name
+  if(el('qCust'))el('qCust').value=c.name+(c.company?' — '+c.company:'');
+
+  rQuote();rSum();
+  closeCustModal();
+  showCustToast('✅ Loaded "'+c.name+'" — '+loaded+' item(s) at current oil prices (CP10: USD '+fmt(S.cp10,0)+')');
+}
+
+// ---- Save current cart as a new / updated profile ----
+function openSaveAsCustomer(){
+  if(!QITEMS.length){showCustToast('⚠ Add items to the cart first');return;}
+  openCustModal();
+  // Small delay for modal to open
+  setTimeout(function(){showNewCustForm(null);},80);
+}
+
+// ---- Update all cart items to current oil prices ----
+function updateCartPrices(){
+  if(!QITEMS.length)return;
+  var updated=0;
+  QITEMS.forEach(function(it){
+    var newPrice=getOilPrice(it.oilName,S.cp10);
+    if(it.oilPrice!==newPrice){it.oilPrice=newPrice;it.cp10=S.cp10;updated++;}
+  });
+  rQuote();rSum();
+  showCustToast(updated>0?'🔄 '+updated+' item'+(updated!==1?'s':'')+' updated to current oil prices (CP10: USD '+fmt(S.cp10,0)+')':'✅ Prices already at current rates');
+}
+
 function closePrintModal(){
   el('printModal').style.display='none';
 }
@@ -2733,4 +3075,27 @@ function generatePDF(){
     <button onclick="closePrintModal()" style="background:#e74c3c;color:#fff;border:none;border-radius:7px;padding:8px 18px;font-size:.88rem;font-weight:800;cursor:pointer">&#x2715; CLOSE</button>
   </div>
   <div id="printContent" style="padding:12px;max-width:100%;margin:0 auto"></div>
-</div>>
+</div>
+
+<!-- CUSTOMER PROFILES MODAL -->
+<div id="custModal">
+  <div id="custHead">
+    <span style="font-size:1.5rem">&#x1F465;</span>
+    <h2>Customer Profiles</h2>
+    <span id="custSlotBadge" style="background:rgba(255,255,255,.2);padding:3px 12px;border-radius:20px;font-size:.72rem;font-weight:700">0/100</span>
+    <button onclick="showNewCustForm(null)" style="background:var(--grn);color:#fff;border:none;border-radius:7px;padding:8px 16px;font-size:.8rem;font-weight:700;cursor:pointer;margin-left:4px">&#x2B; New Profile</button>
+    <button onclick="closeCustModal()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:7px;padding:8px 16px;font-size:.88rem;font-weight:800;cursor:pointer">&#x2715;</button>
+  </div>
+  <div id="custBody">
+    <!-- Toolbar: search -->
+    <div class="cust-toolbar">
+      <div class="cust-srch"><span style="color:var(--mut)">&#x1F50D;</span><input type="text" id="custSearch" placeholder="Search by name or company..." oninput="renderCustList()"></div>
+      <div class="cust-slots" id="custSlotLabel">0/100 profiles used</div>
+    </div>
+    <!-- List or form rendered here -->
+    <div id="custContent"></div>
+  </div>
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div class="cust-toast" id="custToast"></div>
