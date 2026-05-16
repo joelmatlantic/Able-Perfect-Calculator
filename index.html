@@ -2278,66 +2278,83 @@ function saveAsPDF(){
 function generatePDF(){
   if(!QITEMS.length){alert('Add items to the quote first.');return;}
   try{
-    var pm=PRICE_MODE||'fob';
-    // Determine what types of items are actually in the cart
-    var hasCifI=QITEMS.some(function(x){return x.mode==='CIF'&&x.port;});
-    var hasFobI=QITEMS.some(function(x){return !(x.mode==='CIF'&&x.port);});
-    // showF/showC driven STRICTLY by the pricing mode button chosen
-    // FOB mode  → FOB columns only, no CIF
-    // CIF mode  → CIF columns only, no FOB
-    // Both mode → both columns shown
-    var showF=(pm==='fob')||(pm==='both');
-    var showC=(pm==='cif')||(pm==='both');
-    // Safety: only show CIF cols if there are actually CIF items with ports
-    if(pm==='cif'&&!hasCifI) showC=false;
-    if(pm==='both'&&!hasCifI) showC=false;
-    var modeLabel=(pm==='cif')?'CIF':(pm==='both')?'FOB & CIF':'FOB';
-    var cust=el('qCust')?el('qCust').value||''  :'';
+    // Capture SHOW_MT_PRICE at time of generation — not affected by later changes
+    var showMT=SHOW_MT_PRICE;
+
+    // Determine columns STRICTLY from each item's own locked priceMode
+    // (set permanently when user clicked "Add to Quote")
+    // NOT from current global PRICE_MODE which may have changed
+    var hasItemFob=QITEMS.some(function(x){return x.priceMode==='fob'||x.priceMode==='both';});
+    var hasItemCif=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&x.mode==='CIF'&&x.port;});
+
+    var showF=hasItemFob;
+    var showC=hasItemCif;
+    var modeLabel=(!showF&&showC)?'CIF':(showF&&showC)?'FOB & CIF':'FOB';
+
+    var cust=el('qCust')?el('qCust').value||'':'';
     var delVal=el('qDel')?el('qDel').value||'':'';
     var dn=new Date();
     var MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     var ds=dn.getDate()+' '+MO[dn.getMonth()]+' '+dn.getFullYear();
     var allSameOil=QITEMS.every(function(x){return x.oilName===QITEMS[0].oilName;});
-    var oilLabel=allSameOil?QITEMS[0].oilName.replace(' (USD)',''):'(multiple oils)';
     var safeCust=(cust||'Quotation').replace(/[^a-zA-Z0-9 ]/g,'').trim();
     var fname='Able Perfect - '+safeCust+' - '+dn.getDate()+MO[dn.getMonth()]+dn.getFullYear()+'.html';
+    var oilSet=[];QITEMS.forEach(function(x){if(oilSet.indexOf(x.oilName)<0)oilSet.push(x.oilName);});
+    var oilHeaderLabel=oilSet.map(function(o){return o.replace(' (USD)','');}).join(' | ');
 
-    // Build table rows
-    // Super-header row when both modes present — clear visual grouping
+    // Super-header only when both FOB and CIF items exist
     var thead='';
     if(showF&&showC){
+      var fobSpan=showMT?2:1;
+      var cifSpan=showMT?3:2;
       thead+='<tr>';
       thead+='<th colspan="7" style="background:#2c3e50;text-align:center;font-size:9px;letter-spacing:.08em">QUOTATION DETAILS</th>';
-      thead+='<th colspan="'+(SHOW_MT_PRICE?2:1)+'" style="background:#155724;text-align:center;font-size:9px;letter-spacing:.08em;border-left:2px solid #fff">&#x1F7E2; FOB PRICING</th>';
-      thead+='<th colspan="'+(SHOW_MT_PRICE?3:2)+'" style="background:#0c3a6e;text-align:center;font-size:9px;letter-spacing:.08em;border-left:2px solid #fff">&#x1F535; CIF PRICING</th>';
+      thead+='<th colspan="'+fobSpan+'" style="background:#155724;text-align:center;font-size:9px;letter-spacing:.08em;border-left:2px solid #fff">&#x1F7E2; FOB PRICING</th>';
+      thead+='<th colspan="'+cifSpan+'" style="background:#0c3a6e;text-align:center;font-size:9px;letter-spacing:.08em;border-left:2px solid #fff">&#x1F535; CIF PRICING</th>';
       thead+='<th style="background:#7d3c0a;text-align:center;font-size:9px">TOTAL</th>';
       thead+='</tr>';
     }
     thead+='<tr>';
     thead+='<th>No.</th><th>Mode</th><th>Product &amp; SKU</th><th>Net&nbsp;Wt(kg)</th>';
     thead+='<th>SKU/FCL</th><th>No.FCL</th><th>Vol(MT)</th>';
-    if(showF){thead+='<th class="hfob">FOB<br>Price/Ctn</th>';if(SHOW_MT_PRICE)thead+='<th class="hfob">FOB<br>Price/MT</th>';}
-    if(showC){thead+='<th class="hcif">CIF Dest</th><th class="hcif">CIF<br>Price/Ctn</th>';if(SHOW_MT_PRICE)thead+='<th class="hcif">CIF<br>Price/MT</th>';}
+    if(showF){thead+='<th class="hfob">FOB<br>Price/Ctn</th>';if(showMT)thead+='<th class="hfob">FOB<br>Price/MT</th>';}
+    if(showC){thead+='<th class="hcif">CIF Dest</th><th class="hcif">CIF<br>Price/Ctn</th>';if(showMT)thead+='<th class="hcif">CIF<br>Price/MT</th>';}
     thead+='<th class="htot">Total<br>(USD)</th></tr>';
 
-    var tbody=''; var gFob=0,gCif=0,gMt=0,gFcl=0;
+    var tbody='';
+    var gFob=0,gCif=0,gMt=0,gFcl=0;
+
     for(var i=0;i<QITEMS.length;i++){
       var item=QITEMS[i];
+      // Use item's OWN locked values — not affected by current calculator inputs
       var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
-      var tu=item.fcl*item.sku.sku_fcl, tm=tu*item.sku.net_wt/1000;
-      var isCif=item.mode==='CIF'&&item.port; // true only when CIF mode AND port selected
-      var tfob=tu*p.fs, tcif=isCif?tu*p.cs:null;
-      var tdis=isCif&&tcif!==null?tcif:tfob; // CIF total when item is CIF with port
-      gFob+=tfob; gCif+=(tcif!==null?tcif:tfob); gMt+=tm; gFcl+=item.fcl;
-      var mBadge=isCif?'<span class="mcif">CIF</span>':'<span class="mfob">FOB</span>';
+      var tu=item.fcl*item.sku.sku_fcl,tm=tu*item.sku.net_wt/1000;
+      var isCif=item.mode==='CIF'&&item.port;
+      var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
+
+      // Per-item: which pricing applies to THIS item based on ITS OWN locked priceMode
+      var itemIsFob=item.priceMode==='fob'||item.priceMode==='both';
+      var itemIsCif=(item.priceMode==='cif'||item.priceMode==='both')&&isCif;
+
+      // Grand total: each item contributes only its applicable total
+      if(itemIsFob) gFob+=tfob;
+      if(itemIsCif&&tcif!==null) gCif+=tcif;
+      gMt+=tm;gFcl+=item.fcl;
+
+      // The "Total" column for this row
+      var tdis=itemIsCif&&tcif!==null?tcif:tfob;
+
+      var mBadge=itemIsCif?'<span class="mcif">CIF</span>':'<span class="mfob">FOB</span>';
       var destTxt=isCif?item.port.country+'<br><small>'+item.port.port+'</small>':'--';
-      // Row highlight: CIF rows → light blue, FOB rows → light green (only in segregated mode)
-      var rowBg;
+
+      // Row colour: blue tint for CIF items, green tint for FOB items
+      var rowBg='';
       if(showF&&showC){
-        rowBg=isCif?(i%2===0?'#e8f0f8':'#d6e8f6'):(i%2===0?'#e8f5e9':'#d5edda');
+        rowBg=itemIsCif?(i%2===0?'#e8f0f8':'#d6e8f6'):(i%2===0?'#e8f5e9':'#d5edda');
       }else{
         rowBg=i%2===0?'':'#f4f8fc';
       }
+
       var oilSub='<br><small style="color:#888;font-size:8px">'+item.oilName.replace(' (USD)','')+' (USD)</small>';
       tbody+='<tr style="background:'+rowBg+'">';
       tbody+='<td class="c">'+(i+1)+'</td>';
@@ -2347,38 +2364,39 @@ function generatePDF(){
       tbody+='<td class="r">'+fmt(item.sku.sku_fcl,0)+'</td>';
       tbody+='<td class="c">'+item.fcl+'</td>';
       tbody+='<td class="r">'+fmt(tm,3)+'</td>';
+
+      // FOB columns: show pricing ONLY if this item is FOB
       if(showF){
-        // In 'both' mode show FOB price for all items; in 'fob-only' mode hide it for CIF items
-        var showFobCell=!isCif||(pm==='both');
-        tbody+='<td class="r '+(showFobCell?'fob':'dash')+'">'+(showFobCell?fmt(p.fs,4):'--')+'</td>';
-        if(SHOW_MT_PRICE)tbody+='<td class="r '+(showFobCell?'fob':'dash')+'">'+(showFobCell?fmt(p.fm,2):'--')+'</td>';
+        tbody+='<td class="r '+(itemIsFob?'fob':'dash')+'">'+(itemIsFob?fmt(p.fs,4):'--')+'</td>';
+        if(showMT)tbody+='<td class="r '+(itemIsFob?'fob':'dash')+'">'+(itemIsFob?fmt(p.fm,2):'--')+'</td>';
       }
+
+      // CIF columns: show pricing ONLY if this item is CIF
       if(showC){
-        tbody+='<td class="c '+(isCif?'':'dash')+'">'+( isCif?destTxt:'--')+'</td>';
-        tbody+='<td class="r '+(isCif?'cif':'dash')+'">'+(isCif?fmt(p.cs,4):'--')+'</td>';
-        if(SHOW_MT_PRICE)tbody+='<td class="r '+(isCif?'cif':'dash')+'">'+(isCif?fmt(p.cm,2):'--')+'</td>';
+        tbody+='<td class="c '+(itemIsCif?'':'dash')+'">'+(itemIsCif?destTxt:'--')+'</td>';
+        tbody+='<td class="r '+(itemIsCif?'cif':'dash')+'">'+(itemIsCif?fmt(p.cs,4):'--')+'</td>';
+        if(showMT)tbody+='<td class="r '+(itemIsCif?'cif':'dash')+'">'+(itemIsCif?fmt(p.cm,2):'--')+'</td>';
       }
+
       tbody+='<td class="r tot">'+fmt(tdis,2)+'</td>';
       tbody+='</tr>';
     }
 
-    // Summary footer
-    // colspan shrinks when MT price cols are hidden
-    var fobCols=showF?(SHOW_MT_PRICE?2:1):0;
-    var cifCols=showC?(SHOW_MT_PRICE?3:2):0;
+    // Footer totals — only show the totals relevant to what's in the quote
+    var fobCols=showF?(showMT?2:1):0;
+    var cifCols=showC?(showMT?3:2):0;
     var colspan=7+fobCols+cifCols;
     var tfoot='<tr>';
     tfoot+='<td colspan="'+colspan+'" class="sum">TOTAL &mdash; '+QITEMS.length+' item'+(QITEMS.length>1?'s':'')+' &nbsp;|&nbsp; Vol: '+fmt(gMt,3)+' MT &nbsp;|&nbsp; FCL: '+gFcl+'</td>';
-    if(showF) tfoot+='<td colspan="'+fobCols+'" class="sumfob r">Grand Total FOB<br><b>USD '+fmt(gFob,2)+'</b></td>';
-    if(showC) tfoot+='<td colspan="'+cifCols+'" class="sumcif r">Grand Total CIF<br><b>USD '+fmt(gCif,2)+'</b></td>';
-    // Grand total cell: CIF-only → gCif | FOB-only → gFob | Both → separate cols already shown, just show combined label
+    if(showF)tfoot+='<td colspan="'+fobCols+'" class="sumfob r">Grand Total FOB<br><b>USD '+fmt(gFob,2)+'</b></td>';
+    if(showC)tfoot+='<td colspan="'+cifCols+'" class="sumcif r">Grand Total CIF<br><b>USD '+fmt(gCif,2)+'</b></td>';
     if(showF&&showC){
-      tfoot+='<td class="sum grand r" style="font-size:9px">FOB+CIF<br>shown above</td></tr>';
+      tfoot+='<td class="sum grand r" style="font-size:9px">See above</td></tr>';
     }else{
       tfoot+='<td class="sum grand r">USD<br>'+fmt(!showF?gCif:gFob,2)+'</td></tr>';
     }
 
-    // T&C
+    // T&C — only show sections relevant to items in the quote
     var tcHtml='';
     if(showF){
       tcHtml+='<div class="tc tcfob">';
@@ -2386,7 +2404,7 @@ function generatePDF(){
       tcHtml+='<div class="tci">(1) Payment: 30% deposit, balance 70% — 15 working days before loading</div>';
       if(delVal)tcHtml+='<div class="tci">(2) Shipment: '+delVal+'</div>';
       tcHtml+='<div class="tci">(3) Brand: Able House Brand &mdash; OEM/private label: min 5 FCL per SKU per shipment</div>';
-      tcHtml+='<div class="tci">(4) External Docs: Health Cert USD 150 &nbsp;|&nbsp; Phyto Cert USD 150 &nbsp;|&nbsp; CoA USD 100 &nbsp;|&nbsp; CO (Chamber) USD 30</div>';
+      tcHtml+='<div class="tci">(4) External Docs: Health Cert USD150 &nbsp;|&nbsp; Phyto Cert USD150 &nbsp;|&nbsp; CoA USD100 &nbsp;|&nbsp; CO (Chamber) USD30</div>';
       tcHtml+='<div class="tci">(5) Buyer to ensure all required documents are informed to seller prior to sales contract.</div>';
       tcHtml+='</div>';
     }
@@ -2396,67 +2414,45 @@ function generatePDF(){
       tcHtml+='<div class="tci">(1) Payment: 30% deposit, balance 70% against copy Bill of Lading (BL)</div>';
       if(delVal)tcHtml+='<div class="tci">(2) Shipment: '+delVal+'</div>';
       tcHtml+='<div class="tci">(3) Brand: Able House Brand &mdash; OEM/private label: min 5 FCL per SKU per shipment</div>';
-      tcHtml+='<div class="tci">(4) External Docs: Health Cert USD 150 &nbsp;|&nbsp; Phyto Cert USD 150 &nbsp;|&nbsp; CoA USD 100 &nbsp;|&nbsp; CO (Chamber) USD 30</div>';
+      tcHtml+='<div class="tci">(4) External Docs: Health Cert USD150 &nbsp;|&nbsp; Phyto Cert USD150 &nbsp;|&nbsp; CoA USD100 &nbsp;|&nbsp; CO (Chamber) USD30</div>';
       tcHtml+='<div class="tci">(5) Buyer to provide all required documents before concluding contract.</div>';
-      tcHtml+='<div class="tci">(6) Any GRI / PSS / PCS imposed by shipping liner before loading date shall be charged to the buyer.</div>';
-      tcHtml+='<div class="tci">(7) Shipper reserves the right to decide the shipping liner.</div>';
-      tcHtml+='<div class="tci">(8) Bill of Lading issued "To Order" unless full payment has been received.</div>';
+      tcHtml+='<div class="tci">(6) Any GRI/PSS/PCS by shipping liner before loading charged to buyer.</div>';
+      tcHtml+='<div class="tci">(7) Shipper decides the shipping liner.</div>';
+      tcHtml+='<div class="tci">(8) BL issued "To Order" unless full payment received.</div>';
       tcHtml+='</div>';
     }
 
-    // Subheader info
-    var infoArr=[];
-    // Collect distinct oil names across all items for the header
-    var oilSet=[]; QITEMS.forEach(function(x){if(oilSet.indexOf(x.oilName)<0)oilSet.push(x.oilName);});
-    var oilHeaderLabel=oilSet.map(function(o){return o.replace(' (USD)','');}).join(' | ');
-    infoArr.push('Product: '+oilHeaderLabel);
-    if(cust) infoArr.push('Attn: '+cust);
-    if(delVal) infoArr.push('Delivery: '+delVal);
-
+    // CSS for the generated page
     var css='*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}'
       +'body{background:#f0f4f9}'
-      +'.bar{background:linear-gradient(135deg,#0a3d62,#1a5276);color:#fff;padding:10px 16px;'
-        +'display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}'
+      +'.bar{background:linear-gradient(135deg,#0a3d62,#1a5276);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}'
       +'.bar h3{font-size:13px;font-weight:700}'
-      +'.sbtn{background:#27ae60;color:#fff;border:none;padding:10px 26px;'
-        +'border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;'
-        +'box-shadow:0 2px 6px rgba(0,0,0,.25)}'
-      +'.wrap{background:#fff;margin:10px;border-radius:8px;padding:14px 16px;'
-        +'box-shadow:0 2px 10px rgba(0,0,0,.08);overflow-x:auto}'
-      +'.hdr{display:flex;justify-content:space-between;margin-bottom:12px;'
-        +'padding-bottom:10px;border-bottom:3px solid #0a3d62;flex-wrap:wrap;gap:8px}'
+      +'.sbtn{background:#27ae60;color:#fff;border:none;padding:10px 26px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25)}'
+      +'.wrap{background:#fff;margin:10px;border-radius:8px;padding:14px 16px;box-shadow:0 2px 10px rgba(0,0,0,.08);overflow-x:auto}'
+      +'.hdr{display:flex;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:3px solid #0a3d62;flex-wrap:wrap;gap:8px}'
       +'.co{font-size:10px;font-weight:700;color:#7f8c8d;letter-spacing:.05em}'
       +'.mode{font-size:22px;font-weight:800;color:#0a3d62;border-bottom:3px solid #0a3d62;display:inline-block;padding-bottom:2px;margin-bottom:3px}'
       +'.modesub{font-size:10px;color:#555;margin-top:2px}'
       +'.info{font-size:10px;color:#7f8c8d;margin-top:4px}'
       +'.dr{text-align:right;font-size:10px;color:#7f8c8d}'
       +'table{width:100%;border-collapse:collapse;min-width:600px;margin-top:4px}'
-      +'th{background:#0a3d62;color:#fff;padding:7px 9px;font-size:9px;font-weight:700;'
-        +'text-align:center;border-right:1px solid rgba(255,255,255,.2);'
-        +'-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+      +'th{background:#0a3d62;color:#fff;padding:7px 9px;font-size:9px;font-weight:700;text-align:center;border-right:1px solid rgba(255,255,255,.2);-webkit-print-color-adjust:exact;print-color-adjust:exact}'
       +'th.hfob{background:#155724;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
       +'th.hcif{background:#0c3a6e;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
       +'th.htot{background:#7d3c0a;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
       +'td{padding:6px 9px;border-bottom:1px solid #d8e0ea;border-right:1px solid #eaeff5;font-size:10px;vertical-align:middle}'
-      +'td.c{text-align:center}'
-      +'td.r{text-align:right}'
-      +'td.fob{color:#1a7a4a;font-weight:700}'
-      +'td.cif{color:#154360;font-weight:700}'
+      +'td.c{text-align:center}td.r{text-align:right}'
+      +'td.fob{color:#1a7a4a;font-weight:700}td.cif{color:#154360;font-weight:700}'
       +'td.dash{color:#bbb;text-align:center}'
-      +'td.tot{background:#0a3d62;color:#fff;font-weight:800;font-size:11px;'
-        +'-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+      +'td.tot{background:#0a3d62;color:#fff;font-weight:800;font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
       +'.mfob{background:#1a7a4a;color:#fff;border-radius:4px;padding:1px 5px;font-size:9px;font-weight:700}'
       +'.mcif{background:#154360;color:#fff;border-radius:4px;padding:1px 5px;font-size:9px;font-weight:700}'
-      +'.mboth{background:#6c3483;color:#fff;border-radius:4px;padding:1px 5px;font-size:9px;font-weight:700}'
       +'.sum{background:#0a3d62;color:#fff;font-size:10px;padding:8px 9px;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
       +'.sumfob{background:#155724;color:#fff;font-size:10px;font-weight:700;padding:8px 9px;text-align:right;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
       +'.sumcif{background:#0c3a6e;color:#fff;font-size:10px;font-weight:700;padding:8px 9px;text-align:right;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
-      +'.grand{background:#d35400;font-size:12px;font-weight:800;'
-        +'-webkit-print-color-adjust:exact;print-color-adjust:exact}'
-      +'.rem{background:#fafbfc;border:1px solid #d0dcea;border-left:4px solid #0a3d62;padding:10px 14px;'
-        +'margin-top:12px;font-size:9.5px;color:#555;line-height:1.9}'
-      +'.tc{background:#fef9e7;border-left:4px solid #e67e22;padding:10px 12px;'
-        +'margin-top:10px;font-size:10px;color:#4a4a4a;line-height:1.8}'
+      +'.grand{background:#d35400;font-size:12px;font-weight:800;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+      +'.rem{background:#fafbfc;border:1px solid #d0dcea;border-left:4px solid #0a3d62;padding:10px 14px;margin-top:12px;font-size:9.5px;color:#555;line-height:1.9}'
+      +'.tc{padding:10px 12px;margin-top:10px;font-size:10px;color:#4a4a4a;line-height:1.8}'
       +'.tcf{color:#155724;font-weight:800;display:block;margin-bottom:6px;font-size:11px}'
       +'.tcc{color:#0c3a6e;font-weight:800;display:block;margin-bottom:6px;font-size:11px}'
       +'.tcfob{background:#f0faf2;border-left:4px solid #1a7a4a}'
@@ -2473,97 +2469,61 @@ function generatePDF(){
         +'@page{size:A4 landscape;margin:7mm}'
       +'}';
 
-    var savePdfFn='<scr'+'ipt>function doPrint(){try{window.print();}catch(e){alert("Press Ctrl+P (Windows) or Cmd+P (Mac), then set Destination to Save as PDF.");}}<\/scr'+'ipt>';
+    var savePdfFn='<scr'+'ipt>function doPrint(){try{window.print();}catch(e){alert("Use browser Print menu → Save as PDF");}}<\/scr'+'ipt>';
+    var infoLine=[];
+    if(cust)infoLine.push('Attn: '+cust);
+    if(delVal)infoLine.push('Delivery: '+delVal);
+
     var page='<!DOCTYPE html><html lang="en"><head>'
       +'<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
       +'<title>'+fname+'</title><style>'+css+'</style>'+savePdfFn+'</head><body>'
       +'<div class="bar"><h3>ABLE PERFECT SDN BHD &mdash; '+modeLabel+' Price Quotation</h3>'
       +'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
-      +'<button id="topPrintBtn" class="sbtn" onclick="doPrint()" style="font-size:16px;padding:14px 32px">&#128424; SAVE AS PDF &mdash; Tap Here</button>'
-      +'<span style="font-size:.75rem;color:#555">If button does nothing: press <b>Ctrl+P</b> (Win) / <b>Cmd+P</b> (Mac) &rarr; Destination: <b>Save as PDF</b></span>'
+      +'<button id="topPrintBtn" class="sbtn" onclick="doPrint()" style="font-size:16px;padding:14px 32px">&#128424; SAVE AS PDF</button>'
+      +'<span style="font-size:.75rem;color:#ddd">If blocked: press Ctrl+P / Cmd+P &rarr; Save as PDF</span>'
       +'</div></div>'
       +'<div class="wrap">'
-      +'<div class="hdr"><div><div class="co">ABLE PERFECT SDN BHD</div>'
+      +'<div class="hdr"><div>'
+      +'<div class="co">ABLE PERFECT SDN BHD</div>'
       +'<div class="mode">'+modeLabel+' PRICE QUOTATION</div>'
       +'<div class="modesub">Product: '+oilHeaderLabel+'</div>'
-      +(infoArr.length?'<div class="info">'+infoArr.join('&nbsp;&nbsp;|&nbsp;&nbsp;')+'</div>':'')
-      +'</div><div class="dr">Date: <b>'+ds+'</b><br>No. of Items: <b>'+QITEMS.length+'</b></div></div>'
+      +(infoLine.length?'<div class="info">'+infoLine.join('&nbsp;&nbsp;|&nbsp;&nbsp;')+'</div>':'')
+      +'</div><div class="dr">Date: <b>'+ds+'</b><br>Items: <b>'+QITEMS.length+'</b></div></div>'
       +'<table><thead>'+thead+'</thead><tbody>'+tbody+'</tbody><tfoot>'+tfoot+'</tfoot></table>'
-      +'<div class="rem"><b>Remarks:</b><br>'
-      +'&bull; All quotations are subject to final confirmation.&nbsp;&nbsp;'
-      +'&bull; Pricing is volatile; always obtain latest pricing from marketer.&nbsp;&nbsp;'
-      +'&bull; Pricing excludes 3rd party documentation, testing and certification charges.</div>'
+      +'<div class="rem"><b>Remarks:</b>&nbsp; &bull; All quotations subject to final confirmation.&nbsp; &bull; Pricing volatile — obtain latest from marketer.&nbsp; &bull; Excludes 3rd party documentation/testing charges.</div>'
       +tcHtml
       +'</div>'
       +'<div class="bot"><button class="sbtn" onclick="doPrint()">&#128424; SAVE AS PDF</button></div>'
       +'</body></html>';
 
-    // Open the quotation in a new tab — works on ALL devices on GitHub Pages
-    var newTab = window.open('','_blank');
+    // Open in new tab — works on all devices on GitHub Pages
+    var newTab=window.open('','_blank');
     if(newTab){
       newTab.document.open();
       newTab.document.write(page);
       newTab.document.close();
-      return; // done — user sees quotation with Save as PDF button in new tab
+      return;
     }
-    // Fallback if popup blocked
-    // Show the page content inside the modal with a print button
+    // Fallback: popup blocked — show message
     el('printContent').innerHTML=
       '<div style="background:#fff3cd;border:2px solid #ffc107;border-radius:10px;padding:16px;margin-bottom:14px;font-size:13px;color:#856404">'
-      +'<b>&#x26A0; Popup was blocked.</b><br><br>'
-      +'To fix: In Chrome tap the <b>address bar</b> &rarr; you will see a popup blocked icon &rarr; tap it &rarr; select <b>Always allow</b> &rarr; tap Save PDF again.</div>'
+      +'<b>&#x26A0; Popup blocked.</b><br><br>'
+      +'Tap the address bar → tap the popup icon → select <b>Always allow</b> → tap Save PDF again.</div>'
       +'<div style="text-align:center">'
       +'<button onclick="generatePDF()" style="background:#27ae60;color:#fff;border:none;border-radius:10px;padding:14px 36px;font-size:1rem;font-weight:800;cursor:pointer;width:100%;max-width:320px">'
       +'&#x1F4BE; Try Again</button></div>';
     el('printModal').style.display='block';
     el('printModal').scrollTop=0;
-    // Also store blob as backup
-    var blob=new Blob([page],{type:'text/html;charset=utf-8'});
-    openPrintPreview._lastPage = blob;
-    openPrintPreview._lastPageHtml = page;
-    openPrintPreview._lastFname = fname;
-
-    var isMobile=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-
-    var mobileSteps=
-      '<b>1.</b> Tap <b style="color:#27ae60">&#x2B07; Download File</b> below'
-      +'<br><b>2.</b> A share/save dialog will open — tap <b>Save to Files</b> or <b>Downloads</b>'
-      +'<br><b>3.</b> Open the saved file in Chrome'
-      +'<br><b>4.</b> Tap the green <b>SAVE AS PDF</b> button'
-      +'<br><b>5.</b> Chrome prints it — tap <b>Save as PDF</b> → Save'
-      +'<br><b>6.</b> Share the PDF via <b>WhatsApp</b> &#x1F4CE;'
-      +'<br><br><small style="color:#888">If no dialog appears, long-press Download File and choose Open in new tab.</small>';
-
-    var desktopSteps=
-      '<b>1.</b> Click the <b style="color:#27ae60">&#x2B07; Download File</b> button below<br>'
-      +'<b>2.</b> Open the downloaded <b>.html</b> file in Chrome<br>'
-      +'<b>3.</b> Press <b>Ctrl+P</b> (Windows) or <b>Cmd+P</b> (Mac) — OR click the green <b>SAVE AS PDF</b> button<br>'
-      +'<b>4.</b> In the print dialog: set <b>Destination</b> to <b>Save as PDF</b><br>'
-      +'<b>5.</b> Set <b>Layout</b> to <b>Landscape</b> &rarr; click <b>Save</b>';
-
-    el('printContent').innerHTML=
-      '<div style="background:#edf7f1;border:2px solid #27ae60;border-radius:10px;padding:16px;font-size:.88rem;line-height:2.3;color:#1a2332">'
-      +'<div style="font-size:1rem;font-weight:800;color:#1a7a4a;margin-bottom:8px">&#x1F4C4; Save as PDF — '+fname+'</div>'
-      +(isMobile ? mobileSteps : desktopSteps)
-      +'</div>'
-      +'<div style="text-align:center;margin-top:18px">'
-      +'<button onclick="doFileDownload()" style="background:#27ae60;color:#fff;border:none;border-radius:10px;padding:14px 36px;font-size:1rem;font-weight:800;cursor:pointer;width:100%;max-width:320px">&#x2B07; Download File</button>'
-      +'</div>'
-      +'<div id="dlLinkWrap"></div>';
-    el('printModal').style.display='block';
-    el('printModal').scrollTop=0;
 
   }catch(err){
-    // Show error in modal instead of alert (alert may be blocked in some browsers/webviews)
     el('printContent').innerHTML=
       '<div style="background:#fdecea;border:2px solid #e74c3c;border-radius:10px;padding:16px;font-size:.88rem;color:#c0392b">'
-      +'<b>&#x26A0; Error generating PDF file</b><br><br>'+String(err.message||err)
+      +'<b>&#x26A0; Error generating PDF</b><br><br>'+String(err.message||err)
       +'<br><br>Try refreshing the page and generating the quotation again.</div>';
     el('printModal').style.display='block';
     el('printModal').scrollTop=0;
   }
 }
-
 
 
 
