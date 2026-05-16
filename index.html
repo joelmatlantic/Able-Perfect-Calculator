@@ -229,7 +229,41 @@ td{padding:9px 12px;vertical-align:middle}
 .fm-sum-item .sv{font-size:1.05rem;font-weight:800;color:var(--brand)}
 .fm-rem{margin-top:14px;padding:10px 12px;background:#f8fafc;border:1px solid #e0e8f0;border-radius:7px;font-size:.73rem;color:#6b7a95;line-height:1.8}
 
-/* ===== CUSTOMER PROFILES ===== */
+/* ===== OIL PRICE MANAGER ===== */
+#oilMgrModal{display:none;position:fixed;inset:0;background:rgba(5,25,50,.72);z-index:9996;overflow:hidden}
+#oilMgrModal.open{display:flex;flex-direction:column}
+#oilMgrHead{background:linear-gradient(135deg,#1a5c2a,#27ae60);color:#fff;padding:13px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+#oilMgrHead h2{flex:1;font-size:.98rem;font-weight:800}
+#oilMgrBody{flex:1;overflow-y:auto;background:#f0f4f9;padding:16px}
+.omgr-section{background:#fff;border-radius:10px;border:1.5px solid var(--bdr);margin-bottom:14px;overflow:hidden}
+.omgr-sh{padding:11px 16px;font-size:.78rem;font-weight:800;display:flex;align-items:center;gap:7px;cursor:pointer}
+.omgr-sh.cp10{background:linear-gradient(90deg,#edf7f1,#f5fdf7);color:var(--grn);border-bottom:1.5px solid #d0ebd8}
+.omgr-sh.indep{background:linear-gradient(90deg,#fef9e7,#fffdf4);color:#8a6000;border-bottom:1.5px solid #f0d070}
+.omgr-cp10-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:7px;padding:12px 14px}
+.omgr-cp10-item{background:#f5fdf7;border:1px solid #d0ebd8;border-radius:7px;padding:7px 11px;display:flex;justify-content:space-between;align-items:center;font-size:.76rem}
+.omgr-cp10-name{color:var(--txt);font-weight:600}
+.omgr-cp10-price{font-weight:800;color:var(--grn)}
+.omgr-table{width:100%;border-collapse:collapse}
+.omgr-table th{background:#fef9e7;color:#8a6000;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px;text-align:left;border-bottom:1.5px solid #f0d070;font-weight:700}
+.omgr-table th.r{text-align:right}
+.omgr-table td{padding:8px 12px;border-bottom:1px solid #f5f0e0;font-size:.8rem;vertical-align:middle}
+.omgr-table td.nm{font-weight:600;color:var(--brand)}
+.omgr-table td.sub{font-size:.68rem;color:var(--mut)}
+.omgr-table tr:last-child td{border-bottom:none}
+.omgr-table tr:hover td{background:#fdfaf0}
+.omgr-price-inp{width:100px;text-align:right;padding:6px 10px;border:1.5px solid var(--bdr);border-radius:6px;font-size:.84rem;font-weight:700;color:var(--brand)}
+.omgr-price-inp:focus{border-color:var(--grn);outline:none;box-shadow:0 0 0 3px rgba(26,122,74,.1)}
+.omgr-price-inp.changed{border-color:var(--acc);background:#fff9ec}
+.omgr-fresh{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;font-weight:700}
+.omgr-fresh .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.omgr-fresh.ok .dot{background:#27ae60} .omgr-fresh.ok{color:#1a7a4a}
+.omgr-fresh.warn .dot{background:#e67e22} .omgr-fresh.warn{color:#8a4000}
+.omgr-fresh.stale .dot{background:#e74c3c} .omgr-fresh.stale{color:#b32d2d}
+.omgr-fresh.def .dot{background:#bdc3c7} .omgr-fresh.def{color:#7f8c8d}
+.omgr-footer{padding:12px 14px;background:#f8faf5;border-top:1.5px solid #d0ebd8;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+/* Stale oil warning in Step 2 */
+.oil-stale-warn{background:#fef9e7;border:1.5px solid #f0c030;border-radius:7px;padding:7px 12px;font-size:.74rem;color:#7a5200;display:flex;align-items:center;gap:7px;margin-top:7px}
+.oil-stale-btn{background:transparent;border:none;color:var(--grn);font-weight:700;font-size:.74rem;cursor:pointer;text-decoration:underline;padding:0}
 #custModal{display:none;position:fixed;inset:0;background:rgba(5,25,50,.72);z-index:9997;overflow:hidden}
 #custModal.open{display:flex;flex-direction:column}
 #custHead{background:linear-gradient(135deg,var(--brand),var(--bm));color:#fff;padding:13px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.18)}
@@ -372,7 +406,9 @@ td{padding:9px 12px;vertical-align:middle}
     </div>
   </div>
   <div class="panel">
-    <div class="ph">&#x1F4B0; Step 2 &mdash; Oil Type &amp; Cost</div>
+    <div class="ph" style="justify-content:space-between">&#x1F4B0; Step 2 &mdash; Oil Type &amp; Cost
+      <button onclick="openOilMgr()" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.5);border-radius:6px;padding:4px 11px;font-size:.72rem;font-weight:700;cursor:pointer;margin-left:auto">&#x1F6E2; Oil Prices</button>
+    </div>
     <div class="pb">
       <div class="cp10box">
         <div><label>CP10 Base (USD/MT)</label><input type="number" id="cp10" value="1215" min="0" step="0.01"></div>
@@ -380,6 +416,11 @@ td{padding:9px 12px;vertical-align:middle}
       </div>
       <div class="field"><label>Oil Category</label><div class="otabs" id="oilTabs"></div></div>
       <div class="field"><label>Oil Type</label><div class="sw"><select id="oilSel"></select></div></div>
+      <div id="oilStaleWarn" class="oil-stale-warn" style="display:none">
+        <span>&#x26A0;</span>
+        <span id="oilStaleMsg">This oil's price may be outdated.</span>
+        <button class="oil-stale-btn" onclick="openOilMgr()">&#x2794; Update in Oil Prices</button>
+      </div>
       <div class="field">
         <label>Oil Price (USD/MT) &mdash; override</label>
         <input type="number" id="oilPrice" min="0" step="0.01">
@@ -713,6 +754,26 @@ v2026-05-16d (Joel's amendments — batch 4):
          after items are already in the cart
        - Profile search: filter profiles by name or company
        - Max 100 slots; count shown in modal header and toolbar
+
+v2026-05-16e (Joel's amendments — batch 5):
+  [12] Oil Price Manager added — solves non-palm oil price staleness:
+       Problem: 14 independent non-palm oils (SBR, SFR/Sunflower, CAR/Corn,
+       CNR/Canola, Cotton, Groundnut, Ghee AMF, CFAD, etc.) had fixed
+       hardcoded prices that would go stale and could not be updated.
+       Solution: getOilPrice() now checks localStorage custom prices first
+       for all non-CP10-based oils; falls back to hardcoded default if unset.
+       - "🛢 Oil Prices" button in Step 2 panel header opens the manager
+       - CP10-linked oils panel: read-only table of 24+ oils showing their
+         auto-calculated current prices (CP10 ± differential) — no action needed
+       - Independent oils panel: editable price inputs for 14 non-palm oils,
+         freshness indicators (green <7 days / amber <21 days / red >21 days)
+         and a stale badge count in the modal header
+       - "Save All Prices" → saved to localStorage, all calculations update
+       - "Reset to Defaults" → reverts to hardcoded fallback values
+       - Stale warning in Step 2: yellow banner appears when a non-palm oil
+         is selected and its price is default/stale — links to manager
+       - Profile loads: non-palm oil items also use latest custom price since
+         getOilPrice() is the single source of truth for all oil pricing
 ==========================================================================
 */
 var OIL_DEF={
@@ -870,7 +931,7 @@ var S={cat:null,types:[],skuSearch:'',oilCat:'Palm Olein',oilName:'P.Olein-CP10 
 var QITEMS=[],QID=0,PRICE_MODE='fob',SHOW_MT_PRICE=true;
 
 function el(id){return document.getElementById(id);}
-function getOilPrice(n,c){var d=OIL_DEF[n];if(!d)return c;return d[1]?c+d[0]:d[0];}
+function getOilPriceBase(n,c){var d=OIL_DEF[n];if(!d)return c;return d[1]?c+d[0]:d[0];}
 function getOilFormula(n,c){var d=OIL_DEF[n];if(!d)return'';
   if(d[1]){var s=d[0];return s===0?'= CP10 base':s>0?'= CP10 + '+s+' = '+(c+s):'= CP10 - '+Math.abs(s)+' = '+(c+s);}
   return 'Fixed price (not linked to CP10)';}
@@ -1709,7 +1770,7 @@ function tcFob(sd){
 }
 
 el('cp10').addEventListener('input',function(){S.cp10=parseFloat(this.value)||0;S.oilManual=false;updateOilPrice();rOilSel();rTable();rSum();});
-el('oilSel').addEventListener('change',function(){S.oilName=this.value;S.oilManual=false;updateOilPrice();updBanner();rCats();rSub();rTable();rSum();});
+el('oilSel').addEventListener('change',function(){S.oilName=this.value;S.oilManual=false;updateOilPrice();updBanner();rCats();rSub();rTable();rSum();checkOilStale(S.oilName);});
 el('oilPrice').addEventListener('input',function(){var v=parseFloat(this.value);if(!isNaN(v)&&v>=0){S.oilPrice=v;S.oilManual=true;rTable();rSum();}});
 el('additive').addEventListener('input',function(){S.additive=parseFloat(this.value)||0;rTable();rSum();});
 el('margin').addEventListener('input',function(){S.margin=parseFloat(this.value)||0;rTable();rSum();});
@@ -2137,6 +2198,203 @@ function doFileDownload(){
   },500);
 }
 
+
+// ============================================================
+// OIL PRICE MANAGER — independent non-palm oils via localStorage
+// ============================================================
+
+// All oils that have FIXED prices (not CP10-linked: d[1]=false)
+// These need manual price updates
+var INDEP_OILS=[
+  {name:'SBR (USD)',          label:'SBR — Soybean Refined'},
+  {name:'SBR (w/o FTA) (USD)',label:'SBR w/o FTA'},
+  {name:'SBC (USD)',          label:'SBC — Soybean Crude'},
+  {name:'CAR (USD)',          label:'CAR — Corn Oil Refined'},
+  {name:'CAR (w/o FTA) (USD)',label:'CAR w/o FTA'},
+  {name:'SFR (USD)',          label:'SFR — Sunflower Refined'},
+  {name:'SFR (w/o FTA) (USD)',label:'SFR w/o FTA'},
+  {name:'MZR (USD)',          label:'MZR — Maize/Corn Oil'},
+  {name:'CNR (USD)',          label:'CNR — Canola Refined'},
+  {name:'CNC (USD)',          label:'CNC — Canola Crude'},
+  {name:'COTTON (USD)',       label:'Cotton Seed Oil'},
+  {name:'GroundNut Oil (USD)',label:'Groundnut Oil'},
+  {name:'Ghee (AMF) (USD)',   label:'Ghee / AMF'},
+  {name:'CFAD (USD)',         label:'CFAD — Corn FAD'},
+];
+
+// localStorage key for custom oil prices
+var OIL_PRICES_KEY='ablecalc_oil_prices';
+var CUSTOM_OIL_PRICES={};
+
+function loadOilPrices(){
+  try{var s=localStorage.getItem(OIL_PRICES_KEY);CUSTOM_OIL_PRICES=s?JSON.parse(s):{};}
+  catch(e){CUSTOM_OIL_PRICES={};}
+}
+function saveOilPricesStore(){
+  try{localStorage.setItem(OIL_PRICES_KEY,JSON.stringify(CUSTOM_OIL_PRICES));}
+  catch(e){showCustToast('⚠ Storage error saving oil prices');}
+}
+loadOilPrices();
+
+// Oil freshness helper (days since update)
+var _NW2=Date.now();
+function oilAge(name){
+  var cp=CUSTOM_OIL_PRICES[name];
+  if(!cp||!cp.updated)return null; // never set
+  return (_NW2-Date.parse(cp.updated))/(1000*60*60*24);
+}
+function oilFresh(name){
+  var d=oilAge(name);
+  if(d===null)return'def';
+  if(d<=7)return'ok';
+  if(d<=21)return'warn';
+  return'stale';
+}
+function oilAgeStr(name){
+  var d=oilAge(name);
+  if(d===null)return'Default (never set)';
+  if(d<1)return'Today';
+  if(d<2)return'Yesterday';
+  return Math.floor(d)+' days ago';
+}
+
+// ---- Modified getOilPrice: checks custom prices for fixed-price oils ----
+// NOTE: This REPLACES the original getOilPrice defined earlier in the file
+function getOilPrice(n,c){
+  var d=OIL_DEF[n];
+  if(!d)return c;
+  if(d[1])return c+d[0]; // CP10-based: always auto-calculated
+  // Fixed-price oil: custom price takes precedence
+  var cp=CUSTOM_OIL_PRICES[n];
+  if(cp&&cp.price&&cp.price>0)return cp.price;
+  return d[0]; // fallback to hardcoded default
+}
+
+// ---- Stale warning in Step 2 ----
+function checkOilStale(oilName){
+  var w=el('oilStaleWarn'),msg=el('oilStaleMsg');
+  if(!w||!msg)return;
+  var d=OIL_DEF[oilName];
+  // Only show warning for fixed-price (non-CP10) oils
+  if(!d||d[1]){w.style.display='none';return;}
+  var fr=oilFresh(oilName);
+  var ageStr=oilAgeStr(oilName);
+  if(fr==='def'){
+    w.style.display='flex';
+    msg.textContent='⚠ Price is the default value — never been updated. Click to set current market price.';
+  }else if(fr==='warn'||fr==='stale'){
+    w.style.display='flex';
+    msg.textContent='⚠ Price last updated '+ageStr+' — verify before quoting.';
+  }else{
+    w.style.display='none'; // fresh — no warning
+  }
+  // Update stale badge in oil mgr header
+  updateOilMgrBadge();
+}
+
+function updateOilMgrBadge(){
+  var badge=el('oilMgrStaleBadge');if(!badge)return;
+  var staleCount=INDEP_OILS.filter(function(o){var f=oilFresh(o.name);return f==='def'||f==='stale';}).length;
+  if(staleCount>0){badge.style.display='';badge.textContent='⚠ '+staleCount+' price'+(staleCount!==1?'s':'')+' outdated';}
+  else badge.style.display='none';
+}
+
+// ---- Open / close ----
+function openOilMgr(){
+  loadOilPrices();
+  el('oilMgrModal').classList.add('open');
+  renderOilMgr();
+}
+function closeOilMgr(){el('oilMgrModal').classList.remove('open');}
+
+// ---- Render the manager ----
+function renderOilMgr(){
+  updateOilMgrBadge();
+  var cp10=S.cp10||parseFloat(el('cp10').value)||1215;
+
+  // Section 1: CP10-linked oils (informational, read-only)
+  var cp10Html='<div class="omgr-section">'
+    +'<div class="omgr-sh cp10">&#x1F33F; CP10-Linked Oils &nbsp;<span style="font-weight:400;font-size:.73rem;opacity:.8">Auto-calculated — just update CP10 in Step 2</span>'
+    +'<span style="margin-left:auto;font-size:.75rem">Current CP10: <b>USD '+fmt(cp10,0)+'/MT</b></span></div>'
+    +'<div class="omgr-cp10-grid">';
+
+  // Build list of CP10-based oils from OIL_DEF
+  var cp10Oils=[];
+  for(var k in OIL_DEF){var d=OIL_DEF[k];if(d[1])cp10Oils.push({name:k,price:cp10+d[0],diff:d[0]});}
+  cp10Oils.sort(function(a,b){return a.price-b.price;});
+  cp10Oils.forEach(function(o){
+    var sign=o.diff>=0?'+':'-';var diffStr=o.diff!==0?'CP10 '+sign+' '+Math.abs(o.diff):'= CP10';
+    cp10Html+='<div class="omgr-cp10-item"><span class="omgr-cp10-name">'+o.name.replace(' (USD)','')+'</span>'
+      +'<span><span style="font-size:.68rem;color:var(--mut)">'+diffStr+'</span> <span class="omgr-cp10-price">USD '+fmt(o.price,0)+'</span></span></div>';
+  });
+  cp10Html+='</div></div>';
+
+  // Count stale
+  var staleCount=INDEP_OILS.filter(function(o){var f=oilFresh(o.name);return f==='def'||f==='stale';}).length;
+  var warnIcon=staleCount>0?'&#x26A0; ':'';
+
+  // Section 2: Independent oils (editable)
+  var indepHtml='<div class="omgr-section">'
+    +'<div class="omgr-sh indep">'+warnIcon+'&#x1F527; Independent Non-Palm Oils &nbsp;<span style="font-weight:400;font-size:.73rem;opacity:.8">Update these manually from market data</span>'
+    +(staleCount>0?'<span style="margin-left:auto;background:#fde9d9;color:#b54000;padding:2px 9px;border-radius:10px;font-size:.7rem;font-weight:700">'+staleCount+' need update</span>':'')
+    +'</div>'
+    +'<div style="padding:10px 14px;background:#fefbe8;border-bottom:1px solid #f0d070;font-size:.74rem;color:#7a5200">'
+    +'<b>How to update:</b> Enter the latest USD/MT price for each oil below, then click <b>Save All Prices</b>. '
+    +'These are saved to your browser and used for all calculations and customer profile loads.'
+    +'</div>'
+    +'<table class="omgr-table"><thead><tr>'
+    +'<th style="width:40%">Oil Type</th><th class="r" style="width:22%">Current Price</th>'
+    +'<th style="width:22%">New Price (USD/MT)</th><th style="width:16%">Last Updated</th>'
+    +'</tr></thead><tbody>';
+
+  INDEP_OILS.forEach(function(o,idx){
+    var def=OIL_DEF[o.name]?OIL_DEF[o.name][0]:0;
+    var cp=CUSTOM_OIL_PRICES[o.name];
+    var curPrice=cp&&cp.price?cp.price:def;
+    var fr=oilFresh(o.name);
+    var freshHtml='<span class="omgr-fresh '+fr+'"><span class="dot"></span>'+oilAgeStr(o.name)+'</span>';
+    var rowBg=(fr==='def'||fr==='stale')?'background:#fff8f0;':'';
+    indepHtml+='<tr style="'+rowBg+'">'
+      +'<td class="nm">'+o.label+'<br><span class="sub">'+o.name+'</span></td>'
+      +'<td style="text-align:right;font-weight:700;color:var(--brand)">USD '+fmt(curPrice,0)+'</td>'
+      +'<td style="text-align:right"><input class="omgr-price-inp" id="omp_'+idx+'" type="number" value="'+curPrice+'" min="1" step="1" oninput="this.classList.add(\'changed\')"></td>'
+      +'<td>'+freshHtml+'</td>'
+    +'</tr>';
+  });
+  indepHtml+='</tbody></table>'
+    +'<div class="omgr-footer">'
+    +'<button onclick="saveAllOilPrices()" style="background:var(--grn);color:#fff;border:none;border-radius:7px;padding:9px 22px;font-size:.84rem;font-weight:700;cursor:pointer">&#x1F4BE; Save All Prices</button>'
+    +'<button onclick="resetOilPrices()" style="background:#f0f4f9;color:var(--mut);border:1.5px solid var(--bdr);border-radius:7px;padding:9px 18px;font-size:.82rem;font-weight:700;cursor:pointer">Reset to Defaults</button>'
+    +'<span style="font-size:.7rem;color:var(--mut);margin-left:auto">Prices stored in browser · profile loads always use latest</span>'
+    +'</div></div>';
+
+  el('oilMgrContent').innerHTML=cp10Html+indepHtml;
+}
+
+function saveAllOilPrices(){
+  var now=new Date().toISOString();
+  var saved=0;
+  INDEP_OILS.forEach(function(o,idx){
+    var inp=el('omp_'+idx);
+    if(!inp)return;
+    var val=parseFloat(inp.value);
+    if(!val||val<=0)return;
+    CUSTOM_OIL_PRICES[o.name]={price:val,updated:now};
+    inp.classList.remove('changed');
+    saved++;
+  });
+  saveOilPricesStore();
+  renderOilMgr();
+  // Refresh calculator if current oil is an independent oil
+  if(S.oilName){var d=OIL_DEF[S.oilName];if(d&&!d[1]){S.oilPrice=getOilPrice(S.oilName,S.cp10);rSum();checkOilStale(S.oilName);}}
+  showCustToast('✅ '+saved+' oil prices saved — all calculations updated');
+}
+
+function resetOilPrices(){
+  if(!confirm('Reset all independent oil prices to built-in defaults?'))return;
+  CUSTOM_OIL_PRICES={};saveOilPricesStore();renderOilMgr();
+  showCustToast('↩ Oil prices reset to defaults');
+}
 
 // ============================================================
 // CUSTOMER PROFILES  — localStorage-backed, up to 100 slots
@@ -3075,6 +3333,19 @@ function generatePDF(){
     <button onclick="closePrintModal()" style="background:#e74c3c;color:#fff;border:none;border-radius:7px;padding:8px 18px;font-size:.88rem;font-weight:800;cursor:pointer">&#x2715; CLOSE</button>
   </div>
   <div id="printContent" style="padding:12px;max-width:100%;margin:0 auto"></div>
+</div>
+
+<!-- OIL PRICE MANAGER MODAL -->
+<div id="oilMgrModal">
+  <div id="oilMgrHead">
+    <span style="font-size:1.5rem">&#x1F6E2;</span>
+    <h2>Oil Price Manager</h2>
+    <span id="oilMgrStaleBadge" style="display:none;background:rgba(231,76,60,.85);padding:3px 12px;border-radius:20px;font-size:.72rem;font-weight:700">⚠ Prices need update</span>
+    <button onclick="closeOilMgr()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:7px;padding:8px 16px;font-size:.88rem;font-weight:800;cursor:pointer;margin-left:auto">&#x2715; Close</button>
+  </div>
+  <div id="oilMgrBody">
+    <div id="oilMgrContent"></div>
+  </div>
 </div>
 
 <!-- CUSTOMER PROFILES MODAL -->

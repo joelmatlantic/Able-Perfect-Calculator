@@ -134,3 +134,40 @@ A **"🔄 Update Prices"** button appears in the quote cart header whenever the 
 
 #### Storage
 Profiles saved to `localStorage` under key `ablecalc_customers`. Each profile stores: `id, name, company, phone, email, notes, items[], createdAt, updatedAt`. Items include: `oilName, sku, fcl, add, additiveType, mgn, mode, port, priceMode` — but **not** `oilPrice` (always recalculated on load).
+
+## v2026-05-16e — Joel's Amendments Batch 5
+
+### 12. Oil Price Manager — solves non-palm oil price management
+
+#### The problem
+The 14 independent non-palm oils (SBR, SFR/Sunflower Refined, CAR/Corn Refined, CNR/CNC/Canola, Cotton Seed, Groundnut, Ghee AMF, CFAD) had hardcoded fixed prices in the code. These went stale as soon as markets moved, and there was no way to update them without a code push. Any customer profile containing these oils would use stale prices on load.
+
+#### The solution: two-tier oil price system
+- **CP10-linked oils** (26 oils): price = CP10 + fixed differential. Automatically recalculates when CP10 changes in Step 2. No action ever needed.
+- **Independent non-palm oils** (14 oils): `getOilPrice()` now checks `localStorage['ablecalc_oil_prices']` first before falling back to the hardcoded default. Once updated in the manager, the custom price is used everywhere.
+
+#### Oil Price Manager (🛢 Oil Prices button in Step 2)
+Two sections:
+1. **CP10-Linked Oils** (read-only): shows all 26 oils with current auto-calculated prices — just shows what you're getting for free from CP10
+2. **Independent Non-Palm Oils** (editable): all 14 oils with editable price inputs, freshness indicators:
+   - 🟢 Green: updated within 7 days
+   - 🟡 Amber: updated 7–21 days ago
+   - 🔴 Red: not updated in 21+ days
+   - ⚪ Default: never been set (showing hardcoded fallback)
+
+**Save All Prices** → saves all changed prices to localStorage with a timestamp. All ongoing calculations and profile loads immediately use the new prices.
+
+**Reset to Defaults** → clears all custom prices, reverts to hardcoded fallbacks.
+
+#### Stale price warning in Step 2
+When you select a non-palm oil and its price is default or stale, a yellow warning banner appears below the oil selector, with a direct link to the Oil Price Manager.
+
+#### Impact on Customer Profiles
+Since profiles store `oilName` (not `oilPrice`), and `getOilPrice()` is called fresh on every profile load, updating oil prices in the manager automatically ensures all future profile loads use the latest prices — no profile editing required.
+
+#### How to use day-to-day
+1. Open the calculator and click **🛢 Oil Prices** in Step 2
+2. Update all independent oil prices from your market data source
+3. Click **Save All Prices**
+4. All calculations and profile loads now use current prices
+5. Repeat whenever prices change (use the freshness indicators as a reminder)
