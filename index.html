@@ -1590,23 +1590,37 @@ function renderVTable(){
   var showTcCif=(pm==='cif'||pm==='both')&&hasCifItems2;
   if(showTcFob||showTcCif){
     var tcHtml='<div style="padding:10px 14px;background:#fff3e0;border-top:1px solid #ffe0b2;font-size:.71rem;color:#5d4037;line-height:1.85">';
-    tcHtml+='<b style="color:#0a3d62">Terms & Conditions</b><br>';
+    tcHtml+='<b style="color:#0a3d62">Terms &amp; Conditions</b><br>';
     tcHtml+='**Price subject to final confirmation<br>';
     if(showTcFob){
       tcHtml+='<br><b style="color:#1a7a4a">FOB Terms:</b><br>';
-      tcHtml+='Payment: 30% deposit, balance 70% -- 15 working days before loading<br>';
+      tcHtml+='Payment: 30% deposit, balance 70% &mdash; 15 working days before loading<br>';
       tcHtml+='Shipment: '+sdVal+'<br>';
-      tcHtml+='Brand: Able House Brand (For OEM/private label: min 5 FCL per SKU per shipment)<br>';
-      tcHtml+='External docs: Health Cert USD150 | Phyto Cert USD150 | Cert of Analysis USD100 | CO (Chamber) USD30<br>';
-      tcHtml+='Buyer\'s responsibility to ensure all required documents informed to seller prior to sales contract.<br>';
+      tcHtml+='Brand: Able House Brand (For OEM / private label: min 5 FCL per SKU per shipment)<br>';
+      tcHtml+='External documents (indicative pricing, latest may differ):<br>';
+      tcHtml+='&nbsp;&nbsp;(1) Government Health Certificate = USD150/BL set<br>';
+      tcHtml+='&nbsp;&nbsp;(2) Government Phyto Certificate = USD150/BL set<br>';
+      tcHtml+='&nbsp;&nbsp;(3) External Certificate of Analysis = USD100/BL set<br>';
+      tcHtml+='&nbsp;&nbsp;(4) Certificate of Origin (Chamber of Commerce) = USD30/BL set<br>';
+      tcHtml+='&nbsp;&nbsp;(5) Cargo Tracking Note &amp; External Inspection on buyer\'s account.<br>';
+      tcHtml+='Buyer\'s responsibility to ensure all required documents are informed to seller prior to any sales contract.<br>';
     }
     if(showTcCif){
       tcHtml+='<br><b style="color:#1e5f8a">CIF Terms:</b><br>';
       tcHtml+='Payment: 30% deposit, balance 70% against copy BL<br>';
       tcHtml+='Shipment: '+sdVal+'<br>';
-      tcHtml+='Brand: Able House Brand (For OEM/private label: min 5 FCL per SKU per shipment)<br>';
-      tcHtml+='External docs: Health Cert USD150 | Phyto Cert USD150 | Cert of Analysis USD100 | CO (Chamber) USD30<br>';
-      tcHtml+='Special Clauses: (6) Any GRI/PSS/PCS by shipping liner before loading charged to buyer. (7) Shipper decides liner. (8) BL "to order" unless full payment received. (9) Buyer ensures all docs provided before concluding contract.<br>';
+      tcHtml+='Brand: Able House Brand (For OEM / private label: min 5 FCL per SKU per shipment)<br>';
+      tcHtml+='External documents (indicative pricing, latest may differ):<br>';
+      tcHtml+='&nbsp;&nbsp;(1) Government Health Certificate = USD150/BL set<br>';
+      tcHtml+='&nbsp;&nbsp;(2) Government Phyto Certificate = USD150/BL set<br>';
+      tcHtml+='&nbsp;&nbsp;(3) External Certificate of Analysis = USD100/BL set<br>';
+      tcHtml+='&nbsp;&nbsp;(4) Certificate of Origin (Chamber of Commerce) = USD30/BL set<br>';
+      tcHtml+='&nbsp;&nbsp;(5) Cargo Tracking Note &amp; External Inspection on buyer\'s account.<br>';
+      tcHtml+='Special Clauses:<br>';
+      tcHtml+='&nbsp;&nbsp;(6) Any additional GRI/PSS/PCS imposed by shipping liner before vessel/loading date will be charged to buyer at cost.<br>';
+      tcHtml+='&nbsp;&nbsp;(7) Shipper to decide on shipping liner.<br>';
+      tcHtml+='&nbsp;&nbsp;(8) BL under consignee is &ldquo;to order&rdquo; unless full payment received before draft BL.<br>';
+      tcHtml+='&nbsp;&nbsp;(9) Buyer\'s responsibility to ensure all required documents are informed to seller prior to any sales contract.<br>';
     }
     tcHtml+='</div>';
     wrap+=tcHtml;
@@ -2001,21 +2015,34 @@ function generatePdfHtml(){
   var showTcCif=(pm==='cif'||pm==='both')&&hasCifItems2;
   if(showTcFob||showTcCif){
     s+='<div style="background:#fff8e0;border:1px solid #ffe0b2;border-radius:7px;padding:10px 12px;font-size:.72rem;color:#5d4037;line-height:1.85;page-break-inside:avoid">';
-    s+='<b style="color:#0a3d62">Terms & Conditions</b><br>**Price subject to final confirmation<br>';
+    s+='<b style="color:#0a3d62">Terms &amp; Conditions</b><br>**Price subject to final confirmation<br>';
     if(showTcFob){
       s+='<br><b style="color:#1a7a4a">FOB Terms:</b><br>';
-      s+='Payment: 30% deposit, balance 70% -- 15 working days before loading<br>';
-      s+='Shipment: '+sdVal+'  |  Brand: Able House Brand (OEM/private label: min 5 FCL per SKU)<br>';
-      s+='External docs: Health Cert USD150 | Phyto Cert USD150 | Cert of Analysis USD100 | CO (Chamber) USD30<br>';
-      s+='Cargo Tracking Note & External Inspection on buyer'+String.fromCharCode(39)+'s account.<br>';
-      s+='Buyer'+String.fromCharCode(39)+'s responsibility to ensure all required documents informed to seller prior to any sales contract.<br>';
+      s+='Payment: 30% deposit, balance 70% &mdash; 15 working days before loading<br>';
+      s+='Shipment: '+sdVal+'&nbsp;&nbsp;|&nbsp;&nbsp;Brand: Able House Brand (OEM/private label: min 5 FCL per SKU per shipment)<br>';
+      s+='External documents (indicative pricing, latest may differ):<br>';
+      s+='&nbsp;&nbsp;(1) Government Health Certificate = USD150/BL set<br>';
+      s+='&nbsp;&nbsp;(2) Government Phyto Certificate = USD150/BL set<br>';
+      s+='&nbsp;&nbsp;(3) External Certificate of Analysis = USD100/BL set<br>';
+      s+='&nbsp;&nbsp;(4) Certificate of Origin (Chamber of Commerce) = USD30/BL set<br>';
+      s+='&nbsp;&nbsp;(5) Cargo Tracking Note &amp; External Inspection on buyer\'s account.<br>';
+      s+='Buyer\'s responsibility to ensure all required documents are informed to seller prior to any sales contract.<br>';
     }
     if(showTcCif){
       s+='<br><b style="color:#1e5f8a">CIF Terms:</b><br>';
-      s+='Payment: 30% deposit, balance 70% against copy BL<br>';
-      s+='Shipment: '+sdVal+'  |  Brand: Able House Brand (OEM/private label: min 5 FCL per SKU)<br>';
-      s+='External docs: Health Cert USD150 | Phyto Cert USD150 | Cert of Analysis USD100 | CO (Chamber) USD30<br>';
-      s+='Special Clauses: (6) Any GRI/PSS/PCS by liner before loading charged to buyer. (7) Shipper decides liner. (8) BL '+String.fromCharCode(34)+'to order'+String.fromCharCode(34)+' unless full payment received. (9) Buyer ensures all docs provided before concluding contract.<br>';
+      s+='Payment: 30% deposit, balance 70% against copy Bill of Lading (BL)<br>';
+      s+='Shipment: '+sdVal+'&nbsp;&nbsp;|&nbsp;&nbsp;Brand: Able House Brand (OEM/private label: min 5 FCL per SKU per shipment)<br>';
+      s+='External documents (indicative pricing, latest may differ):<br>';
+      s+='&nbsp;&nbsp;(1) Government Health Certificate = USD150/BL set<br>';
+      s+='&nbsp;&nbsp;(2) Government Phyto Certificate = USD150/BL set<br>';
+      s+='&nbsp;&nbsp;(3) External Certificate of Analysis = USD100/BL set<br>';
+      s+='&nbsp;&nbsp;(4) Certificate of Origin (Chamber of Commerce) = USD30/BL set<br>';
+      s+='&nbsp;&nbsp;(5) Cargo Tracking Note &amp; External Inspection on buyer\'s account.<br>';
+      s+='Special Clauses:<br>';
+      s+='&nbsp;&nbsp;(6) Any additional GRI/PSS/PCS imposed by shipping liner before vessel/loading date will be charged to buyer at cost.<br>';
+      s+='&nbsp;&nbsp;(7) Shipper to decide on shipping liner.<br>';
+      s+='&nbsp;&nbsp;(8) BL under consignee is &ldquo;to order&rdquo; unless full payment received before draft BL.<br>';
+      s+='&nbsp;&nbsp;(9) Buyer\'s responsibility to ensure all required documents are informed to seller prior to any sales contract.<br>';
     }
     s+='</div>';
   }
@@ -2129,20 +2156,36 @@ function openPrintPreview(){
   var showTcCif=(pm==='cif'||pm==='both')&&hasCifItems2;
   if(showTcFob||showTcCif){
     html_+='<div style="background:#fff8e0;border:1px solid #ffe0b2;border-radius:10px;padding:12px 14px;margin-bottom:10px;font-size:.73rem;color:#5d4037;line-height:1.85">';
-    html_+='<b style="color:#0a3d62">Terms & Conditions</b><br>**Price subject to final confirmation<br>';
+    html_+='<b style="color:#0a3d62">Terms &amp; Conditions</b><br>**Price subject to final confirmation<br>';
     if(showTcFob){
       html_+='<br><b style="color:#1a7a4a">FOB Terms:</b><br>';
-      html_+='Payment: 30% deposit, balance 70% -- 15 working days before loading<br>';
-      if(delVal)html_+='Delivery: '+delVal+'<br>';
-      html_+='Brand: Able House Brand (OEM/private label: min 5 FCL per SKU)<br>';
-      html_+='External docs: Health Cert USD150 | Phyto Cert USD150 | CoA USD100 | CO USD30<br>';
+      html_+='Payment: 30% deposit, balance 70% &mdash; 15 working days before loading<br>';
+      if(delVal)html_+='Shipment: '+delVal+'<br>';
+      html_+='Brand: Able House Brand (For OEM / private label: min 5 FCL per SKU per shipment)<br>';
+      html_+='External documents (indicative pricing, latest may differ):<br>';
+      html_+='&nbsp;&nbsp;(1) Government Health Certificate = USD150/BL set<br>';
+      html_+='&nbsp;&nbsp;(2) Government Phyto Certificate = USD150/BL set<br>';
+      html_+='&nbsp;&nbsp;(3) External Certificate of Analysis = USD100/BL set<br>';
+      html_+='&nbsp;&nbsp;(4) Certificate of Origin (Chamber of Commerce) = USD30/BL set<br>';
+      html_+='&nbsp;&nbsp;(5) Cargo Tracking Note &amp; External Inspection on buyer\'s account.<br>';
+      html_+='Buyer\'s responsibility to ensure all required documents are informed to seller prior to any sales contract.<br>';
     }
     if(showTcCif){
       html_+='<br><b style="color:#1e5f8a">CIF Terms:</b><br>';
-      html_+='Payment: 30% deposit, balance 70% against copy BL<br>';
-      if(delVal)html_+='Delivery: '+delVal+'<br>';
-      html_+='Brand: Able House Brand (OEM/private label: min 5 FCL per SKU)<br>';
-      html_+='Special Clauses: (6) GRI/PSS/PCS charged to buyer. (7) Shipper decides liner. (8) BL '+String.fromCharCode(34)+'to order'+String.fromCharCode(34)+' unless full payment received. (9) Buyer provides all docs before contract.<br>';
+      html_+='Payment: 30% deposit, balance 70% against copy Bill of Lading (BL)<br>';
+      if(delVal)html_+='Shipment: '+delVal+'<br>';
+      html_+='Brand: Able House Brand (For OEM / private label: min 5 FCL per SKU per shipment)<br>';
+      html_+='External documents (indicative pricing, latest may differ):<br>';
+      html_+='&nbsp;&nbsp;(1) Government Health Certificate = USD150/BL set<br>';
+      html_+='&nbsp;&nbsp;(2) Government Phyto Certificate = USD150/BL set<br>';
+      html_+='&nbsp;&nbsp;(3) External Certificate of Analysis = USD100/BL set<br>';
+      html_+='&nbsp;&nbsp;(4) Certificate of Origin (Chamber of Commerce) = USD30/BL set<br>';
+      html_+='&nbsp;&nbsp;(5) Cargo Tracking Note &amp; External Inspection on buyer\'s account.<br>';
+      html_+='Special Clauses:<br>';
+      html_+='&nbsp;&nbsp;(6) Any additional GRI/PSS/PCS imposed by shipping liner before vessel/loading date will be charged to buyer at cost.<br>';
+      html_+='&nbsp;&nbsp;(7) Shipper to decide on shipping liner.<br>';
+      html_+='&nbsp;&nbsp;(8) BL under consignee is &ldquo;to order&rdquo; unless full payment received before draft BL.<br>';
+      html_+='&nbsp;&nbsp;(9) Buyer\'s responsibility to ensure all required documents are informed to seller prior to any sales contract.<br>';
     }
     html_+='</div>';
   }
@@ -3193,11 +3236,16 @@ function generatePDF(){
     if(showF){
       tcHtml+='<div class="tc tcfob">';
       tcHtml+='<b class="tcf">&#x1F7E2; FOB Terms &amp; Conditions</b>';
-      tcHtml+='<div class="tci">(1) Payment: 30% deposit, balance 70% — 15 working days before loading</div>';
+      tcHtml+='<div class="tci">(1) Payment: 30% deposit, balance 70% &mdash; 15 working days before loading</div>';
       if(delVal)tcHtml+='<div class="tci">(2) Shipment: '+delVal+'</div>';
       tcHtml+='<div class="tci">(3) Brand: Able House Brand &mdash; OEM/private label: min 5 FCL per SKU per shipment</div>';
-      tcHtml+='<div class="tci">(4) External Docs: Health Cert USD150 &nbsp;|&nbsp; Phyto Cert USD150 &nbsp;|&nbsp; CoA USD100 &nbsp;|&nbsp; CO (Chamber) USD30</div>';
-      tcHtml+='<div class="tci">(5) Buyer to ensure all required documents are informed to seller prior to sales contract.</div>';
+      tcHtml+='<div class="tci">(4) External Documentation (indicative pricing, latest may differ):</div>';
+      tcHtml+='<div class="tci" style="padding-left:20px">&bull; Government Health Certificate = USD150/BL set</div>';
+      tcHtml+='<div class="tci" style="padding-left:20px">&bull; Government Phyto Certificate = USD150/BL set</div>';
+      tcHtml+='<div class="tci" style="padding-left:20px">&bull; External Certificate of Analysis = USD100/BL set</div>';
+      tcHtml+='<div class="tci" style="padding-left:20px">&bull; Certificate of Origin (Chamber of Commerce) = USD30/BL set</div>';
+      tcHtml+='<div class="tci">(5) Cargo Tracking Note &amp; External Inspection on buyer\'s account.</div>';
+      tcHtml+='<div class="tci">(6) Buyer\'s responsibility to ensure all required documents are informed to seller prior to any sales contract.</div>';
       tcHtml+='</div>';
     }
     if(showC){
@@ -3206,11 +3254,17 @@ function generatePDF(){
       tcHtml+='<div class="tci">(1) Payment: 30% deposit, balance 70% against copy Bill of Lading (BL)</div>';
       if(delVal)tcHtml+='<div class="tci">(2) Shipment: '+delVal+'</div>';
       tcHtml+='<div class="tci">(3) Brand: Able House Brand &mdash; OEM/private label: min 5 FCL per SKU per shipment</div>';
-      tcHtml+='<div class="tci">(4) External Docs: Health Cert USD150 &nbsp;|&nbsp; Phyto Cert USD150 &nbsp;|&nbsp; CoA USD100 &nbsp;|&nbsp; CO (Chamber) USD30</div>';
-      tcHtml+='<div class="tci">(5) Buyer to provide all required documents before concluding contract.</div>';
-      tcHtml+='<div class="tci">(6) Any GRI/PSS/PCS by shipping liner before loading charged to buyer.</div>';
-      tcHtml+='<div class="tci">(7) Shipper decides the shipping liner.</div>';
-      tcHtml+='<div class="tci">(8) BL issued "To Order" unless full payment received.</div>';
+      tcHtml+='<div class="tci">(4) External Documentation (indicative pricing, latest may differ):</div>';
+      tcHtml+='<div class="tci" style="padding-left:20px">&bull; Government Health Certificate = USD150/BL set</div>';
+      tcHtml+='<div class="tci" style="padding-left:20px">&bull; Government Phyto Certificate = USD150/BL set</div>';
+      tcHtml+='<div class="tci" style="padding-left:20px">&bull; External Certificate of Analysis = USD100/BL set</div>';
+      tcHtml+='<div class="tci" style="padding-left:20px">&bull; Certificate of Origin (Chamber of Commerce) = USD30/BL set</div>';
+      tcHtml+='<div class="tci">(5) Cargo Tracking Note &amp; External Inspection on buyer\'s account.</div>';
+      tcHtml+='<div class="tci" style="font-weight:700;margin-top:4px">Special Clauses:</div>';
+      tcHtml+='<div class="tci">(6) Any additional GRI/PSS/PCS imposed by shipping liner before vessel/loading date will be charged to buyer at cost.</div>';
+      tcHtml+='<div class="tci">(7) Shipper to decide on shipping liner.</div>';
+      tcHtml+='<div class="tci">(8) BL under consignee is &ldquo;to order&rdquo; unless full payment received before draft BL.</div>';
+      tcHtml+='<div class="tci">(9) Buyer\'s responsibility to ensure all required documents are informed to seller prior to any sales contract.</div>';
       tcHtml+='</div>';
     }
 
