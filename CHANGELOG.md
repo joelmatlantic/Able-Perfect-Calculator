@@ -171,3 +171,48 @@ Since profiles store `oilName` (not `oilPrice`), and `getOilPrice()` is called f
 3. Click **Save All Prices**
 4. All calculations and profile loads now use current prices
 5. Repeat whenever prices change (use the freshness indicators as a reminder)
+
+## v2026-05-23 — Data & Pricing Update (ABLE_UPDATED_EXHIBITION_CALCULATOR_VIETNAM_EXPO_2026-230526.xlsx)
+
+### Packaging Costs — 87 SKUs updated
+All 87 matched SKUs had their packaging cost/MT refreshed from the new Excel file. 104 SKUs total in the calculator (16 not present in the new Excel retained unchanged).
+
+### Freight Rates — 35 ports updated + 1 new port
+**Updated (Africa):** ANGOLA/LOBITO (3250→3650), ANGOLA/LUANDA (2250→2650), ANGOLA/NAMIBE (3250→3650), BENIN/COTONOU (1950→2350), CAMEROON/DOUALA (2750→3150), CAMEROON/KRIBI (2650→3050), COMOROS/MORONI (5750→6050), COMOROS/MUTSAMUDU (6250→6550), CONGO/MATADI (3050→3450), CONGO/POINTE NOIRE (2250→2550), COTE D'IVOIRE/ABIDJAN (1950→2350), COTE D'IVOIRE/SAN PEDRO (4150→4450), EQUATORIAL GUINEA/BATA CMA (3200→3500), EQUATORIAL GUINEA/MALABO CMA (3200→3500), GABON/LIBREVILLE (2650→4050), GAMBIA/BANJUL (3550→3850), GHANA/TEMA (2175→2550), GUINEA/BISSAU (4850→5150), GUINEA/CONAKRY (6800→7100), LIBERIA/MONROVIA (3600→3900), MAURITANIA/NOUAKCHOTT (3150→3350), NIGERIA/APAPA (2550→2950), NIGERIA/HARCOURT (4350→4650), NIGERIA/LAGOS TINCAN (2550→2950), NIGERIA/LEKKI (2550→2950), NIGERIA/ONNE SEA PORT (2550→2950), SENEGAL/DAKAR (3350→3650), SIERRA LEONE/FREETOWN (4050→4350), TOGO/LOME (1950→2350)
+
+**Updated (Middle East):** ISRAEL/ASHDOD (4050→4250), ISRAEL/ASHDOD IND (4450→4550), JORDAN/AQABA (3750→3800), JORDAN/AQABA IND (6950→4100), SAUDI ARABIA/JEDDAH (3750→3500), SAUDI ARABIA/JEDDAH IND (4150→3800)
+
+**New port added:** UAE / JEBEL ALI @ USD 4,850/FCL — Total: **637 ports**
+
+### Oil Differentials (CP10-based) — 8 updated
+| Oil | Old Diff | New Diff |
+|-----|----------|----------|
+| CPO | +70 | +85 |
+| P. Stearin | -40 | -35 |
+| P. Kernel Oil | +1165 | +1155 |
+| P. Kernel Olein | +925 | +915 |
+| Shortening 32-35deg | +30 | +25 |
+| CBSFAT 33-35 | +1445 | +1455 |
+| PFAD | -115 | -110 |
+| PKFAD | +635 | +675 |
+
+### Independent Oil Default Prices — 14 updated
+| Oil | Old Default | New Default |
+|-----|-------------|-------------|
+| SBR | 1,560 | 1,510 |
+| SBR w/o FTA | 1,380 | 1,370 |
+| SBC | 1,550 | 1,500 |
+| CAR | 1,660 | 1,620 |
+| CAR w/o FTA | 1,460 | 1,500 |
+| SFR | 1,880 | 1,730 |
+| SFR w/o FTA | 1,760 | 1,650 |
+| MZR | 1,640 | 1,670 |
+| CNR | 2,450 | 2,080 |
+| CNC | 2,400 | 2,010 |
+| COTTON | 1,650 | 1,480 |
+| GroundNut Oil | 2,900 | 2,050 |
+| Ghee (AMF) | 7,500 | 6,700 |
+| CFAD | 1,700 | 1,700 (unchanged) |
+
+### CP10 Default Price
+Updated from **USD 1,215/MT** → **USD 1,175/MT** (new selling price from Excel Sheet1)
