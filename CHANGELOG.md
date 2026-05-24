@@ -216,3 +216,42 @@ All 87 matched SKUs had their packaging cost/MT refreshed from the new Excel fil
 
 ### CP10 Default Price
 Updated from **USD 1,215/MT** → **USD 1,175/MT** (new selling price from Excel Sheet1)
+
+## v2026-05-23b — Supplier Reference Rates Panel (Admin / User 0 Only)
+
+### 13. Supplier Rates Modal — Apical, Wingagro, KLK
+
+**Access:** "📊 Supplier Rates" button in the top header. Admin-only view (password-protected; only accessible after main login).
+
+**Purpose:** Tracks the yellow reference input cells, per-packaging premium/discount, and packaging costs for all three suppliers, following the Excel formulas exactly (verified against `Apical_Price_List_13May2026-1.xlsx`).
+
+#### Formula logic per supplier (from Excel audit)
+
+**Apical** — `Price/MT = (BaseInput + Differential + PackagingCost) / Margin (0.955)`
+- Malaysia CP10 (N2=1,175) → Jerry Cans (CP10/CP8), 20kg CBR 37/40
+- Indonesia RBD PO (O2=N2−125=1,050) → All Shortenings, BIB Spread Fat, LOW GE Shortenings
+- RBD Palm Kernel Oil (L2=2,180) → HPKO 35/37, HPKO 38/40, RPKO BIB
+- RBD Palm Kernel Olein (K2=2,040) → HPKL 41/44, Apifil 7011 XC
+- Coconut (R2=2,080) → RCNO, HCNO, RCNO Flexibag
+- Stearin (S2=1,135) → HPS Flakes
+- HPKS Stearin (Q2 was empty in Excel — defaulted to 2,350) → HPKS 33.5/35.5
+- RBD Palm Kernel Stearin (M2=2,350) — labelled but NOT referenced in any formula ⚠
+
+**Wingagro** — `Price/MT = (BaseInput + Differential + PackagingCost) / Margin (0.955)`
+- Indonesia CP10 (M2=L2−20=1,155) → Jerry Cans CP10/CP8
+- RBD Palm Kernel Stearin P2 (P2=2,360) → HPKS 33.5/35.5 (uses P2, NOT K2)
+- RBD Palm Kernel Oil (J2=2,180) → HPKO 38/40
+- I2 (PBKO Olein), K2 (PBKS), N2 (ID RBD PO), Q2 (Coconut), R2 (Stearin) — labelled but NOT used ⚠
+
+**KLK** — `Price/MT = (CP10 + Differential + PackagingCost) / Margin (0.975)`
+- CP10 (J3=1,175) drives ALL 80 products via `J_row = $J$3 + K_row`
+- No issues found — all formulas correct
+
+#### Features
+- **Editable yellow inputs**: all oil prices, margin, Oillio margin — updates live calculations
+- **Derived values shown**: Indonesia RBD PO (=CP10−125), Indonesia CP10 (=CP10−20)
+- **Per-product editable table**: product name, base input label, premium/discount, packaging cost, auto-calculated price
+- **Dirty highlighting**: changed inputs/cells highlighted in amber until saved
+- **Save & Log**: saves all data to localStorage (`ablecalc_supplier_rates`), records timestamped diff log in `ablecalc_supplier_logs`
+- **Log panel**: shows last 100 save events with timestamps, tabs affected, field-by-field changes
+- Notes on known Excel formula issues (Q2 empty, unused inputs) shown inline
