@@ -280,7 +280,10 @@ td{padding:9px 12px;vertical-align:middle}
 .sr-ni.chg{background:#fff9e0!important;border-color:#e6a800!important}
 .sr-px{font-weight:800;color:#0a3d62}
 .sr-px.bad{color:#c0392b;font-style:italic}
-.sr-sec{background:linear-gradient(90deg,#2a5c2a,#3a7a3a);color:#fff;padding:4px 10px;font-size:.65rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.sr-sec{padding:5px 10px;font-size:.65rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border-top:2px solid rgba(0,0,0,.15)}
+.sr-sec[data-port="jkt"]{background:linear-gradient(90deg,#2a5c2a,#3a7a3a);color:#fff}
+.sr-sec[data-port="kl"] {background:linear-gradient(90deg,#1a3a6a,#2a5a9a);color:#fff}
+.sr-sec:not([data-port]){background:linear-gradient(90deg,#2a5c2a,#3a7a3a);color:#fff}
 .sr-note{font-size:.6rem;color:#c0392b;margin-top:1px}
 
 /* ===== OIL PRICE MANAGER ===== */
@@ -2335,32 +2338,34 @@ var SR_DEF = {
     // Formula: price = (getBase(inputs,base) + diff + pkg) / margin
     // getBase: 'malaysiaCp10'->N2, 'indonesiaRbdPo'->N2-125, 'rbdPalmKernelOil'->L2, etc.
     prods:[
-      {sec:'JERRY CANS — Port Klang / Jakarta',name:'20L Yellow Jerry Can \u2013 CP10',base:'malaysiaCp10',diff:0,pkg:138,port:'Jakarta'},
-      {sec:'',name:'20L Yellow Jerry Can \u2013 CP8',base:'malaysiaCp10',diff:10,pkg:138,port:'Jakarta'},
-      {sec:'',name:'20L White Jerry Can \u2013 CP10',base:'malaysiaCp10',diff:0,pkg:148,port:'Port Klang'},
-      {sec:'',name:'20L White Jerry Can \u2013 CP8',base:'malaysiaCp10',diff:10,pkg:147,port:'Port Klang'},
-      {sec:'SHORTENING (Jakarta — Indonesia RBD PO = CP10\u2212125)',name:'20kg Shortening 36/39',base:'indonesiaRbdPo',diff:-5,pkg:82,port:'Jakarta'},
-      {sec:'',name:'20kg Shortening 38/40 & 40/42',base:'indonesiaRbdPo',diff:-5,pkg:82,port:'Jakarta'},
-      {sec:'',name:'20kg Shortening 43/47',base:'indonesiaRbdPo',diff:-7,pkg:82,port:'Jakarta'},
-      {sec:'',name:'20kg Shortening 46/48',base:'indonesiaRbdPo',diff:-3,pkg:82,port:'Jakarta'},
-      {sec:'',name:'20kg Shortening 48/52',base:'indonesiaRbdPo',diff:-14.5,pkg:82,port:'Jakarta'},
-      {sec:'BIB',name:'20kg BIB Spread Fat',base:'indonesiaRbdPo',diff:115,pkg:100,port:'Jakarta'},
-      {sec:'SPECIALTY \u2014 Port Klang',name:'20kg CBR 37/40',base:'malaysiaCp10',diff:500,pkg:82,port:'Port Klang'},
-      {sec:'',name:'20kg Hpks 33.5/35.5',base:'hpksStearin',diff:-121,pkg:82,port:'Port Klang',note:'Q2 was empty in Excel \u2014 using hpksStearin default'},
-      {sec:'',name:'20kg Hpko 35/37',base:'rbdPalmKernelOil',diff:-199,pkg:82,port:'Port Klang'},
-      {sec:'',name:'20kg Hpko 38/40',base:'rbdPalmKernelOil',diff:-190,pkg:82,port:'Port Klang',note:'K23=L2\u2212L23; effective diff \u2212190'},
-      {sec:'',name:'20kg Hpkl 41/44',base:'rbdPalmKernelOlein',diff:-155,pkg:82,port:'Port Klang'},
-      {sec:'SPECIALTY \u2014 Jakarta',name:'20kg RCNO',base:'coconut',diff:-174,pkg:100,port:'Jakarta'},
-      {sec:'',name:'20kg HCNO',base:'coconut',diff:-99,pkg:82,port:'Jakarta'},
-      {sec:'',name:'RPKO BIB 20kg',base:'rbdPalmKernelOil',diff:-26,pkg:100,port:'Jakarta'},
-      {sec:'',name:'RCNO Flexibag',base:'coconut',diff:-160,pkg:52,port:'Jakarta'},
-      {sec:'',name:'HPS Flakes',base:'stearin',diff:25,pkg:10,port:'Jakarta'},
-      {sec:'LOW GE & MCPDE (Jakarta, ID RBD PO base)',name:'LOW GE Shortening 36/39',base:'indonesiaRbdPo',diff:28,pkg:82,port:'Port Klang',note:'Eff diff = \u22125+33'},
-      {sec:'',name:'LOW GE Shortening 38/40 & 40/42',base:'indonesiaRbdPo',diff:33,pkg:82,port:'Port Klang',note:'Eff diff = \u22125+38'},
-      {sec:'',name:'LOW GE Shortening 43/47',base:'indonesiaRbdPo',diff:38,pkg:82,port:'Port Klang',note:'Eff diff = \u22127+45'},
-      {sec:'',name:'LOW GE Shortening 46/48',base:'indonesiaRbdPo',diff:39,pkg:82,port:'Port Klang',note:'Eff diff = \u22123+42'},
-      {sec:'',name:'LOW GE Shortening 48/52',base:'indonesiaRbdPo',diff:61.5,pkg:82,port:'Port Klang',note:'Eff diff = \u221214.5+76'},
-      {sec:'SPECIALTY (cont.)',name:'Apifil 7011 XC',base:'rbdPalmKernelOlein',diff:-97.4,pkg:82,port:'Port Klang'}
+      // ══ FOB JAKARTA ══════════════════════════════════════════════════════════
+      {sec:'🚢 FOB JAKARTA — Shortening  [Indonesia RBD PO = MY CP10−125]',name:'20kg Shortening 36/39',base:'indonesiaRbdPo',diff:-5,pkg:82,port:'FOB Jakarta',note:'KL ref price in Excel D-col: USD 1163 (hardcoded, no formula)'},
+      {sec:'',name:'20kg Shortening 38/40 & 40/42',base:'indonesiaRbdPo',diff:-5,pkg:82,port:'FOB Jakarta',note:'KL ref price in Excel D-col: USD 1168 (hardcoded, no formula)'},
+      {sec:'',name:'20kg Shortening 43/47',base:'indonesiaRbdPo',diff:-7,pkg:82,port:'FOB Jakarta'},
+      {sec:'',name:'20kg Shortening 46/48',base:'indonesiaRbdPo',diff:-3,pkg:82,port:'FOB Jakarta'},
+      {sec:'',name:'20kg Shortening 48/52',base:'indonesiaRbdPo',diff:-14.5,pkg:82,port:'FOB Jakarta'},
+      {sec:'🚢 FOB JAKARTA — BIB  [Indonesia RBD PO = MY CP10−125]',name:'20kg BIB Spread Fat',base:'indonesiaRbdPo',diff:115,pkg:100,port:'FOB Jakarta'},
+      {sec:'🚢 FOB JAKARTA — Jerry Cans  [Malaysia CP10 — Excel formula uses $N$2]',name:'20L Yellow Jerry Can \u2013 CP10',base:'malaysiaCp10',diff:0,pkg:138,port:'FOB Jakarta',note:'K7=$N$2+0; MY CP10 used as base even though FOB Jakarta'},
+      {sec:'',name:'20L Yellow Jerry Can \u2013 CP8',base:'malaysiaCp10',diff:10,pkg:138,port:'FOB Jakarta',note:'K8=$N$2+10; MY CP10 used as base even though FOB Jakarta'},
+      {sec:'🚢 FOB JAKARTA — Specialty  [Coconut / RBD PK Oil / Stearin]',name:'20kg RCNO',base:'coconut',diff:-174,pkg:100,port:'FOB Jakarta'},
+      {sec:'',name:'20kg HCNO',base:'coconut',diff:-99,pkg:82,port:'FOB Jakarta'},
+      {sec:'',name:'RPKO BIB 20kg',base:'rbdPalmKernelOil',diff:-26,pkg:100,port:'FOB Jakarta'},
+      {sec:'',name:'RCNO Flexibag',base:'coconut',diff:-160,pkg:52,port:'FOB Jakarta'},
+      {sec:'',name:'HPS Flakes',base:'stearin',diff:25,pkg:10,port:'FOB Jakarta'},
+      // ══ FOB PORT KLANG ═══════════════════════════════════════════════════════
+      {sec:'🏭 FOB PORT KLANG — Jerry Cans  [Malaysia CP10]',name:'20L White Jerry Can \u2013 CP10',base:'malaysiaCp10',diff:0,pkg:148,port:'FOB Port Klang'},
+      {sec:'',name:'20L White Jerry Can \u2013 CP8',base:'malaysiaCp10',diff:10,pkg:147,port:'FOB Port Klang'},
+      {sec:'🏭 FOB PORT KLANG — Specialty  [MY CP10 / RBD PK Oil / RBD PK Olein]',name:'20kg CBR 37/40',base:'malaysiaCp10',diff:500,pkg:82,port:'FOB Port Klang'},
+      {sec:'',name:'20kg Hpks 33.5/35.5',base:'hpksStearin',diff:-121,pkg:82,port:'FOB Port Klang',note:'\u26a0 Excel Q2 empty (=0) — defaulted to 2350. Fix Q2 in Excel for correct price.'},
+      {sec:'',name:'20kg Hpko 35/37',base:'rbdPalmKernelOil',diff:-199,pkg:82,port:'FOB Port Klang'},
+      {sec:'',name:'20kg Hpko 38/40',base:'rbdPalmKernelOil',diff:-190,pkg:82,port:'FOB Port Klang',note:'K23=L2\u2212L23 (minus in Excel); effective diff \u2212190'},
+      {sec:'',name:'20kg Hpkl 41/44',base:'rbdPalmKernelOlein',diff:-155,pkg:82,port:'FOB Port Klang'},
+      {sec:'',name:'Apifil 7011 XC',base:'rbdPalmKernelOlein',diff:-97.4,pkg:82,port:'FOB Port Klang'},
+      {sec:'🏭 FOB PORT KLANG — LOW GE & MCPDE  [Indonesia RBD PO base, KL-processed]',name:'LOW GE Shortening 36/39',base:'indonesiaRbdPo',diff:28,pkg:82,port:'FOB Port Klang',note:'K32=O2+L12+L32; eff diff (\u22125+33)=+28'},
+      {sec:'',name:'LOW GE Shortening 38/40 & 40/42',base:'indonesiaRbdPo',diff:33,pkg:82,port:'FOB Port Klang',note:'K33=O2+L13+L33; eff diff (\u22125+38)=+33'},
+      {sec:'',name:'LOW GE Shortening 43/47',base:'indonesiaRbdPo',diff:38,pkg:82,port:'FOB Port Klang',note:'K34=O2+L14+L34; eff diff (\u22127+45)=+38'},
+      {sec:'',name:'LOW GE Shortening 46/48',base:'indonesiaRbdPo',diff:39,pkg:82,port:'FOB Port Klang',note:'K35=O2+L15+L35; eff diff (\u22123+42)=+39'},
+      {sec:'',name:'LOW GE Shortening 48/52',base:'indonesiaRbdPo',diff:61.5,pkg:82,port:'FOB Port Klang',note:'K36=O2+L16+L36; eff diff (\u221214.5+76)=+61.5'}
     ]
   },
   wingagro:{
@@ -2590,7 +2595,7 @@ function srRender(){
 
   for(var i=0;i<prods.length;i++){
     var p=prods[i], dp=defProds[i]||{};
-    if(p.sec) h+='<tr><td colspan="6" class="sr-sec">'+p.sec+'</td></tr>';
+    if(p.sec){var pa=p.sec.indexOf('JAKARTA')>=0?'jkt':p.sec.indexOf('KLANG')>=0?'kl':'';h+='<tr><td colspan="6" class="sr-sec"'+(pa?' data-port="'+pa+'"':'')+'>'+p.sec+'</td></tr>';}
     var price=srPrice(inp,p);
     var pxCls='sr-px'+(price<=0?' bad':'');
     var pxStr=price>0?'USD '+fmt(price,2):'ERR';
