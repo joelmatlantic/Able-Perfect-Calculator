@@ -8,7 +8,7 @@
 :root{--brand:#0a3d62;--bm:#1e5f8a;--acc:#e8a020;--acl:#fff8ea;--grn:#1a7a4a;--red:#b32d2d;--bg:#f0f4f9;--card:#fff;--bdr:#dde3ed;--txt:#1a2332;--mut:#6b7a95;--rad:10px;--shd:0 2px 16px rgba(10,61,98,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
-header{background:linear-gradient(135deg,var(--brand),var(--bm));color:#fff;padding:16px 26px;display:flex;align-items:center;gap:14px;box-shadow:0 3px 16px rgba(10,61,98,.2)}
+header{background:linear-gradient(135deg,var(--brand),var(--bm));color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 3px 16px rgba(10,61,98,.2);flex-wrap:wrap}
 .logo{font-size:1.8rem}.hd h1{font-size:1.18rem;font-weight:700}.hd p{font-size:.75rem;opacity:.75;margin-top:2px}
 .badge{margin-left:auto;background:var(--acc);color:#fff;padding:4px 13px;border-radius:20px;font-size:.72rem;font-weight:700;white-space:nowrap}
 .wrap{display:grid;grid-template-columns:385px 1fr;gap:20px;padding:22px 26px;max-width:1400px;margin:0 auto}
@@ -229,62 +229,59 @@ td{padding:9px 12px;vertical-align:middle}
 .fm-sum-item .sv{font-size:1.05rem;font-weight:800;color:var(--brand)}
 .fm-rem{margin-top:14px;padding:10px 12px;background:#f8fafc;border:1px solid #e0e8f0;border-radius:7px;font-size:.73rem;color:#6b7a95;line-height:1.8}
 
-/* ===== SUPPLIER RATES (Admin / User 0 only) ===== */
-#srModal{display:none;position:fixed;inset:0;background:rgba(5,20,45,.8);z-index:9995;overflow:hidden;flex-direction:column}
-#srModal.open{display:flex}
-#srHead{background:linear-gradient(135deg,#1a3a1a,#2d6a2d);color:#fff;padding:13px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-#srHead h2{flex:1;font-size:.96rem;font-weight:800}
-#srBody{flex:1;overflow:hidden;display:flex;flex-direction:column;background:#f0f4f9}
-.sr-tabs{display:flex;gap:0;background:#1a3a1a;flex-shrink:0}
-.sr-tab{padding:10px 22px;font-size:.8rem;font-weight:700;cursor:pointer;color:rgba(255,255,255,.6);border-bottom:3px solid transparent;transition:all .15s}
-.sr-tab.on{color:#fff;border-bottom:3px solid #7ddb7d;background:rgba(255,255,255,.08)}
-.sr-tab:hover:not(.on){color:#fff;background:rgba(255,255,255,.05)}
-.sr-content{flex:1;overflow-y:auto;padding:14px;display:flex;gap:12px;min-height:0}
-.sr-main{flex:1;min-width:0}
-.sr-log-panel{width:290px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;min-height:0}
-.sr-inputs{background:#fffbe6;border:2px solid #f0c030;border-radius:9px;padding:12px 14px;margin-bottom:12px}
-.sr-inputs h4{font-size:.72rem;font-weight:800;color:#7a5200;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-.sr-inp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:7px}
-.sr-inp-item{display:flex;flex-direction:column;gap:2px}
-.sr-inp-item label{font-size:.64rem;font-weight:700;color:#7a5200;text-transform:uppercase}
-.sr-inp-item input{border:1.5px solid #f0d060;border-radius:6px;padding:5px 8px;font-size:.84rem;font-weight:700;color:#3a2800;background:#fffde0;text-align:right;width:100%;box-sizing:border-box}
-.sr-inp-item input:focus{outline:none;border-color:#e6a800;box-shadow:0 0 0 3px rgba(230,168,0,.15)}
-.sr-inp-item .sr-derived{font-size:.68rem;color:#8a6000;font-style:italic;margin-top:1px}
-.sr-table-wrap{background:#fff;border-radius:9px;border:1.5px solid #d0dcea;overflow:hidden;margin-bottom:10px}
-.sr-table{width:100%;border-collapse:collapse;font-size:.77rem}
-.sr-table thead tr{background:#1a3a1a;color:#fff}
-.sr-table th{padding:8px 10px;font-size:.65rem;font-weight:700;text-transform:uppercase;text-align:left;white-space:nowrap;letter-spacing:.05em}
-.sr-table th.r{text-align:right}
-.sr-table tbody tr{border-bottom:1px solid #eaeff5}
-.sr-table tbody tr:hover td{background:#f5fdf5!important}
-.sr-table tbody tr:nth-child(even) td{background:#f9fbff}
-.sr-table td{padding:6px 10px;vertical-align:middle;background:#fff}
-.sr-table td.nm{font-weight:600;color:var(--brand)}
-.sr-table td.base{font-size:.65rem;color:var(--mut);font-style:italic}
-.sr-table td.r{text-align:right}
-.sr-inp-td{border:1.5px solid #c8e0c8;border-radius:5px;padding:4px 7px;font-size:.8rem;font-weight:700;text-align:right;width:80px;color:#1a4d1a;box-sizing:border-box}
-.sr-inp-td:focus{outline:none;border-color:#27ae60;box-shadow:0 0 0 3px rgba(39,174,96,.1)}
-.sr-inp-td.dirty{background:#fff9e0!important;border-color:#e6a800!important}
-.sr-price{font-weight:800;color:#0a3d62}
-.sr-price.bad{color:#c0392b;font-style:italic}
-.sr-sec{background:linear-gradient(90deg,#2d6a2d,#3a7a3a);color:#fff;padding:5px 12px;font-size:.68rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;border-top:2px solid #1a4a1a}
-.sr-log-box{background:#fff;border-radius:9px;border:1.5px solid #d0dcea;display:flex;flex-direction:column;overflow:hidden;flex:1;min-height:200px}
-.sr-log-hdr{background:#0a3d62;color:#fff;padding:9px 12px;font-size:.74rem;font-weight:700;flex-shrink:0}
-.sr-log-list{flex:1;overflow-y:auto;padding:6px 8px}
-.sr-log-entry{border-bottom:1px solid #f0f0f0;padding:7px 4px;font-size:.69rem}
-.sr-log-entry:last-child{border-bottom:none}
-.sr-log-ts{font-size:.63rem;color:var(--mut);font-weight:700;margin-bottom:3px}
-.sr-log-tab{display:inline-block;padding:1px 7px;border-radius:8px;font-size:.61rem;font-weight:700;margin-right:4px;vertical-align:middle}
-.sr-log-tab.apical{background:#e8f5e9;color:#1a5c2a}
-.sr-log-tab.wingagro{background:#e3f2fd;color:#0d47a1}
-.sr-log-tab.klk{background:#fce4ec;color:#880e4f}
-.sr-log-tab.all{background:#fff3e0;color:#7a3b00}
-.sr-log-change{color:var(--mut);line-height:1.65;margin-top:2px}
-.sr-log-change b{color:var(--txt)}
-.sr-save-bar{background:#fff;border-top:1.5px solid #d0dcea;padding:10px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
-.sr-dirty-badge{background:#e67e22;color:#fff;padding:3px 11px;border-radius:10px;font-size:.68rem;font-weight:700;display:none}
-.sr-dirty-badge.show{display:inline-block}
 
+/* ===== SUPPLIER RATES ===== */
+#srModal{display:none;position:fixed;inset:0;z-index:9995;background:rgba(5,20,45,.82);flex-direction:column}
+#srModal.open{display:flex}
+#srHd{background:linear-gradient(135deg,#1a3a1a,#2a6030);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:9px;flex-shrink:0;flex-wrap:wrap}
+#srHd h2{flex:1;font-size:.92rem;font-weight:800;min-width:160px}
+.sr-tabs{display:flex;background:#142a14;flex-shrink:0}
+.sr-tab{padding:10px 20px;font-size:.79rem;font-weight:700;cursor:pointer;color:rgba(255,255,255,.55);border-bottom:3px solid transparent}
+.sr-tab.on{color:#fff;border-bottom-color:#7ddb7d;background:rgba(255,255,255,.07)}
+#srBd{flex:1;overflow:hidden;display:flex;gap:0;min-height:0}
+#srMain{flex:1;overflow-y:auto;padding:12px}
+#srLog{width:270px;flex-shrink:0;background:#f8fafc;border-left:1.5px solid #d0dcea;display:flex;flex-direction:column;overflow:hidden}
+.sr-log-hd{background:#0a3d62;color:#fff;padding:8px 12px;font-size:.73rem;font-weight:700;flex-shrink:0}
+.sr-log-body{flex:1;overflow-y:auto;padding:6px 8px}
+.sr-log-row{border-bottom:1px solid #f0f0f0;padding:6px 3px;font-size:.68rem;color:#333}
+.sr-log-row:last-child{border-bottom:none}
+.sr-log-ts{font-size:.61rem;color:#888;font-weight:700;margin-bottom:2px}
+.sr-log-badge{display:inline-block;padding:1px 6px;border-radius:8px;font-size:.6rem;font-weight:700;margin-right:3px}
+.sr-log-badge.apical{background:#e8f5e9;color:#1a5c2a}
+.sr-log-badge.wingagro{background:#e3f2fd;color:#0d47a1}
+.sr-log-badge.klk{background:#fce4ec;color:#880e4f}
+.sr-log-delta{color:#888;line-height:1.6;margin-top:1px}
+.sr-log-delta b{color:#333}
+.sr-savebar{background:#fff;border-top:1.5px solid #d0dcea;padding:8px 10px;display:flex;gap:8px;align-items:center;flex-shrink:0}
+.sr-dirty{background:#e67e22;color:#fff;padding:2px 9px;border-radius:10px;font-size:.65rem;font-weight:700;display:none}
+.sr-dirty.on{display:inline-block}
+.sr-ybox{background:#fffbe6;border:2px solid #f0c030;border-radius:8px;padding:10px 12px;margin-bottom:10px}
+.sr-ybox h4{font-size:.7rem;font-weight:800;color:#7a5200;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.sr-ygrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px}
+.sr-yitem{display:flex;flex-direction:column;gap:2px}
+.sr-yitem label{font-size:.62rem;font-weight:700;color:#7a5200;text-transform:uppercase}
+.sr-yitem input{border:1.5px solid #f0d060;border-radius:5px;padding:4px 7px;font-size:.82rem;font-weight:700;color:#3a2800;background:#fffde0;text-align:right;width:100%;box-sizing:border-box}
+.sr-yitem input:focus{outline:none;border-color:#e6a800}
+.sr-yitem .sr-drv{font-size:.66rem;color:#8a6000;font-style:italic}
+.sr-tbl-wrap{background:#fff;border-radius:8px;border:1.5px solid #d0dcea;overflow:hidden;margin-bottom:8px}
+.sr-tbl{width:100%;border-collapse:collapse}
+.sr-tbl thead tr{background:#1a3a1a;color:#fff}
+.sr-tbl th{padding:7px 9px;font-size:.63rem;font-weight:700;text-transform:uppercase;text-align:left;white-space:nowrap;letter-spacing:.04em}
+.sr-tbl th.r{text-align:right}
+.sr-tbl tbody tr{border-bottom:1px solid #eaeff5}
+.sr-tbl tbody tr:hover td{background:#f5fdf5!important}
+.sr-tbl td{padding:5px 9px;vertical-align:middle;background:#fff;font-size:.76rem}
+.sr-tbl td:nth-child(even){background:#f9fbff}
+.sr-tbl td.nm{font-weight:600;color:#0a3d62}
+.sr-tbl td.sub{font-size:.63rem;color:#888;font-style:italic}
+.sr-tbl td.r{text-align:right}
+.sr-ni{border:1.5px solid #c8e0c8;border-radius:5px;padding:4px 6px;font-size:.78rem;font-weight:700;text-align:right;width:78px;color:#1a4d1a;box-sizing:border-box}
+.sr-ni:focus{outline:none;border-color:#27ae60}
+.sr-ni.chg{background:#fff9e0!important;border-color:#e6a800!important}
+.sr-px{font-weight:800;color:#0a3d62}
+.sr-px.bad{color:#c0392b;font-style:italic}
+.sr-sec{background:linear-gradient(90deg,#2a5c2a,#3a7a3a);color:#fff;padding:4px 10px;font-size:.65rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.sr-note{font-size:.6rem;color:#c0392b;margin-top:1px}
 
 /* ===== OIL PRICE MANAGER ===== */
 #oilMgrModal{display:none;position:fixed;inset:0;background:rgba(5,25,50,.72);z-index:9996;overflow:hidden}
@@ -2300,126 +2297,132 @@ function doFileDownload(){
 }
 
 
+
+
 // ============================================================
 // SUPPLIER RATES — Admin / User 0 only
-// Tracks Apical, Wingagro, KLK reference rates with save log
-// All formulas follow the Excel exactly (verified 23-May-2026)
+// Formulas verified against Apical_Price_List_13May2026-1.xlsx
+// Price/MT = (BaseInput + Differential + PkgCost) / Margin
 // ============================================================
-var SR_KEY  = 'ablecalc_supplier_rates';
-var SRL_KEY = 'ablecalc_supplier_logs';
-var SR_ACTIVE = 'apical';
-var SR_DIRTY  = false;
+var SR_KEY  = 'ablecalc_sr_data';
+var SRL_KEY = 'ablecalc_sr_logs';
+var SR_TAB  = 'apical';
+var SR_DIRTY = false;
 
-// ── Default data from Excel (Apical_Price_List_13May2026-1.xlsx) ──────────────
-var SR_DEFAULTS = {
+var SR_DEF = {
   apical:{
     inputs:{
       margin:0.955, oillioMargin:0.025,
-      rbdPalmKernelOlein:2040, rbdPalmKernelOil:2180, rbdPalmKernelStearin:2350,
-      malaysiaCp10:1175, coconut:2080, stearin:1135, hpksStearin:2350
-      // indonesiaRbdPo is derived: = malaysiaCp10 - 125
+      malaysiaCp10:1175,
+      rbdPalmKernelOlein:2040,
+      rbdPalmKernelOil:2180,
+      rbdPalmKernelStearin:2350,
+      coconut:2080,
+      stearin:1135,
+      hpksStearin:2350
     },
-    inputLabels:{
-      margin:'Margin', oillioMargin:'Oillio Margin',
-      rbdPalmKernelOlein:'RBD Palm Kernel Olein',
-      rbdPalmKernelOil:'RBD Palm Kernel Oil',
-      rbdPalmKernelStearin:'RBD Palm Kernel Stearin (M2)',
-      malaysiaCp10:'Malaysia CP10',
-      coconut:'Coconut Oil', stearin:'Stearin',
-      hpksStearin:'HPKS Stearin (Q2 — was empty in Excel, defaulted to 2350)'
+    inputMeta:{
+      margin:{lbl:'Margin (J2)'},
+      oillioMargin:{lbl:'Oillio Margin (P2)'},
+      malaysiaCp10:{lbl:'Malaysia CP10 (N2)'},
+      rbdPalmKernelOlein:{lbl:'RBD Palm Kernel Olein (K2)'},
+      rbdPalmKernelOil:{lbl:'RBD Palm Kernel Oil (L2)'},
+      rbdPalmKernelStearin:{lbl:'RBD PBK Stearin (M2) — label only, not used in formulas'},
+      coconut:{lbl:'Coconut (R2)'},
+      stearin:{lbl:'Stearin (S2)'},
+      hpksStearin:{lbl:'HPKS Stearin (Q2 — was empty in Excel; use M2 value)'}
     },
-    // Products: base=which input, diff=effective premium/discount over base, pkg=packaging cost USD/MT
-    // Formula: price = (inputs[base] + diff + pkg) / margin
-    // Notes for special cases are in 'note' field
-    products:[
-      {sec:'JERRY CANS',name:'20L Yellow Jerry Can – CP10',base:'malaysiaCp10',diff:0,pkg:138,port:'Jakarta'},
-      {sec:'',name:'20L Yellow Jerry Can – CP8',base:'malaysiaCp10',diff:10,pkg:138,port:'Jakarta'},
-      {sec:'',name:'20L White Jerry Can – CP10',base:'malaysiaCp10',diff:0,pkg:148,port:'Port Klang'},
-      {sec:'',name:'20L White Jerry Can – CP8',base:'malaysiaCp10',diff:10,pkg:147,port:'Port Klang'},
-      {sec:'SHORTENING (FOB Jakarta — uses Indonesia RBD PO = CP10−125)',name:'20kg Shortening 36/39',base:'indonesiaRbdPo',diff:-5,pkg:82,port:'Jakarta'},
+    // Formula: price = (getBase(inputs,base) + diff + pkg) / margin
+    // getBase: 'malaysiaCp10'->N2, 'indonesiaRbdPo'->N2-125, 'rbdPalmKernelOil'->L2, etc.
+    prods:[
+      {sec:'JERRY CANS — Port Klang / Jakarta',name:'20L Yellow Jerry Can \u2013 CP10',base:'malaysiaCp10',diff:0,pkg:138,port:'Jakarta'},
+      {sec:'',name:'20L Yellow Jerry Can \u2013 CP8',base:'malaysiaCp10',diff:10,pkg:138,port:'Jakarta'},
+      {sec:'',name:'20L White Jerry Can \u2013 CP10',base:'malaysiaCp10',diff:0,pkg:148,port:'Port Klang'},
+      {sec:'',name:'20L White Jerry Can \u2013 CP8',base:'malaysiaCp10',diff:10,pkg:147,port:'Port Klang'},
+      {sec:'SHORTENING (Jakarta — Indonesia RBD PO = CP10\u2212125)',name:'20kg Shortening 36/39',base:'indonesiaRbdPo',diff:-5,pkg:82,port:'Jakarta'},
       {sec:'',name:'20kg Shortening 38/40 & 40/42',base:'indonesiaRbdPo',diff:-5,pkg:82,port:'Jakarta'},
       {sec:'',name:'20kg Shortening 43/47',base:'indonesiaRbdPo',diff:-7,pkg:82,port:'Jakarta'},
       {sec:'',name:'20kg Shortening 46/48',base:'indonesiaRbdPo',diff:-3,pkg:82,port:'Jakarta'},
       {sec:'',name:'20kg Shortening 48/52',base:'indonesiaRbdPo',diff:-14.5,pkg:82,port:'Jakarta'},
       {sec:'BIB',name:'20kg BIB Spread Fat',base:'indonesiaRbdPo',diff:115,pkg:100,port:'Jakarta'},
-      {sec:'SPECIALTY – Port Klang',name:'20kg CBR 37/40',base:'malaysiaCp10',diff:500,pkg:82,port:'Port Klang'},
-      {sec:'',name:'20kg Hpks 33.5/35.5',base:'hpksStearin',diff:-121,pkg:82,port:'Port Klang',note:'Q2 was EMPTY in Excel — using hpksStearin default. Fix Q2 in Excel.'},
+      {sec:'SPECIALTY \u2014 Port Klang',name:'20kg CBR 37/40',base:'malaysiaCp10',diff:500,pkg:82,port:'Port Klang'},
+      {sec:'',name:'20kg Hpks 33.5/35.5',base:'hpksStearin',diff:-121,pkg:82,port:'Port Klang',note:'Q2 was empty in Excel \u2014 using hpksStearin default'},
       {sec:'',name:'20kg Hpko 35/37',base:'rbdPalmKernelOil',diff:-199,pkg:82,port:'Port Klang'},
-      {sec:'',name:'20kg Hpko 38/40',base:'rbdPalmKernelOil',diff:-190,pkg:82,port:'Port Klang',note:'Excel formula is L2−L23 (minus sign); effective diff = −190'},
+      {sec:'',name:'20kg Hpko 38/40',base:'rbdPalmKernelOil',diff:-190,pkg:82,port:'Port Klang',note:'K23=L2\u2212L23; effective diff \u2212190'},
       {sec:'',name:'20kg Hpkl 41/44',base:'rbdPalmKernelOlein',diff:-155,pkg:82,port:'Port Klang'},
-      {sec:'SPECIALTY – Jakarta',name:'20kg RCNO',base:'coconut',diff:-174,pkg:100,port:'Jakarta'},
+      {sec:'SPECIALTY \u2014 Jakarta',name:'20kg RCNO',base:'coconut',diff:-174,pkg:100,port:'Jakarta'},
       {sec:'',name:'20kg HCNO',base:'coconut',diff:-99,pkg:82,port:'Jakarta'},
       {sec:'',name:'RPKO BIB 20kg',base:'rbdPalmKernelOil',diff:-26,pkg:100,port:'Jakarta'},
       {sec:'',name:'RCNO Flexibag',base:'coconut',diff:-160,pkg:52,port:'Jakarta'},
       {sec:'',name:'HPS Flakes',base:'stearin',diff:25,pkg:10,port:'Jakarta'},
-      {sec:'LOW GE & MCPDE (FOB Jakarta — uses Indonesia RBD PO + extra premium)',name:'LOW GE Shortening 36/39',base:'indonesiaRbdPo',diff:28,pkg:82,port:'Port Klang',note:'Eff diff = L12(−5)+L32(33)'},
-      {sec:'',name:'LOW GE Shortening 38/40 & 40/42',base:'indonesiaRbdPo',diff:33,pkg:82,port:'Port Klang',note:'Eff diff = L13(−5)+L33(38)'},
-      {sec:'',name:'LOW GE Shortening 43/47',base:'indonesiaRbdPo',diff:38,pkg:82,port:'Port Klang',note:'Eff diff = L14(−7)+L34(45)'},
-      {sec:'',name:'LOW GE Shortening 46/48',base:'indonesiaRbdPo',diff:39,pkg:82,port:'Port Klang',note:'Eff diff = L15(−3)+L35(42)'},
-      {sec:'',name:'LOW GE Shortening 48/52',base:'indonesiaRbdPo',diff:61.5,pkg:82,port:'Port Klang',note:'Eff diff = L16(−14.5)+L36(76)'},
-      {sec:'SPECIALTY – Port Klang (cont.)',name:'Apifil 7011 XC',base:'rbdPalmKernelOlein',diff:-97.4,pkg:82,port:'Port Klang'},
+      {sec:'LOW GE & MCPDE (Jakarta, ID RBD PO base)',name:'LOW GE Shortening 36/39',base:'indonesiaRbdPo',diff:28,pkg:82,port:'Port Klang',note:'Eff diff = \u22125+33'},
+      {sec:'',name:'LOW GE Shortening 38/40 & 40/42',base:'indonesiaRbdPo',diff:33,pkg:82,port:'Port Klang',note:'Eff diff = \u22125+38'},
+      {sec:'',name:'LOW GE Shortening 43/47',base:'indonesiaRbdPo',diff:38,pkg:82,port:'Port Klang',note:'Eff diff = \u22127+45'},
+      {sec:'',name:'LOW GE Shortening 46/48',base:'indonesiaRbdPo',diff:39,pkg:82,port:'Port Klang',note:'Eff diff = \u22123+42'},
+      {sec:'',name:'LOW GE Shortening 48/52',base:'indonesiaRbdPo',diff:61.5,pkg:82,port:'Port Klang',note:'Eff diff = \u221214.5+76'},
+      {sec:'SPECIALTY (cont.)',name:'Apifil 7011 XC',base:'rbdPalmKernelOlein',diff:-97.4,pkg:82,port:'Port Klang'}
     ]
   },
   wingagro:{
     inputs:{
       margin:0.955, oillioMargin:0.025,
-      rbdPalmKernelOlein:2040, rbdPalmKernelOil:2180, rbdPalmKernelStearin:2350,
-      rbdPalmKernelStearinP2:2360,  // second stearin — used in HPKS formula
-      malaysiaCp10:1175, coconut:2080, stearin:1135
-      // indonesiaCp10 = malaysiaCp10 − 20 (derived)
-      // indonesiaRbdPo = malaysiaCp10 − 125 (derived, NOT used in any product formula)
+      malaysiaCp10:1175,
+      rbdPalmKernelOil:2180,
+      rbdPalmKernelStearinP2:2360,
+      rbdPalmKernelOlein:2040,
+      rbdPalmKernelStearin:2350,
+      coconut:2080,
+      stearin:1135
     },
-    inputLabels:{
-      margin:'Margin', oillioMargin:'Oillio Margin',
-      rbdPalmKernelOlein:'RBD Palm Kernel Olein (I2 — not used in products)',
-      rbdPalmKernelOil:'RBD Palm Kernel Oil (J2)',
-      rbdPalmKernelStearin:'RBD Palm Kernel Stearin (K2 — not used in products)',
-      rbdPalmKernelStearinP2:'RBD Palm Kernel Stearin (P2 — ACTIVE)',
-      malaysiaCp10:'Malaysia CP10 (L2)',
-      coconut:'Coconut Oil (Q2 — not used in products)',
-      stearin:'Stearin (R2 — not used in products)'
+    inputMeta:{
+      margin:{lbl:'Margin (H2)'},
+      oillioMargin:{lbl:'Oillio Margin (O2)'},
+      malaysiaCp10:{lbl:'Malaysia CP10 (L2) — drives ID CP10 & ID RBD PO'},
+      rbdPalmKernelOil:{lbl:'RBD PBK Oil (J2)'},
+      rbdPalmKernelStearinP2:{lbl:'RBD PBK Stearin P2 (P2) \u2014 ACTIVE in formulas'},
+      rbdPalmKernelOlein:{lbl:'RBD PBK Olein (I2) \u2014 not used in product formulas'},
+      rbdPalmKernelStearin:{lbl:'RBD PBK Stearin K2 \u2014 not used in product formulas'},
+      coconut:{lbl:'Coconut (Q2) \u2014 not used in product formulas'},
+      stearin:{lbl:'Stearin (R2) \u2014 not used in product formulas'}
     },
-    products:[
-      {sec:'JERRY CANS (uses Indonesia CP10 = Malaysia CP10 − 20)',name:'20L/25L Yellow Jerry Can – CP10',base:'indonesiaCp10',diff:-13,pkg:138,port:'Jakarta'},
-      {sec:'',name:'20L Yellow Jerry Can – CP8',base:'indonesiaCp10',diff:-32.4,pkg:138,port:'Jakarta'},
+    prods:[
+      {sec:'JERRY CANS (Indonesia CP10 = Malaysia CP10 \u221220)',name:'20L/25L Yellow Jerry Can \u2013 CP10',base:'indonesiaCp10',diff:-13,pkg:138,port:'Jakarta'},
+      {sec:'',name:'20L Yellow Jerry Can \u2013 CP8',base:'indonesiaCp10',diff:-32.4,pkg:138,port:'Jakarta'},
       {sec:'SPECIALTY',name:'20kg Hpks 33.5/35.5',base:'rbdPalmKernelStearinP2',diff:-217,pkg:82,port:'Jakarta',note:'Uses P2 (2360), not K2 (2350)'},
-      {sec:'',name:'20kg Hpko 38/40',base:'rbdPalmKernelOil',diff:-223,pkg:82,port:'Jakarta'},
+      {sec:'',name:'20kg Hpko 38/40',base:'rbdPalmKernelOil',diff:-223,pkg:82,port:'Jakarta'}
     ]
   },
   klk:{
-    inputs:{
-      margin:0.975, oillioMargin:0.025,
-      cp10:1175
+    inputs:{margin:0.975,oillioMargin:0.025,cp10:1175},
+    inputMeta:{
+      margin:{lbl:'Margin (I3) \u2014 ALL products use this'},
+      oillioMargin:{lbl:'Oillio Margin (K3)'},
+      cp10:{lbl:'CP10 (J3) \u2014 ALL 80 products derive from this'}
     },
-    inputLabels:{
-      margin:'Margin (I3)',
-      oillioMargin:'Oillio Margin (K3)',
-      cp10:'CP10 (J3) — drives ALL products'
-    },
-    products:[
-      {sec:'PET BOTTLES',name:'900ML x12 PET Bottles/Carton',base:'cp10',diff:60,pkg:218.7932,port:'Port Klang'},
-      {sec:'',name:'1.5L x12 PET Bottles/Carton',base:'cp10',diff:60,pkg:199.6833,port:'Port Klang'},
-      {sec:'',name:'1.5L x6 PET Bottles/Carton (A)',base:'cp10',diff:60,pkg:259.597,port:'Port Klang'},
-      {sec:'',name:'1.5L x6 PET Bottles/Carton (B)',base:'cp10',diff:60,pkg:221.3478,port:'Port Klang'},
-      {sec:'',name:'2L x6 PET Bottles/Carton',base:'cp10',diff:60,pkg:206.2352,port:'Port Klang'},
-      {sec:'',name:'4.5L x6 PET Bottles/Carton',base:'cp10',diff:60,pkg:182.845,port:'Port Klang'},
-      {sec:'',name:'4L x4 PET Bottles/Carton',base:'cp10',diff:60,pkg:157.0855,port:'Port Klang'},
-      {sec:'',name:'5L x4 PET Bottles/Carton',base:'cp10',diff:60,pkg:133.5393,port:'Port Klang'},
-      {sec:'JERRY CANS',name:'4L x4 Yellow Jerry Cans/Carton',base:'cp10',diff:0,pkg:186.2463,port:'Port Klang'},
-      {sec:'',name:'4.5L x4 Yellow Jerry Cans/Carton',base:'cp10',diff:0,pkg:178.3585,port:'Port Klang'},
-      {sec:'',name:'5L x4 Transparent Jerry Cans/Carton',base:'cp10',diff:0,pkg:197.449,port:'Port Klang'},
-      {sec:'',name:'8L Yellow Jerry Can',base:'cp10',diff:0,pkg:182.4047,port:'Port Klang'},
-      {sec:'',name:'8L x2 Yellow Jerry Cans/Carton',base:'cp10',diff:0,pkg:193.7245,port:'Port Klang'},
-      {sec:'',name:'9L Yellow Jerry Can',base:'cp10',diff:0,pkg:165.313,port:'Port Klang'},
-      {sec:'',name:'10L Yellow Jerry Can',base:'cp10',diff:0,pkg:160.5355,port:'Port Klang'},
-      {sec:'',name:'10L BM Yellow Jerry Can',base:'cp10',diff:0,pkg:176.3305,port:'Port Klang'},
-      {sec:'',name:'16L Yellow Jerry Can',base:'cp10',diff:0,pkg:147.0025,port:'Port Klang'},
-      {sec:'',name:'16L BM Yellow Jerry Can',base:'cp10',diff:0,pkg:155.602,port:'Port Klang'},
-      {sec:'',name:'16L (18kg) BM Yellow Jerry Can',base:'cp10',diff:0,pkg:160.36,port:'Port Klang'},
-      {sec:'',name:'18L BM Yellow Jerry Can',base:'cp10',diff:0,pkg:151.195,port:'Port Klang'},
-      {sec:'',name:'20L Transparent Jerry Can',base:'cp10',diff:0,pkg:147.9678,port:'Port Klang'},
-      {sec:'',name:'20L Yellow Jerry Can',base:'cp10',diff:0,pkg:142.1275,port:'Port Klang'},
-      {sec:'',name:'20L White Jerry Can',base:'cp10',diff:0,pkg:134.893,port:'Port Klang'},
+    prods:[
+      {sec:'PET BOTTLES',name:'900ML x12 PET',base:'cp10',diff:60,pkg:218.7932,port:'Port Klang'},
+      {sec:'',name:'1.5L x12 PET',base:'cp10',diff:60,pkg:199.6833,port:'Port Klang'},
+      {sec:'',name:'1.5L x6 PET (A)',base:'cp10',diff:60,pkg:259.597,port:'Port Klang'},
+      {sec:'',name:'1.5L x6 PET (B)',base:'cp10',diff:60,pkg:221.3478,port:'Port Klang'},
+      {sec:'',name:'2L x6 PET',base:'cp10',diff:60,pkg:206.2352,port:'Port Klang'},
+      {sec:'',name:'4.5L x6 PET',base:'cp10',diff:60,pkg:182.845,port:'Port Klang'},
+      {sec:'',name:'4L x4 PET',base:'cp10',diff:60,pkg:157.0855,port:'Port Klang'},
+      {sec:'',name:'5L x4 PET',base:'cp10',diff:60,pkg:133.5393,port:'Port Klang'},
+      {sec:'JERRY CANS',name:'4L x4 Yellow JC/Ctn',base:'cp10',diff:0,pkg:186.2463,port:'Port Klang'},
+      {sec:'',name:'4.5L x4 Yellow JC/Ctn',base:'cp10',diff:0,pkg:178.3585,port:'Port Klang'},
+      {sec:'',name:'5L x4 Transparent JC/Ctn',base:'cp10',diff:0,pkg:197.449,port:'Port Klang'},
+      {sec:'',name:'8L Yellow JC',base:'cp10',diff:0,pkg:182.4047,port:'Port Klang'},
+      {sec:'',name:'8L x2 Yellow JC/Ctn',base:'cp10',diff:0,pkg:193.7245,port:'Port Klang'},
+      {sec:'',name:'9L Yellow JC',base:'cp10',diff:0,pkg:165.313,port:'Port Klang'},
+      {sec:'',name:'10L Yellow JC',base:'cp10',diff:0,pkg:160.5355,port:'Port Klang'},
+      {sec:'',name:'10L BM Yellow JC',base:'cp10',diff:0,pkg:176.3305,port:'Port Klang'},
+      {sec:'',name:'16L Yellow JC',base:'cp10',diff:0,pkg:147.0025,port:'Port Klang'},
+      {sec:'',name:'16L BM Yellow JC',base:'cp10',diff:0,pkg:155.602,port:'Port Klang'},
+      {sec:'',name:'16L(18kg) BM Yellow JC',base:'cp10',diff:0,pkg:160.36,port:'Port Klang'},
+      {sec:'',name:'18L BM Yellow JC',base:'cp10',diff:0,pkg:151.195,port:'Port Klang'},
+      {sec:'',name:'20L Transparent JC',base:'cp10',diff:0,pkg:147.9678,port:'Port Klang'},
+      {sec:'',name:'20L Yellow JC',base:'cp10',diff:0,pkg:142.1275,port:'Port Klang'},
+      {sec:'',name:'20L White JC',base:'cp10',diff:0,pkg:134.893,port:'Port Klang'},
       {sec:'TINS',name:'16L Tin Small Lid',base:'cp10',diff:0,pkg:206.9162,port:'Port Klang'},
       {sec:'',name:'16L Tin Big Lid',base:'cp10',diff:0,pkg:225.841,port:'Port Klang'},
       {sec:'',name:'17L Tin Flexspot',base:'cp10',diff:0,pkg:201.7585,port:'Port Klang'},
@@ -2428,350 +2431,292 @@ var SR_DEFAULTS = {
       {sec:'BIB',name:'10kg BIB',base:'cp10',diff:0,pkg:133.2647,port:'Port Klang'},
       {sec:'',name:'16L BIB',base:'cp10',diff:0,pkg:119.5367,port:'Port Klang'},
       {sec:'',name:'20kg BIB',base:'cp10',diff:0,pkg:109.7477,port:'Port Klang'},
-      {sec:'DRUMS',name:'210L Tight Head Steel Drum (Blue)',base:'cp10',diff:0,pkg:242.299,port:'Port Klang'},
-      {sec:'',name:'220L HDPE Plastic Drum (Blue) A',base:'cp10',diff:0,pkg:157.981,port:'Port Klang'},
-      {sec:'PE LINERS (diff = grade premium over CP10)',name:'16kg PE Liners in Carton',base:'cp10',diff:-15,pkg:116.899,port:'Port Klang'},
-      {sec:'',name:'20kg PE Liners in Carton (A)',base:'cp10',diff:-15,pkg:113.311,port:'Port Klang'},
-      {sec:'',name:'20kg PE Liners in Carton (B)',base:'cp10',diff:-12.5,pkg:178.086,port:'Port Klang'},
-      {sec:'',name:'20kg PE Liners in Carton (C)',base:'cp10',diff:-10,pkg:173.636,port:'Port Klang'},
-      {sec:'',name:'20kg PE Liners in Carton (D)',base:'cp10',diff:-7.5,pkg:130.6735,port:'Port Klang'},
-      {sec:'',name:'20kg PE Liners in Carton (E)',base:'cp10',diff:-5,pkg:136.461,port:'Port Klang'},
-      {sec:'',name:'25kg PE Liners in Carton',base:'cp10',diff:-5,pkg:130.1625,port:'Port Klang'},
-      {sec:'',name:'20kg PE Liners in Carton (F)',base:'cp10',diff:25,pkg:184.461,port:'Port Klang'},
-      {sec:'',name:'20kg PE Liners in Carton (G)',base:'cp10',diff:20,pkg:83.7807,port:'Port Klang'},
-      {sec:'',name:'20kg PE Liners in Carton (H)',base:'cp10',diff:20,pkg:8.8228,port:'Port Klang'},
-      {sec:'',name:'20kg PE Liners in Carton (I)',base:'cp10',diff:20,pkg:123.785,port:'Port Klang'},
-      {sec:'ROUND TINS',name:'1L x12 Rou-Tin w/Lid',base:'cp10',diff:20,pkg:578.6127,port:'Port Klang'},
-      {sec:'',name:'2L x6 Rec-Tin w/Lid',base:'cp10',diff:20,pkg:659.4987,port:'Port Klang'},
-      {sec:'',name:'4L x6 Rec-Tin w/Lid',base:'cp10',diff:20,pkg:441.6935,port:'Port Klang'},
-      {sec:'',name:'5L x4 Rec-Tin w/Lid',base:'cp10',diff:20,pkg:371.7957,port:'Port Klang'},
-      {sec:'',name:'6L x2 Rec-Tin w/Lid',base:'cp10',diff:20,pkg:338.675,port:'Port Klang'},
-      {sec:'',name:'8L x2 Rec-Tin w/Lid',base:'cp10',diff:20,pkg:340.1375,port:'Port Klang'},
-      {sec:'',name:'8kg x2 Rec-Tin w/Lid',base:'cp10',diff:20,pkg:310.7803,port:'Port Klang'},
-      {sec:'',name:'12L Rec-Tin w/Lid',base:'cp10',diff:20,pkg:243.554,port:'Port Klang'},
-      {sec:'',name:'14L Rec-Tin w/Lid',base:'cp10',diff:20,pkg:243.554,port:'Port Klang'},
-      {sec:'',name:'16L Rec-Tin w/Lid',base:'cp10',diff:20,pkg:218.8865,port:'Port Klang'},
-      {sec:'',name:'16kg Rec-Tin w/Lid',base:'cp10',diff:20,pkg:205.5095,port:'Port Klang'},
-      {sec:'',name:'15kg Rec-Tin w/Lid',base:'cp10',diff:20,pkg:210.0042,port:'Port Klang'},
-      {sec:'',name:'20kg Rec-Tin w/Lid',base:'cp10',diff:20,pkg:194.4725,port:'Port Klang'},
-      {sec:'',name:'220L HDPE Plastic Drum (Blue) B',base:'cp10',diff:20,pkg:152.9278,port:'Port Klang'},
-      {sec:'JERRY CANS (additional)',name:'3L x6 Yellow Jerry Cans/Carton',base:'cp10',diff:0,pkg:192.4082,port:'Port Klang'},
-      {sec:'',name:'5L x4 Yellow Jerry Cans/Carton',base:'cp10',diff:0,pkg:168.433,port:'Port Klang'},
-      {sec:'',name:'17L Yellow Jerry Can w/Double-Sided Sticker',base:'cp10',diff:0,pkg:150.9513,port:'Port Klang'},
-      {sec:'',name:'18L Yellow Jerry Can',base:'cp10',diff:0,pkg:143.0732,port:'Port Klang'},
-      {sec:'',name:'20L Yellow Jerry Can (B)',base:'cp10',diff:0,pkg:134.776,port:'Port Klang'},
-      {sec:'',name:'25L Yellow Jerry Can',base:'cp10',diff:0,pkg:127.3563,port:'Port Klang'},
+      {sec:'DRUMS',name:'210L Steel Drum (Blue)',base:'cp10',diff:0,pkg:242.299,port:'Port Klang'},
+      {sec:'',name:'220L HDPE Drum (Blue) A',base:'cp10',diff:0,pkg:157.981,port:'Port Klang'},
+      {sec:'PE LINERS',name:'16kg PE Liners/Ctn',base:'cp10',diff:-15,pkg:116.899,port:'Port Klang'},
+      {sec:'',name:'20kg PE Liners A',base:'cp10',diff:-15,pkg:113.311,port:'Port Klang'},
+      {sec:'',name:'20kg PE Liners B',base:'cp10',diff:-12.5,pkg:178.086,port:'Port Klang'},
+      {sec:'',name:'20kg PE Liners C',base:'cp10',diff:-10,pkg:173.636,port:'Port Klang'},
+      {sec:'',name:'20kg PE Liners D',base:'cp10',diff:-7.5,pkg:130.6735,port:'Port Klang'},
+      {sec:'',name:'20kg PE Liners E',base:'cp10',diff:-5,pkg:136.461,port:'Port Klang'},
+      {sec:'',name:'25kg PE Liners',base:'cp10',diff:-5,pkg:130.1625,port:'Port Klang'},
+      {sec:'',name:'20kg PE Liners F',base:'cp10',diff:25,pkg:184.461,port:'Port Klang'},
+      {sec:'',name:'20kg PE Liners G',base:'cp10',diff:20,pkg:83.7807,port:'Port Klang'},
+      {sec:'',name:'20kg PE Liners H',base:'cp10',diff:20,pkg:8.8228,port:'Port Klang'},
+      {sec:'',name:'20kg PE Liners I',base:'cp10',diff:20,pkg:123.785,port:'Port Klang'},
+      {sec:'ROUND & REC TINS',name:'1L x12 Rou-Tin',base:'cp10',diff:20,pkg:578.6127,port:'Port Klang'},
+      {sec:'',name:'2L x6 Rec-Tin',base:'cp10',diff:20,pkg:659.4987,port:'Port Klang'},
+      {sec:'',name:'4L x6 Rec-Tin',base:'cp10',diff:20,pkg:441.6935,port:'Port Klang'},
+      {sec:'',name:'5L x4 Rec-Tin',base:'cp10',diff:20,pkg:371.7957,port:'Port Klang'},
+      {sec:'',name:'6L x2 Rec-Tin',base:'cp10',diff:20,pkg:338.675,port:'Port Klang'},
+      {sec:'',name:'8L x2 Rec-Tin',base:'cp10',diff:20,pkg:340.1375,port:'Port Klang'},
+      {sec:'',name:'8kg x2 Rec-Tin',base:'cp10',diff:20,pkg:310.7803,port:'Port Klang'},
+      {sec:'',name:'12L Rec-Tin',base:'cp10',diff:20,pkg:243.554,port:'Port Klang'},
+      {sec:'',name:'14L Rec-Tin',base:'cp10',diff:20,pkg:243.554,port:'Port Klang'},
+      {sec:'',name:'16L Rec-Tin',base:'cp10',diff:20,pkg:218.8865,port:'Port Klang'},
+      {sec:'',name:'16kg Rec-Tin',base:'cp10',diff:20,pkg:205.5095,port:'Port Klang'},
+      {sec:'',name:'15kg Rec-Tin',base:'cp10',diff:20,pkg:210.0042,port:'Port Klang'},
+      {sec:'',name:'20kg Rec-Tin',base:'cp10',diff:20,pkg:194.4725,port:'Port Klang'},
+      {sec:'',name:'220L HDPE Drum (Blue) B',base:'cp10',diff:20,pkg:152.9278,port:'Port Klang'},
+      {sec:'JERRY CANS (additional)',name:'3L x6 Yellow JC/Ctn',base:'cp10',diff:0,pkg:192.4082,port:'Port Klang'},
+      {sec:'',name:'5L x4 Yellow JC/Ctn',base:'cp10',diff:0,pkg:168.433,port:'Port Klang'},
+      {sec:'',name:'17L Yellow JC (dbl sticker)',base:'cp10',diff:0,pkg:150.9513,port:'Port Klang'},
+      {sec:'',name:'18L Yellow JC',base:'cp10',diff:0,pkg:143.0732,port:'Port Klang'},
+      {sec:'',name:'20L Yellow JC (B)',base:'cp10',diff:0,pkg:134.776,port:'Port Klang'},
+      {sec:'',name:'25L Yellow JC',base:'cp10',diff:0,pkg:127.3563,port:'Port Klang'},
       {sec:'FLEXIBAGS',name:'Flexibag (std)',base:'cp10',diff:0,pkg:40.9713,port:'Port Klang'},
       {sec:'',name:'Flexibag + Heating Pad',base:'cp10',diff:0,pkg:47.3478,port:'Port Klang'},
       {sec:'',name:'Flexibag + Heating Rail',base:'cp10',diff:0,pkg:49.6585,port:'Port Klang'},
       {sec:'',name:'Flexibag + Double Heating Pad',base:'cp10',diff:0,pkg:54.865,port:'Port Klang'},
-      {sec:'',name:'Flexibag (B)',base:'cp10',diff:-5,pkg:41.0963,port:'Port Klang'},
-      {sec:'',name:'Flexibag + Heating Pad (B)',base:'cp10',diff:-5,pkg:47.4728,port:'Port Klang'},
-      {sec:'',name:'Flexibag + Heating Rail (B)',base:'cp10',diff:-5,pkg:49.7835,port:'Port Klang'},
-      {sec:'',name:'Flexibag + Double Heating Pad (B)',base:'cp10',diff:-5,pkg:54.99,port:'Port Klang'},
-      {sec:'',name:'Flexibag (C)',base:'cp10',diff:-40,pkg:7.8463,port:'Port Klang'},
-      {sec:'',name:'Flexibag + Heating Pad (C)',base:'cp10',diff:-40,pkg:14.2228,port:'Port Klang'},
-      {sec:'',name:'Flexibag + Heating Rail (C)',base:'cp10',diff:-40,pkg:16.5335,port:'Port Klang'},
-      {sec:'',name:'Flexibag + Double Heating Pad (C)',base:'cp10',diff:-40,pkg:21.74,port:'Port Klang'},
-      {sec:'',name:'Flexibag (D)',base:'cp10',diff:-115,pkg:10.0528,port:'Port Klang'},
-      {sec:'',name:'Flexibag + Heating Pad (D)',base:'cp10',diff:-115,pkg:16.4195,port:'Port Klang'},
-      {sec:'',name:'Flexibag + Heating Rail (D)',base:'cp10',diff:-115,pkg:18.7303,port:'Port Klang'},
-      {sec:'',name:'Flexibag + Double Heating Pad (D)',base:'cp10',diff:-115,pkg:23.9368,port:'Port Klang'},
+      {sec:'',name:'Flexibag B',base:'cp10',diff:-5,pkg:41.0963,port:'Port Klang'},
+      {sec:'',name:'Flexibag B + Heating Pad',base:'cp10',diff:-5,pkg:47.4728,port:'Port Klang'},
+      {sec:'',name:'Flexibag B + Heating Rail',base:'cp10',diff:-5,pkg:49.7835,port:'Port Klang'},
+      {sec:'',name:'Flexibag B + Double Heating Pad',base:'cp10',diff:-5,pkg:54.99,port:'Port Klang'},
+      {sec:'',name:'Flexibag C',base:'cp10',diff:-40,pkg:7.8463,port:'Port Klang'},
+      {sec:'',name:'Flexibag C + Heating Pad',base:'cp10',diff:-40,pkg:14.2228,port:'Port Klang'},
+      {sec:'',name:'Flexibag C + Heating Rail',base:'cp10',diff:-40,pkg:16.5335,port:'Port Klang'},
+      {sec:'',name:'Flexibag C + Double Heating Pad',base:'cp10',diff:-40,pkg:21.74,port:'Port Klang'},
+      {sec:'',name:'Flexibag D',base:'cp10',diff:-115,pkg:10.0528,port:'Port Klang'},
+      {sec:'',name:'Flexibag D + Heating Pad',base:'cp10',diff:-115,pkg:16.4195,port:'Port Klang'},
+      {sec:'',name:'Flexibag D + Heating Rail',base:'cp10',diff:-115,pkg:18.7303,port:'Port Klang'},
+      {sec:'',name:'Flexibag D + Double Heating Pad',base:'cp10',diff:-115,pkg:23.9368,port:'Port Klang'}
     ]
   }
 };
 
-// ── State ─────────────────────────────────────────────────────────────────────
-var SR_DATA = {};   // live working copy
-var SR_SAVED = {};  // last saved copy (for dirty detection)
-var SR_LOGS = [];
+var SR_DATA={}, SR_LOGS=[];
 
-function srLoad(){
-  try{
-    var s=localStorage.getItem(SR_KEY);
-    SR_DATA=s?JSON.parse(s):JSON.parse(JSON.stringify(SR_DEFAULTS));
-  }catch(e){SR_DATA=JSON.parse(JSON.stringify(SR_DEFAULTS));}
-  try{
-    var l=localStorage.getItem(SRL_KEY);
-    SR_LOGS=l?JSON.parse(l):[];
-  }catch(e){SR_LOGS=[];}
-  SR_SAVED=JSON.parse(JSON.stringify(SR_DATA));
+function srInit(){
+  try{ var s=localStorage.getItem(SR_KEY); SR_DATA=s?JSON.parse(s):JSON.parse(JSON.stringify(SR_DEF)); }
+  catch(e){ SR_DATA=JSON.parse(JSON.stringify(SR_DEF)); }
+  try{ var l=localStorage.getItem(SRL_KEY); SR_LOGS=l?JSON.parse(l):[]; }
+  catch(e){ SR_LOGS=[]; }
 }
 
-function srPersist(){
-  try{localStorage.setItem(SR_KEY,JSON.stringify(SR_DATA));}
-  catch(e){showCustToast('⚠ Storage error saving supplier rates');}
-}
-
-function srSaveLogs(){
-  try{
-    // Keep last 100 log entries
-    if(SR_LOGS.length>100)SR_LOGS=SR_LOGS.slice(-100);
-    localStorage.setItem(SRL_KEY,JSON.stringify(SR_LOGS));
-  }catch(e){}
-}
-
-// ── Open / close ──────────────────────────────────────────────────────────────
 function openSupplierRates(){
-  srLoad();
-  el('srModal').classList.add('open');
-  SR_ACTIVE='apical';
-  srUpdateTabUI();
+  srInit();
+  document.getElementById('srModal').classList.add('open');
+  SR_TAB='apical';
+  srUpdateTabs();
   srRender();
   srRenderLog();
 }
 
-function closeSR(){el('srModal').classList.remove('open');}
+function closeSR(){
+  document.getElementById('srModal').classList.remove('open');
+}
 
-function srSwitch(tab){
-  SR_ACTIVE=tab;
-  srUpdateTabUI();
+function srTab(t){
+  SR_TAB=t;
+  srUpdateTabs();
   srRender();
 }
 
-function srUpdateTabUI(){
-  ['apical','wingagro','klk'].forEach(function(t){
-    var btn=el('srTab'+t.charAt(0).toUpperCase()+t.slice(1));
-    if(btn)btn.className='sr-tab'+(t===SR_ACTIVE?' on':'');
-  });
+function srUpdateTabs(){
+  var tabs=['apical','wingagro','klk'];
+  var btns=document.getElementById('srTabRow').querySelectorAll('.sr-tab');
+  btns.forEach(function(b,i){ b.className='sr-tab'+(tabs[i]===SR_TAB?' on':''); });
 }
 
-// ── Calculated price per product ──────────────────────────────────────────────
-function srCalcPrice(tab,prod,inp){
+// Get the base oil value for a product
+function srBase(inp,base){
+  if(base==='indonesiaRbdPo')  return (parseFloat(inp.malaysiaCp10)||0)-125;
+  if(base==='indonesiaCp10')   return (parseFloat(inp.malaysiaCp10)||0)-20;
+  return parseFloat(inp[base])||0;
+}
+
+// Calculate price/MT for a product
+function srPrice(inp,prod){
   var mgn=parseFloat(inp.margin)||1;
-  var base;
-  var b=prod.base;
-  if(b==='indonesiaRbdPo')     base=(parseFloat(inp.malaysiaCp10)||0)-125;
-  else if(b==='indonesiaCp10') base=(parseFloat(inp.malaysiaCp10)||0)-20;
-  else base=parseFloat(inp[b])||0;
-  var total=base+(parseFloat(prod.diff)||0)+(parseFloat(prod.pkg)||0);
-  return mgn>0?total/mgn:0;
+  if(mgn===0) return 0;
+  return (srBase(inp,prod.base)+(parseFloat(prod.diff)||0)+(parseFloat(prod.pkg)||0))/mgn;
 }
 
-// ── Render main panel ─────────────────────────────────────────────────────────
 function srRender(){
-  if(!SR_DATA[SR_ACTIVE]){el('srMainContent').innerHTML='<p>No data</p>';return;}
-  var d=SR_ACTIVE;
-  var data=SR_DATA[d];
-  var inp=data.inputs;
-  var labels=SR_DEFAULTS[d].inputLabels;
+  var d=SR_DATA[SR_TAB];
+  var def=SR_DEF[SR_TAB];
+  if(!d||!def){ document.getElementById('srMain').innerHTML=''; return; }
+  var inp=d.inputs, defInp=def.inputs, meta=def.inputMeta;
 
-  // Yellow inputs
-  var html='<div class="sr-inputs"><h4>&#x1F7E1; Yellow Reference Inputs</h4><div class="sr-inp-grid">';
+  // Yellow inputs section
+  var h='<div class="sr-ybox"><h4>&#x1F7E1; Yellow Reference Inputs (from Excel)</h4><div class="sr-ygrid">';
   for(var k in inp){
-    var lbl=labels[k]||k;
-    html+='<div class="sr-inp-item">'
-      +'<label>'+lbl+'</label>'
-      +'<input type="number" step="0.001" value="'+inp[k]+'" data-sr="'+d+'-inp-'+k+'" oninput="srInpChange(this,\''+d+'\',\''+k+'\')">'
-    +'</div>';
+    var lbl=(meta[k]&&meta[k].lbl)||k;
+    var defV=defInp[k]!==undefined?defInp[k]:'';
+    h+='<div class="sr-yitem"><label>'+lbl+'</label>'
+      +'<input type="number" step="0.0001" value="'+inp[k]+'"'
+      +' oninput="srInpChg(\''+SR_TAB+'\',\''+k+'\',this.value)">'
+      +'<span class="sr-drv">Default: '+defV+'</span>'
+      +'</div>';
   }
-  // Show derived values
-  if(d==='apical'||d==='wingagro'){
-    var cp10=parseFloat(inp.malaysiaCp10)||0;
-    html+='<div class="sr-inp-item"><label>Indonesia RBD PO (derived = CP10−125)</label>'
-      +'<div class="sr-derived">USD '+(cp10-125)+'/MT (auto)</div></div>';
+  // Derived read-only values
+  if(SR_TAB==='apical'||SR_TAB==='wingagro'){
+    var cp10v=parseFloat(inp.malaysiaCp10)||0;
+    h+='<div class="sr-yitem"><label>Indonesia RBD PO (derived: CP10\u2212125)</label>'
+      +'<div class="sr-drv" style="font-size:.76rem;font-weight:700;color:#0a3d62;margin-top:2px">USD '+(cp10v-125).toFixed(2)+'/MT</div></div>';
   }
-  if(d==='wingagro'){
+  if(SR_TAB==='wingagro'){
     var cp10w=parseFloat(inp.malaysiaCp10)||0;
-    html+='<div class="sr-inp-item"><label>Indonesia CP10 (derived = CP10−20)</label>'
-      +'<div class="sr-derived">USD '+(cp10w-20)+'/MT (auto)</div></div>';
+    h+='<div class="sr-yitem"><label>Indonesia CP10 (derived: CP10\u221220)</label>'
+      +'<div class="sr-drv" style="font-size:.76rem;font-weight:700;color:#0a3d62;margin-top:2px">USD '+(cp10w-20).toFixed(2)+'/MT</div></div>';
   }
-  html+='</div></div>';
+  h+='</div></div>';
 
   // Product table
-  html+='<div class="sr-table-wrap"><table class="sr-table">'
+  h+='<div class="sr-tbl-wrap"><table class="sr-tbl">'
     +'<thead><tr>'
-    +'<th style="width:34%">Product</th>'
-    +'<th>Base Input</th>'
-    +'<th class="r">Premium/<br>Discount<br>(USD/MT)</th>'
-    +'<th class="r">Pkg Cost<br>(USD/MT)</th>'
-    +'<th class="r">Calc. Price<br>/MT (USD)</th>'
+    +'<th style="width:30%">Product</th>'
+    +'<th>Base Oil Input</th>'
+    +'<th class="r">Premium/<br>Discount<br>USD/MT</th>'
+    +'<th class="r">Packaging<br>Cost<br>USD/MT</th>'
+    +'<th class="r">Calc Price<br>USD/MT</th>'
     +'<th>Port</th>'
     +'</tr></thead><tbody>';
 
-  var prods=data.products;
-  var defaultProds=SR_DEFAULTS[d].products;
+  var prods=d.prods, defProds=def.prods;
+  var baseLabels={
+    'malaysiaCp10':'MY CP10',
+    'indonesiaRbdPo':'ID RBD PO\n(CP10\u2212125)',
+    'indonesiaCp10':'ID CP10\n(CP10\u221220)',
+    'rbdPalmKernelOlein':'PBK Olein (K2)',
+    'rbdPalmKernelOil':'PBK Oil (L2)',
+    'rbdPalmKernelStearin':'PBK Stearin (M2)',
+    'rbdPalmKernelStearinP2':'PBK Stearin P2',
+    'coconut':'Coconut',
+    'stearin':'Stearin',
+    'hpksStearin':'HPKS Stearin (Q2)',
+    'cp10':'CP10 (J3)'
+  };
+
   for(var i=0;i<prods.length;i++){
-    var p=prods[i];
-    var dp=defaultProds[i]||p;
-    var price=srCalcPrice(d,p,inp);
-    var priceStr=price>0?'USD '+fmt(price,2):'⚠ Err';
-    var priceCls=price>0?'sr-price':'sr-price bad';
-    var diffDirty=parseFloat(p.diff)!==parseFloat(dp.diff)?'dirty':'';
-    var pkgDirty=parseFloat(p.pkg)!==parseFloat(dp.pkg)?'dirty':'';
-
-    // Section header row
-    if(p.sec){
-      html+='<tr><td colspan="6" class="sr-sec">'+p.sec+'</td></tr>';
-    }
-
-    // Base label
-    var baseLabel={'malaysiaCp10':'MY CP10','indonesiaRbdPo':'ID RBD PO (CP10−125)',
-      'indonesiaCp10':'ID CP10 (CP10−20)','rbdPalmKernelOlein':'PBKO Olein',
-      'rbdPalmKernelOil':'PBK Oil','rbdPalmKernelStearin':'PBK Stearin (M2/K2)',
-      'rbdPalmKernelStearinP2':'PBK Stearin P2','coconut':'Coconut',
-      'stearin':'Stearin','hpksStearin':'HPKS Stearin (Q2)','cp10':'CP10 (J3)'}[p.base]||p.base;
-
-    html+='<tr>'
-      +'<td class="nm">'+p.name+(p.note?'<br><span style="font-size:.62rem;color:#c0392b">⚠ '+p.note+'</span>':'')+'</td>'
-      +'<td class="base">'+baseLabel+'</td>'
-      +'<td class="r"><input class="sr-inp-td '+diffDirty+'" type="number" step="0.01" value="'+p.diff+'" '
-        +'data-sr="'+d+'-prod-'+i+'-diff" oninput="srProdChange(this,\''+d+'\','+i+',\'diff\')"></td>'
-      +'<td class="r"><input class="sr-inp-td '+pkgDirty+'" type="number" step="0.0001" value="'+p.pkg+'" '
-        +'data-sr="'+d+'-prod-'+i+'-pkg" oninput="srProdChange(this,\''+d+'\','+i+',\'pkg\')"></td>'
-      +'<td class="r '+priceCls+'">'+priceStr+'</td>'
-      +'<td class="base">'+p.port+'</td>'
-    +'</tr>';
+    var p=prods[i], dp=defProds[i]||{};
+    if(p.sec) h+='<tr><td colspan="6" class="sr-sec">'+p.sec+'</td></tr>';
+    var price=srPrice(inp,p);
+    var pxCls='sr-px'+(price<=0?' bad':'');
+    var pxStr=price>0?'USD '+fmt(price,2):'ERR';
+    var diffChg=parseFloat(p.diff)!==parseFloat(dp.diff||0)?'chg':'';
+    var pkgChg=parseFloat(p.pkg)!==parseFloat(dp.pkg||0)?'chg':'';
+    var baseLbl=(baseLabels[p.base]||p.base).replace('\n','<br>');
+    h+='<tr>'
+      +'<td class="nm">'+p.name+(p.note?'<div class="sr-note">\u26a0 '+p.note+'</div>':'')+'</td>'
+      +'<td class="sub">'+baseLbl+'</td>'
+      +'<td class="r"><input class="sr-ni '+diffChg+'" type="number" step="0.01" value="'+p.diff+'"'
+        +' oninput="srProdChg(\''+SR_TAB+'\','+i+',\'diff\',this.value)"></td>'
+      +'<td class="r"><input class="sr-ni '+pkgChg+'" type="number" step="0.001" value="'+p.pkg+'"'
+        +' oninput="srProdChg(\''+SR_TAB+'\','+i+',\'pkg\',this.value)"></td>'
+      +'<td class="r '+pxCls+'">'+pxStr+'</td>'
+      +'<td class="sub">'+p.port+'</td>'
+      +'</tr>';
   }
-  html+='</tbody></table></div>';
-
-  el('srMainContent').innerHTML=html;
-  srCheckDirty();
+  h+='</tbody></table></div>';
+  document.getElementById('srMain').innerHTML=h;
 }
 
-// ── Input change handlers ─────────────────────────────────────────────────────
-function srInpChange(el_,tab,key){
-  var val=parseFloat(el_.value);
-  if(isNaN(val))return;
-  SR_DATA[tab].inputs[key]=val;
+function srInpChg(tab,key,val){
+  var v=parseFloat(val);
+  if(isNaN(v))return;
+  SR_DATA[tab].inputs[key]=v;
   SR_DIRTY=true;
-  // Re-render prices only (don't rebuild whole table — just recalc price cells)
-  srRecalcPrices(tab);
-  srCheckDirty();
+  document.getElementById('srDirty').className='sr-dirty on';
+  // Recalculate price column live
+  srRefreshPrices(tab);
+  // Refresh derived labels
+  if((tab==='apical'||tab==='wingagro')&&key==='malaysiaCp10'){
+    srRender(); // full re-render to update derived values
+  }
 }
 
-function srProdChange(el_,tab,idx,field){
-  var val=parseFloat(el_.value);
-  if(isNaN(val))return;
-  SR_DATA[tab].products[idx][field]=val;
-  // Mark dirty
-  var def=SR_DEFAULTS[tab].products[idx];
-  var isDirty=def&&parseFloat(def[field])!==val;
-  el_.className='sr-inp-td'+(isDirty?' dirty':'');
+function srProdChg(tab,idx,field,val){
+  var v=parseFloat(val);
+  if(isNaN(v))return;
+  SR_DATA[tab].prods[idx][field]=v;
   SR_DIRTY=true;
-  srRecalcPrices(tab);
-  srCheckDirty();
+  document.getElementById('srDirty').className='sr-dirty on';
+  srRefreshPrices(tab);
 }
 
-function srRecalcPrices(tab){
-  // Update only the calculated price cells without full re-render
-  var prods=SR_DATA[tab].products;
+function srRefreshPrices(tab){
+  if(tab!==SR_TAB)return;
   var inp=SR_DATA[tab].inputs;
-  var cells=document.querySelectorAll('[data-sr^="'+tab+'-prod-"]');
-  // Find price cells: they have class sr-price; rebuild by re-rendering
-  srRenderPricesOnly(tab);
-}
-
-function srRenderPricesOnly(tab){
-  // Find all price display cells in the table and update
-  var prods=SR_DATA[tab].products;
-  var inp=SR_DATA[tab].inputs;
-  var rows=el('srMainContent').querySelectorAll('tbody tr');
-  var prodIdx=0;
+  var prods=SR_DATA[tab].prods;
+  var rows=document.getElementById('srMain').querySelectorAll('tbody tr');
+  var pi=0;
   rows.forEach(function(row){
-    var secCell=row.querySelector('.sr-sec');
-    if(secCell)return; // section header, skip
-    if(prodIdx>=prods.length)return;
-    var p=prods[prodIdx];
-    var priceCells=row.querySelectorAll('td');
-    if(priceCells.length>=5){
-      var price=srCalcPrice(tab,p,inp);
-      var td=priceCells[4];
-      td.textContent=price>0?'USD '+fmt(price,2):'⚠ Err';
-      td.className='r '+(price>0?'sr-price':'sr-price bad');
+    if(row.querySelector('.sr-sec'))return;
+    if(pi>=prods.length)return;
+    var tds=row.querySelectorAll('td');
+    if(tds.length>=5){
+      var price=srPrice(inp,prods[pi]);
+      tds[4].textContent=price>0?'USD '+fmt(price,2):'ERR';
+      tds[4].className='r '+(price>0?'sr-px':'sr-px bad');
     }
-    prodIdx++;
+    pi++;
   });
-  // Update derived labels
-  if(tab==='apical'||tab==='wingagro'){
-    var cp10=parseFloat(inp.malaysiaCp10)||0;
-    var deriveds=el('srMainContent').querySelectorAll('.sr-derived');
-    if(deriveds[0])deriveds[0].textContent='USD '+(cp10-125)+'/MT (auto)';
-    if(deriveds[1]&&tab==='wingagro')deriveds[1].textContent='USD '+(cp10-20)+'/MT (auto)';
-  }
 }
 
-function srCheckDirty(){
-  var badge=el('srDirtyBadge');
-  if(badge)badge.className='sr-dirty-badge'+(SR_DIRTY?' show':'');
-}
-
-// ── Save & Log ────────────────────────────────────────────────────────────────
-function srSaveAll(){
+function srSave(){
   var now=new Date().toISOString();
   var changes=[];
-  var tabs=['apical','wingagro','klk'];
-  tabs.forEach(function(tab){
-    if(!SR_DATA[tab]||!SR_SAVED[tab])return;
-    // Check input changes
-    var inp=SR_DATA[tab].inputs, sinp=SR_SAVED[tab].inputs;
-    for(var k in inp){
-      if(parseFloat(inp[k])!==parseFloat(sinp[k]||0)){
-        changes.push({tab:tab,type:'input',field:k,
-          old:sinp[k],nw:inp[k],
-          label:(SR_DEFAULTS[tab].inputLabels[k]||k).split('(')[0].trim()});
-      }
+  ['apical','wingagro','klk'].forEach(function(tab){
+    var cur=SR_DATA[tab], def=SR_DEF[tab];
+    if(!cur||!def)return;
+    // Input changes vs defaults
+    for(var k in cur.inputs){
+      var cv=parseFloat(cur.inputs[k]), dv=parseFloat(def.inputs[k]||0);
+      if(Math.abs(cv-dv)>0.0001)
+        changes.push({tab:tab,what:'input',lbl:(def.inputMeta[k]&&def.inputMeta[k].lbl||k).slice(0,35),old:dv,nw:cv});
     }
-    // Check product changes
-    var prods=SR_DATA[tab].products,sp=SR_SAVED[tab].products||[];
-    prods.forEach(function(p,i){
-      var s=sp[i]||{};
-      if(parseFloat(p.diff)!==parseFloat(s.diff)){
-        changes.push({tab:tab,type:'prod',name:p.name,field:'diff',old:s.diff,nw:p.diff});
-      }
-      if(parseFloat(p.pkg)!==parseFloat(s.pkg)){
-        changes.push({tab:tab,type:'prod',name:p.name,field:'pkg',old:s.pkg,nw:p.pkg});
-      }
+    // Product changes vs defaults
+    (cur.prods||[]).forEach(function(p,i){
+      var dp=(def.prods||[])[i]||{};
+      if(Math.abs((p.diff||0)-(dp.diff||0))>0.0001)
+        changes.push({tab:tab,what:'diff',lbl:p.name.slice(0,30),old:dp.diff,nw:p.diff});
+      if(Math.abs((p.pkg||0)-(dp.pkg||0))>0.0001)
+        changes.push({tab:tab,what:'pkg',lbl:p.name.slice(0,30),old:dp.pkg,nw:p.pkg});
     });
   });
 
-  // Write log entry
-  SR_LOGS.push({ts:now,changes:changes,note:changes.length===0?'No changes — saved as confirmation':changes.length+' change'+(changes.length!==1?'s':'')});
-  srSaveLogs();
+  SR_LOGS.push({ts:now,count:changes.length,changes:changes.slice(0,20)});
+  if(SR_LOGS.length>100)SR_LOGS=SR_LOGS.slice(-100);
 
-  // Persist data and update saved copy
-  srPersist();
-  SR_SAVED=JSON.parse(JSON.stringify(SR_DATA));
+  try{ localStorage.setItem(SR_KEY,JSON.stringify(SR_DATA)); }catch(e){}
+  try{ localStorage.setItem(SRL_KEY,JSON.stringify(SR_LOGS)); }catch(e){}
+
   SR_DIRTY=false;
-  srCheckDirty();
-  srRenderLog();
-
+  document.getElementById('srDirty').className='sr-dirty';
   // Clear dirty highlights
-  document.querySelectorAll('.sr-inp-td.dirty').forEach(function(e){e.classList.remove('dirty');});
-
-  showCustToast('✅ Supplier rates saved — '+changes.length+' change'+(changes.length!==1?'s':'')+' logged');
+  document.querySelectorAll('.sr-ni.chg').forEach(function(el){el.classList.remove('chg');});
+  srRenderLog();
+  showCustToast('Supplier rates saved \u2014 '+changes.length+' change'+(changes.length!==1?'s':'')+' logged');
 }
 
-// ── Log render ────────────────────────────────────────────────────────────────
 function srRenderLog(){
-  var list=el('srLogList');
-  if(!list)return;
-  if(!SR_LOGS.length){list.innerHTML='<div style="padding:14px;font-size:.72rem;color:var(--mut);text-align:center">No saves yet</div>';return;}
-  var html='';
-  var reversed=SR_LOGS.slice().reverse();
-  reversed.forEach(function(entry,i){
+  var el=document.getElementById('srLogBody');
+  if(!el)return;
+  if(!SR_LOGS.length){
+    el.innerHTML='<div style="padding:14px;font-size:.71rem;color:#888;text-align:center">No saves yet</div>';
+    return;
+  }
+  var h='';
+  SR_LOGS.slice().reverse().forEach(function(entry){
     var d=new Date(entry.ts);
-    var ds=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0')
-      +' '+d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
-    var tabs_seen={};
-    (entry.changes||[]).forEach(function(c){tabs_seen[c.tab]=1;});
-    var tabBadges=Object.keys(tabs_seen).map(function(t){return '<span class="sr-log-tab '+t+'">'+t.toUpperCase()+'</span>';}).join('');
-    if(!tabBadges)tabBadges='<span class="sr-log-tab all">ALL</span>';
-    var changeHtml='';
-    (entry.changes||[]).slice(0,5).forEach(function(c){
-      if(c.type==='input'){
-        changeHtml+='<div class="sr-log-change">'+c.label+': <b>'+c.old+'</b> → <b>'+c.nw+'</b></div>';
-      }else{
-        changeHtml+='<div class="sr-log-change">'+c.name.slice(0,30)+' '+c.field+': <b>'+c.old+'</b> → <b>'+c.nw+'</b></div>';
-      }
+    var ds=(d.getFullYear())+'-'+(d.getMonth()+1+'').padStart(2,'0')+'-'+(d.getDate()+'').padStart(2,'0')
+          +' '+(d.getHours()+'').padStart(2,'0')+':'+(d.getMinutes()+'').padStart(2,'0');
+    var tabs={};
+    (entry.changes||[]).forEach(function(c){tabs[c.tab]=1;});
+    var badges=Object.keys(tabs).map(function(t){return '<span class="sr-log-badge '+t+'">'+t.toUpperCase()+'</span>';}).join('');
+    if(!badges)badges='<span class="sr-log-badge apical">ALL</span>';
+    var delta='';
+    (entry.changes||[]).slice(0,4).forEach(function(c){
+      delta+='<div class="sr-log-delta">'+c.lbl+': <b>'+c.old+'\u2192'+c.nw+'</b></div>';
     });
-    if((entry.changes||[]).length>5)changeHtml+='<div class="sr-log-change" style="color:var(--mut)">...+'+(entry.changes.length-5)+' more</div>';
-    if(!(entry.changes||[]).length)changeHtml='<div class="sr-log-change" style="color:var(--mut)">Confirmed — no changes</div>';
-    html+='<div class="sr-log-entry"><div class="sr-log-ts">'+ds+'</div>'
-      +tabBadges+'<span style="font-size:.63rem;color:var(--mut)"> '+entry.note+'</span>'
-      +changeHtml+'</div>';
+    if((entry.changes||[]).length>4)delta+='<div class="sr-log-delta">+'+((entry.changes||[]).length-4)+' more\u2026</div>';
+    if(!(entry.changes||[]).length)delta='<div class="sr-log-delta" style="color:#bbb">No changes from default</div>';
+    h+='<div class="sr-log-row"><div class="sr-log-ts">'+ds+'</div>'+badges
+      +' <span style="font-size:.61rem;color:#999">'+entry.count+' change'+(entry.count!==1?'s':'')+'</span>'
+      +delta+'</div>';
   });
-  list.innerHTML=html;
+  el.innerHTML=h;
 }
 
 // ============================================================
@@ -3921,32 +3866,29 @@ function generatePDF(){
   <div id="printContent" style="padding:12px;max-width:100%;margin:0 auto"></div>
 </div>
 
-<!-- SUPPLIER RATES MODAL (Admin / User 0 only) -->
+
+<!-- SUPPLIER RATES MODAL -->
 <div id="srModal">
-  <div id="srHead">
-    <span style="font-size:1.4rem">&#x1F4CA;</span>
-    <h2>Supplier Reference Rates &mdash; Admin View</h2>
-    <span style="background:rgba(255,255,100,.2);color:#ffe070;padding:3px 11px;border-radius:20px;font-size:.68rem;font-weight:700;border:1px solid rgba(255,255,100,.3)">&#x1F512; User 0 Only</span>
-    <button onclick="srSaveAll()" style="background:#27ae60;color:#fff;border:none;border-radius:7px;padding:8px 18px;font-size:.8rem;font-weight:700;cursor:pointer;margin-left:8px">&#x1F4BE; Save &amp; Log</button>
-    <button onclick="closeSR()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:7px;padding:8px 16px;font-size:.88rem;font-weight:800;cursor:pointer">&#x2715;</button>
+  <div id="srHd">
+    <span style="font-size:1.3rem">&#x1F4CA;</span>
+    <h2>Supplier Reference Rates &mdash; Admin Only</h2>
+    <span style="background:rgba(255,255,100,.18);color:#ffe070;padding:2px 10px;border-radius:16px;font-size:.65rem;font-weight:700;border:1px solid rgba(255,255,100,.3)">&#x1F512; User 0</span>
+    <button onclick="srSave()" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:7px 15px;font-size:.78rem;font-weight:700;cursor:pointer">&#x1F4BE; Save &amp; Log</button>
+    <button onclick="closeSR()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;padding:7px 14px;font-size:.85rem;font-weight:800;cursor:pointer">&#x2715;</button>
   </div>
-  <div class="sr-tabs">
-    <div class="sr-tab on" id="srTabApical" onclick="srSwitch('apical')">&#x1F1EF;&#x1F1F5; Apical</div>
-    <div class="sr-tab" id="srTabWingagro" onclick="srSwitch('wingagro')">&#x1F331; Wingagro</div>
-    <div class="sr-tab" id="srTabKlk" onclick="srSwitch('klk')">&#x1F1F2;&#x1F1FE; KLK</div>
+  <div class="sr-tabs" id="srTabRow">
+    <div class="sr-tab on" onclick="srTab('apical')">&#x1F1EF;&#x1F1F5; Apical</div>
+    <div class="sr-tab" onclick="srTab('wingagro')">&#x1F331; Wingagro</div>
+    <div class="sr-tab" onclick="srTab('klk')">&#x1F1F2;&#x1F1FE; KLK</div>
   </div>
-  <div id="srBody">
-    <div class="sr-content">
-      <div class="sr-main" id="srMainContent"></div>
-      <div class="sr-log-panel">
-        <div class="sr-log-box">
-          <div class="sr-log-hdr">&#x1F4DC; Save Log</div>
-          <div class="sr-log-list" id="srLogList"><div style="padding:14px;font-size:.72rem;color:var(--mut);text-align:center">No saves yet</div></div>
-        </div>
-        <div class="sr-save-bar">
-          <span class="sr-dirty-badge" id="srDirtyBadge">Unsaved changes</span>
-          <button onclick="srSaveAll()" style="background:#27ae60;color:#fff;border:none;border-radius:7px;padding:8px 18px;font-size:.8rem;font-weight:700;cursor:pointer;flex:1">&#x1F4BE; Save &amp; Log All</button>
-        </div>
+  <div id="srBd">
+    <div id="srMain"></div>
+    <div id="srLog">
+      <div class="sr-log-hd">&#x1F4DC; Save Log</div>
+      <div class="sr-log-body" id="srLogBody"><div style="padding:14px;font-size:.71rem;color:#888;text-align:center">No saves yet</div></div>
+      <div class="sr-savebar">
+        <span class="sr-dirty" id="srDirty">Unsaved</span>
+        <button onclick="srSave()" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:7px 0;font-size:.78rem;font-weight:700;cursor:pointer;flex:1">&#x1F4BE; Save &amp; Log</button>
       </div>
     </div>
   </div>
