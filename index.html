@@ -393,11 +393,20 @@ td{padding:9px 12px;vertical-align:middle}
 </head>
 <body>
 <script>
+// ── 3-Level Authentication ────────────────────────────────────────────────────
+// User 0 (admin)  : Joelishandsome1234  → full access incl. edit Supplier Rates
+// User 1 (viewer) : ViewOnly2026        → can VIEW Supplier Rates, cannot edit
+// User 2 (guest)  : Guest2026           → full calc access, Supplier Rates hidden
+// (Passwords can be changed here in the source)
 (function(){
-  var PASS = 'Joelishandsome1234';
+  var USERS = {
+    'Joelishandsome1234': '0',   // admin
+    'ViewOnly2026':       '1',   // viewer
+    'Guest2026':          '2'    // guest
+  };
   var SESSION_KEY = 'able_auth';
+  var ROLE_KEY    = 'able_role';
   if(sessionStorage.getItem(SESSION_KEY) === '1') return;
-  // Hide everything
   document.documentElement.style.overflow = 'hidden';
   var overlay = document.createElement('div');
   overlay.id = 'authOverlay';
@@ -419,8 +428,10 @@ td{padding:9px 12px;vertical-align:middle}
   document.body.appendChild(overlay);
   function attempt(){
     var val = document.getElementById('pwInput').value;
-    if(val === PASS){
+    var role = USERS[val];
+    if(role !== undefined){
       sessionStorage.setItem(SESSION_KEY,'1');
+      sessionStorage.setItem(ROLE_KEY, role);
       document.getElementById('authOverlay').remove();
       document.documentElement.style.overflow = '';
     } else {
@@ -434,11 +445,15 @@ td{padding:9px 12px;vertical-align:middle}
   document.getElementById('pwInput').addEventListener('keydown', function(e){
     if(e.key==='Enter') attempt();
   });
-  setTimeout(function(){
-    var inp = document.getElementById('pwInput');
-    if(inp) inp.focus();
-  }, 100);
+  setTimeout(function(){ var i=document.getElementById('pwInput'); if(i)i.focus(); }, 100);
 })();
+
+// Role helpers — call anywhere after login
+function getUserRole(){ return sessionStorage.getItem('able_role')||'2'; }
+function isAdmin()    { return getUserRole()==='0'; }
+function isViewer()   { return getUserRole()==='1'; }
+function canSeeSR()   { return getUserRole()==='0' || getUserRole()==='1'; } // User 0 + 1
+function canEditSR()  { return getUserRole()==='0'; }                        // User 0 only
 </script>
 
 <header>
@@ -448,7 +463,7 @@ td{padding:9px 12px;vertical-align:middle}
     <p>ABLE Perfect &middot; Fully offline &middot; 637 ports &middot; Multi-SKU Quotation &middot; 23 May 2026</p>
   </div>
   <button onclick="openCustModal()" style="background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.5);border-radius:9px;padding:9px 17px;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0">&#x1F465; Customers</button>
-  <button onclick="openSupplierRates()" style="background:rgba(255,255,200,.15);color:#fff;border:1.5px solid rgba(255,255,150,.5);border-radius:9px;padding:9px 17px;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0" title="Admin only — Supplier reference rates">&#x1F4CA; Supplier Rates</button>
+  <button id="btnSR" onclick="openSupplierRates()" style="background:rgba(255,255,200,.15);color:#fff;border:1.5px solid rgba(255,255,150,.5);border-radius:9px;padding:9px 17px;font-size:.82rem;font-weight:700;cursor:pointer;display:none;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0" title="Supplier Reference Rates">&#x1F4CA; Supplier Rates</button>
   <div class="badge">&#x1F4C5; 23 May 2026</div>
 </header>
 <div class="wrap">
@@ -1847,7 +1862,7 @@ el('oilPrice').addEventListener('input',function(){var v=parseFloat(this.value);
 el('additive').addEventListener('input',function(){S.additive=parseFloat(this.value)||0;rTable();rSum();});
 el('margin').addEventListener('input',function(){S.margin=parseFloat(this.value)||0;rTable();rSum();});
 el('skuSearch').addEventListener('input',function(){S.skuSearch=this.value;rTable();});
-function renderAll(){rCats();rSub();rOilTabs();rOilSel();updateOilPrice();updBanner();rTable();rSum();}
+function renderAll(){rCats();rSub();rOilTabs();rOilSel();updateOilPrice();updBanner();rTable();rSum();applyRoleUI();}
 renderAll();
 
 var FM_VIEW='card';
@@ -2499,12 +2514,25 @@ function srInit(){
 }
 
 function openSupplierRates(){
+  if(!canSeeSR()){showCustToast('\u26d4 Access denied — not available for this account');return;}
   srInit();
   document.getElementById('srModal').classList.add('open');
   SR_TAB='apical';
   srUpdateTabs();
   srRender();
   srRenderLog();
+}
+
+// Show/hide SR button and lock inputs based on role — call after page load
+function applyRoleUI(){
+  var btn=document.getElementById('btnSR');
+  if(btn) btn.style.display=canSeeSR()?'flex':'none';
+}
+
+// Wrap srSave with role check
+function srSaveGuarded(){
+  if(!canEditSR()){showCustToast('\u26d4 View only — only User 0 can save changes');return;}
+  srSave();
 }
 
 function closeSR(){
@@ -2542,17 +2570,25 @@ function srRender(){
   var def=SR_DEF[SR_TAB];
   if(!d||!def){ document.getElementById('srMain').innerHTML=''; return; }
   var inp=d.inputs, defInp=def.inputs, meta=def.inputMeta;
+  var readOnly=!canEditSR();
 
   // Yellow inputs section
-  var h='<div class="sr-ybox"><h4>&#x1F7E1; Yellow Reference Inputs (from Excel)</h4><div class="sr-ygrid">';
+  var roleTag=readOnly?'&nbsp;<span style="background:#e8f0fa;color:#1e5f8a;padding:2px 8px;border-radius:8px;font-size:.62rem">&#x1F441; View Only</span>':'';
+  var h='<div class="sr-ybox"><h4>&#x1F7E1; Yellow Reference Inputs (from Excel)'+roleTag+'</h4><div class="sr-ygrid">';
   for(var k in inp){
     var lbl=(meta[k]&&meta[k].lbl)||k;
     var defV=defInp[k]!==undefined?defInp[k]:'';
-    h+='<div class="sr-yitem"><label>'+lbl+'</label>'
-      +'<input type="number" step="0.0001" value="'+inp[k]+'"'
-      +' oninput="srInpChg(\''+SR_TAB+'\',\''+k+'\',this.value)">'
-      +'<span class="sr-drv">Default: '+defV+'</span>'
-      +'</div>';
+    if(readOnly){
+      h+='<div class="sr-yitem"><label>'+lbl+'</label>'
+        +'<div style="border:1.5px solid #e0d060;border-radius:5px;padding:5px 8px;font-size:.84rem;font-weight:700;color:#3a2800;background:#fffde0;text-align:right">'+inp[k]+'</div>'
+        +'<span class="sr-drv">Default: '+defV+'</span></div>';
+    }else{
+      h+='<div class="sr-yitem"><label>'+lbl+'</label>'
+        +'<input type="number" step="0.0001" value="'+inp[k]+'"'
+        +' oninput="srInpChg(\''+SR_TAB+'\',\''+k+'\',this.value)">'
+        +'<span class="sr-drv">Default: '+defV+'</span>'
+        +'</div>';
+    }
   }
   // Derived read-only values
   if(SR_TAB==='apical'||SR_TAB==='wingagro'){
@@ -2602,13 +2638,16 @@ function srRender(){
     var diffChg=parseFloat(p.diff)!==parseFloat(dp.diff||0)?'chg':'';
     var pkgChg=parseFloat(p.pkg)!==parseFloat(dp.pkg||0)?'chg':'';
     var baseLbl=(baseLabels[p.base]||p.base).replace('\n','<br>');
+    var diffCell = readOnly
+      ? '<td class="r" style="font-weight:700;color:#1a4d1a">'+p.diff+'</td>'
+      : '<td class="r"><input class="sr-ni '+diffChg+'" type="number" step="0.01" value="'+p.diff+'" oninput="srProdChg(\''+SR_TAB+'\','+i+',\'diff\',this.value)"></td>';
+    var pkgCell  = readOnly
+      ? '<td class="r" style="font-weight:700;color:#1a4d1a">'+p.pkg+'</td>'
+      : '<td class="r"><input class="sr-ni '+pkgChg+'" type="number" step="0.001" value="'+p.pkg+'" oninput="srProdChg(\''+SR_TAB+'\','+i+',\'pkg\',this.value)"></td>';
     h+='<tr>'
       +'<td class="nm">'+p.name+(p.note?'<div class="sr-note">\u26a0 '+p.note+'</div>':'')+'</td>'
       +'<td class="sub">'+baseLbl+'</td>'
-      +'<td class="r"><input class="sr-ni '+diffChg+'" type="number" step="0.01" value="'+p.diff+'"'
-        +' oninput="srProdChg(\''+SR_TAB+'\','+i+',\'diff\',this.value)"></td>'
-      +'<td class="r"><input class="sr-ni '+pkgChg+'" type="number" step="0.001" value="'+p.pkg+'"'
-        +' oninput="srProdChg(\''+SR_TAB+'\','+i+',\'pkg\',this.value)"></td>'
+      +diffCell+pkgCell
       +'<td class="r '+pxCls+'">'+pxStr+'</td>'
       +'<td class="sub">'+p.port+'</td>'
       +'</tr>';
@@ -3878,7 +3917,7 @@ function generatePDF(){
     <span style="font-size:1.3rem">&#x1F4CA;</span>
     <h2>Supplier Reference Rates &mdash; Admin Only</h2>
     <span style="background:rgba(255,255,100,.18);color:#ffe070;padding:2px 10px;border-radius:16px;font-size:.65rem;font-weight:700;border:1px solid rgba(255,255,100,.3)">&#x1F512; User 0</span>
-    <button onclick="srSave()" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:7px 15px;font-size:.78rem;font-weight:700;cursor:pointer">&#x1F4BE; Save &amp; Log</button>
+    <button onclick="srSaveGuarded()" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:7px 15px;font-size:.78rem;font-weight:700;cursor:pointer" id="srSaveBtn">&#x1F4BE; Save &amp; Log</button>
     <button onclick="closeSR()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;padding:7px 14px;font-size:.85rem;font-weight:800;cursor:pointer">&#x2715;</button>
   </div>
   <div class="sr-tabs" id="srTabRow">
@@ -3893,7 +3932,7 @@ function generatePDF(){
       <div class="sr-log-body" id="srLogBody"><div style="padding:14px;font-size:.71rem;color:#888;text-align:center">No saves yet</div></div>
       <div class="sr-savebar">
         <span class="sr-dirty" id="srDirty">Unsaved</span>
-        <button onclick="srSave()" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:7px 0;font-size:.78rem;font-weight:700;cursor:pointer;flex:1">&#x1F4BE; Save &amp; Log</button>
+        <button onclick="srSaveGuarded()" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:7px 0;font-size:.78rem;font-weight:700;cursor:pointer;flex:1">&#x1F4BE; Save &amp; Log</button>
       </div>
     </div>
   </div>
