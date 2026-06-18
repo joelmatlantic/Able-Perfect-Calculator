@@ -605,8 +605,10 @@ function canEditSR()  { return getUserRole()==='0'; }                        // 
         <!-- Manual Freight panel -->
         <div id="ftPanelManual" style="display:none;background:#fff8ec;border:2px solid #e8a020;border-radius:9px;padding:14px">
           <div style="font-size:.74rem;font-weight:800;color:#b06000;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">&#x270F; Manual Freight Override &mdash; CIF Basis</div>
+          <!-- Port name display (for reports) -->
+          <div id="manualPortInfo"></div>
           <div class="field">
-            <label>Freight per FCL (USD) <span style="font-weight:400;color:var(--mut)">overrides port list</span></label>
+            <label>Freight per FCL (USD) <span style="font-weight:400;color:var(--mut)">overrides port list freight only</span></label>
             <input type="number" id="manualFreightInput" min="0" step="1" placeholder="e.g. 3500"
               oninput="onManualFreightChange(this.value)"
               style="font-size:1.15rem;font-weight:700;color:#b06000;background:#fffde0;border:2px solid #e8a020;border-radius:7px;padding:10px 14px;width:100%;box-sizing:border-box;margin-top:4px">
@@ -616,8 +618,8 @@ function canEditSR()  { return getUserRole()==='0'; }                        // 
             <div id="manualFreightBreakdown" style="line-height:2.1;font-family:monospace;font-size:.73rem"></div>
           </div>
           <div style="margin-top:10px;font-size:.68rem;color:#999;line-height:1.7">
-            Formula: CIF/MT = (Oil + Pkg/MT + <b style="color:#b06000">Freight/FCL &divide; MT/FCL</b> + Additive) &times; (1&nbsp;+&nbsp;Margin%)<br>
-            MT/FCL = SKU/FCL &times; Net&nbsp;Wt(kg) &divide; 1000
+            Port name still appears in quotation &amp; reports. Only the freight cost is overridden.<br>
+            Formula: CIF/MT = (Oil + Pkg/MT + <b style="color:#b06000">Manual Freight/FCL &divide; MT/FCL</b> + Additive) &times; (1&nbsp;+&nbsp;Margin%)
           </div>
         </div>
       </div>
@@ -1057,7 +1059,7 @@ function calcP(sku,oilOvr,addOvr,mgnOvr,modeOvr,portOvr){
   var port=portOvr!==undefined?portOvr:S.portObj;
   var w=sku.net_wt,fcl=sku.sku_fcl;
   var pmt=sku.pkg/w*1000;
-  var ff=(mode==='CIF'&&port)?port.freight:0;
+  var ff=(mode==='CIF'&&port)?(FREIGHT_TAB==='manual'&&S_MANUAL_FREIGHT>0?S_MANUAL_FREIGHT:port.freight):0;
   var mf=fcl*w/1000;
   var fmt_=mf>0?ff/mf:0,fs_=fcl>0?ff/fcl:0;
   var fac=1+mgn/100;
@@ -1181,6 +1183,7 @@ function clearPortSelection(){
 
 // ── Freight tab: Port List vs Manual ─────────────────────────────────────────
 var FREIGHT_TAB='port'; // 'port' | 'manual'
+var S_MANUAL_FREIGHT=0; // USD/FCL override — only used when FREIGHT_TAB==='manual'
 
 function setFreightTab(tab){
   FREIGHT_TAB=tab;
@@ -1191,32 +1194,39 @@ function setFreightTab(tab){
     tMan.style.background='#e8a020'; tMan.style.color='#fff';
     if(pPort)pPort.style.display='none';
     if(pMan)pMan.style.display='';
-    // Clear port selection so manual takes over
-    S.portObj=null;
-    var box=el('portSelectedBox'),panel=el('portSearchPanel');
-    if(box)box.style.display='none'; if(panel)panel.style.display='';
-    // Apply any existing manual value
+    // Keep S.portObj intact — port NAME is still used in all reports
+    _refreshManualPanel();
     var inp=el('manualFreightInput');
     var val=inp?parseFloat(inp.value)||0:0;
-    if(val>0) _applyManualFreight(val);
+    S_MANUAL_FREIGHT=val;
+    _updateManualBreakdown(val);
     rTable();rSum();
   }else{
     tPort.style.background='#0a3d62'; tPort.style.color='#fff';
     tMan.style.background='#fff'; tMan.style.color='var(--mut)';
     if(pPort)pPort.style.display='';
     if(pMan)pMan.style.display='none';
-    // Clear manual synthetic port
-    if(S.portObj&&S.portObj.manual) S.portObj=null;
+    S_MANUAL_FREIGHT=0; // back to port list freight
     rTable();rSum();
   }
 }
 
-function _applyManualFreight(val){
-  // Create synthetic port object — same structure as real port, just manual flag set
-  // calcP uses port.freight directly so no formula change needed
-  S.portObj={country:'Manual',port:'Manual Freight Rate',freight:val,
-             updated:new Date().toISOString(),manual:true};
-  _updateManualBreakdown(val);
+function _refreshManualPanel(){
+  var portInfo=el('manualPortInfo');
+  if(!portInfo)return;
+  if(S.portObj){
+    portInfo.innerHTML='<div style="background:linear-gradient(90deg,#edf7f1,#f0faf3);border:1.5px solid var(--grn);border-radius:7px;padding:8px 11px;margin-bottom:10px">'
+      +'<div style="font-size:.63rem;font-weight:700;color:var(--grn);text-transform:uppercase;margin-bottom:2px">&#x2705; Port name (used in all reports)</div>'
+      +'<div style="font-size:.88rem;font-weight:800;color:var(--brand)">'+S.portObj.country+' &mdash; '+S.portObj.port+'</div>'
+      +'<div style="font-size:.68rem;color:var(--mut);margin-top:2px">List freight: USD '+fmt(S.portObj.freight,0)+'/FCL &nbsp;&#x2192;&nbsp; <b style="color:#b06000">overridden by value below</b></div>'
+      +'<button onclick="setFreightTab(\'port\')" style="margin-top:6px;background:#fff;border:1px solid var(--bdr);color:var(--mut);border-radius:5px;padding:3px 10px;font-size:.67rem;font-weight:700;cursor:pointer">&#x1F501; Change Port</button>'
+      +'</div>';
+  }else{
+    portInfo.innerHTML='<div style="background:#fef9e7;border:1.5px solid #f0c030;border-radius:7px;padding:8px 11px;margin-bottom:10px;font-size:.74rem;color:#7a5200">'
+      +'&#x26A0; <b>No port selected.</b> Port name is needed for reports.<br>'
+      +'<button onclick="setFreightTab(\'port\')" style="margin-top:5px;background:#0a3d62;color:#fff;border:none;border-radius:5px;padding:4px 12px;font-size:.7rem;font-weight:700;cursor:pointer">Select Port &rarr;</button>'
+      +'</div>';
+  }
 }
 
 function _updateManualBreakdown(ff){
@@ -1224,36 +1234,28 @@ function _updateManualBreakdown(ff){
   if(!bd||!box)return;
   if(!ff||ff<=0){box.style.display='none';return;}
   box.style.display='';
-  // Use current selected SKU if available, else show formula only
   var sku=S.sel;
   if(sku){
-    var mf=sku.sku_fcl*sku.net_wt/1000; // MT per FCL
+    var mf=sku.sku_fcl*sku.net_wt/1000;
     var fPerMt=mf>0?ff/mf:0;
     var fPerSku=sku.sku_fcl>0?ff/sku.sku_fcl:0;
     var p=calcP(sku);
     bd.innerHTML=
       'Freight/FCL:&nbsp;&nbsp;&nbsp;&nbsp; USD '+fmt(ff,0)+'<br>'+
-      'MT/FCL:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; '+fmt(mf,3)+' MT ('+sku.sku_fcl+' SKU &times; '+sku.net_wt+'kg)<br>'+
+      'MT/FCL:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; '+fmt(mf,3)+' MT ('+sku.sku_fcl+' SKU × '+sku.net_wt+'kg)<br>'+
       'Freight/MT:&nbsp;&nbsp;&nbsp;&nbsp; USD '+fmt(fPerMt,2)+'/MT<br>'+
       'Freight/SKU:&nbsp;&nbsp;&nbsp; USD '+fmt(fPerSku,4)+'/SKU<br>'+
-      '&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;<br>'+
+      '—————————————————<br>'+
       'FOB/MT:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; USD '+fmt(p.fm,2)+'/MT<br>'+
       'CIF/MT:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>USD '+fmt(p.cm,2)+'/MT</b>';
   }else{
-    bd.innerHTML='Enter freight/FCL above &mdash; select a SKU to see full breakdown.';
+    bd.innerHTML='Select a SKU to see the full cost breakdown here.';
   }
 }
 
 function onManualFreightChange(val){
-  var ff=parseFloat(val)||0;
-  if(FREIGHT_TAB!=='manual')return;
-  if(ff>0){
-    _applyManualFreight(ff);
-  }else{
-    S.portObj=null;
-    var bd=el('manualFreightBreakdown'),box=el('manualFreightCalc');
-    if(box)box.style.display='none';
-  }
+  S_MANUAL_FREIGHT=parseFloat(val)||0;
+  _updateManualBreakdown(S_MANUAL_FREIGHT);
   rTable();rSum();
 }
 function onRegionChange(){S.region=el('regionSel').value;S.country='ALL';filterPorts();}
@@ -1320,8 +1322,8 @@ function setMode(m){
     }
     bldRgn();filterPorts();
   }else{
-    // FOB mode — reset freight tab to port list, clear manual synthetic port
-    if(S.portObj&&S.portObj.manual)S.portObj=null;
+    // FOB mode — reset freight tab, clear manual override only
+    S_MANUAL_FREIGHT=0;
     FREIGHT_TAB='port';
     var tP=el('ftabPort'),tM=el('ftabManual'),pP=el('ftPanelPort'),pM=el('ftPanelManual');
     if(tP){tP.style.background='#0a3d62';tP.style.color='#fff';}
@@ -1417,7 +1419,13 @@ function addToQuote(){
   if(!S.sel||!isOK(S.sel))return;
   if(QITEMS.length>=50){alert('Maximum 50 items per quote.');return;}
   var sku=S.sel,fcl=parseInt(el('quoteFcl').value)||1;
-  QITEMS.push({id:++QID,oilName:S.oilName,oilPrice:S.oilPrice,cp10:S.cp10,sku:sku,fcl:fcl,add:S.additive,additiveType:S.additiveType||'',mgn:S.margin,mode:S.mode,port:S.portObj?JSON.parse(JSON.stringify(S.portObj)):null,priceMode:PRICE_MODE||'fob'});
+  // Save port: keep real name, but apply manual freight override if active
+  var portToSave=S.portObj?JSON.parse(JSON.stringify(S.portObj)):null;
+  if(portToSave&&FREIGHT_TAB==='manual'&&S_MANUAL_FREIGHT>0){
+    portToSave.freight=S_MANUAL_FREIGHT; // override freight only; name/country unchanged
+    portToSave.manualOverride=true;
+  }
+  QITEMS.push({id:++QID,oilName:S.oilName,oilPrice:S.oilPrice,cp10:S.cp10,sku:sku,fcl:fcl,add:S.additive,additiveType:S.additiveType||'',mgn:S.margin,mode:S.mode,port:portToSave,priceMode:PRICE_MODE||'fob'});
   rQuote();rSum();
   var i=el('atqInfo');i.textContent='Added! ('+QITEMS.length+'/50)';i.style.color='var(--grn)';
   setTimeout(function(){rSum();if(i)i.style.color='';},1500);}
