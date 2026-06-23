@@ -1068,7 +1068,8 @@ function calcP(sku,oilOvr,addOvr,mgnOvr,modeOvr,portOvr){
   var port=portOvr!==undefined?portOvr:S.portObj;
   var w=sku.net_wt,fcl=sku.sku_fcl;
   var pmt=sku.pkg/w*1000;
-  var ff=(mode==='CIF'&&port)?(FREIGHT_TAB==='manual'&&S_MANUAL_FREIGHT>0?S_MANUAL_FREIGHT:port.freight):0;
+  var usingLivePort=(portOvr===undefined); // true only when falling back to S.portObj (live builder)
+  var ff=(mode==='CIF'&&port)?(usingLivePort&&FREIGHT_TAB==='manual'&&S_MANUAL_FREIGHT>0?S_MANUAL_FREIGHT:port.freight):0;
   var mf=fcl*w/1000;
   var fmt_=mf>0?ff/mf:0,fs_=fcl>0?ff/fcl:0;
   var fac=1+mgn/100;
