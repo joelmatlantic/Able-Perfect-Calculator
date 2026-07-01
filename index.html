@@ -286,6 +286,30 @@ td{padding:9px 12px;vertical-align:middle}
 .sr-sec:not([data-port]){background:linear-gradient(90deg,#2a5c2a,#3a7a3a);color:#fff}
 .sr-note{font-size:.6rem;color:#c0392b;margin-top:1px}
 
+/* ===== BLEND OIL BUILDER ===== */
+#blendModal{display:none;position:fixed;inset:0;z-index:9994;background:rgba(5,20,45,.8);flex-direction:column}
+#blendModal.open{display:flex}
+#blendHd{background:linear-gradient(135deg,#6c3483,#9b59b6);color:#fff;padding:13px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap}
+#blendHd h2{flex:1;font-size:.95rem;font-weight:800}
+#blendBd{flex:1;overflow-y:auto;background:#f8f4fc;padding:14px}
+.blend-row{background:#fff;border:1.5px solid #e0d0f0;border-radius:9px;padding:11px 12px;margin-bottom:9px}
+.blend-row-top{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.blend-idx{width:22px;height:22px;border-radius:50%;background:#6c3483;color:#fff;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.blend-row-top select{flex:1;padding:7px 8px;border:1.5px solid #d0b0e8;border-radius:6px;font-size:.82rem;font-weight:600;color:#3a1a5a;background:#fdf8ff}
+.blend-row-bot{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.blend-ratio-wrap{display:flex;align-items:center;gap:5px}
+.blend-ratio-wrap label{font-size:.67rem;font-weight:700;color:#6c3483;white-space:nowrap}
+.blend-ratio-inp{width:68px;padding:5px 7px;border:1.5px solid #d0b0e8;border-radius:5px;font-size:.85rem;font-weight:700;color:#6c3483;text-align:right}
+.blend-price-wrap{display:flex;align-items:center;gap:5px;flex:1}
+.blend-price-wrap label{font-size:.67rem;font-weight:700;color:#888;white-space:nowrap}
+.blend-price-inp{width:88px;padding:5px 7px;border:1.5px solid #d0d0d0;border-radius:5px;font-size:.82rem;font-weight:700;color:#0a3d62;text-align:right;background:#f8fafc}
+.blend-price-auto{font-size:.64rem;color:#aaa;margin-top:2px}
+.blend-rm{background:#fce4e4;border:none;border-radius:5px;padding:5px 10px;color:#c0392b;font-weight:700;cursor:pointer;font-size:.78rem;flex-shrink:0}
+.blend-total-bar{background:#fff;border:2px solid #6c3483;border-radius:9px;padding:11px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.blend-pct{font-size:1.1rem;font-weight:800;color:#6c3483}
+.blend-pct.ok{color:#27ae60} .blend-pct.over{color:#c0392b}
+.blend-price-out{font-size:.92rem;font-weight:800;color:#0a3d62}
+
 /* ===== OIL PRICE MANAGER ===== */
 #oilMgrModal{display:none;position:fixed;inset:0;background:rgba(5,25,50,.72);z-index:9996;overflow:hidden}
 #oilMgrModal.open{display:flex;flex-direction:column}
@@ -481,7 +505,10 @@ function canEditSR()  { return getUserRole()==='0'; }                        // 
   </div>
   <div class="panel">
     <div class="ph" style="justify-content:space-between">&#x1F4B0; Step 2 &mdash; Oil Type &amp; Cost
-      <button onclick="openOilMgr()" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.5);border-radius:6px;padding:4px 11px;font-size:.72rem;font-weight:700;cursor:pointer;margin-left:auto">&#x1F6E2; Oil Prices</button>
+      <div style="display:flex;gap:5px;margin-left:auto">
+        <button onclick="openBlendBuilder()" id="btnBlend" style="background:rgba(180,100,255,.35);color:#fff;border:1px solid rgba(220,150,255,.6);border-radius:6px;padding:4px 11px;font-size:.72rem;font-weight:700;cursor:pointer">&#x1F504; Blend</button>
+        <button onclick="openOilMgr()" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.5);border-radius:6px;padding:4px 11px;font-size:.72rem;font-weight:700;cursor:pointer">&#x1F6E2; Oil Prices</button>
+      </div>
     </div>
     <div class="pb">
       <div class="cp10box">
@@ -499,6 +526,12 @@ function canEditSR()  { return getUserRole()==='0'; }                        // 
         <label>Oil Price (USD/MT) &mdash; override</label>
         <input type="number" id="oilPrice" min="0" step="0.01">
         <div style="font-size:.68rem;color:var(--mut);margin-top:3px" id="oilFormula"></div>
+      </div>
+      <!-- Active blend indicator -->
+      <div id="blendActiveBadge" style="display:none;margin-top:8px;padding:8px 10px;background:#f8f0ff;border:1.5px solid #c090e0;border-radius:8px">
+        <div style="font-size:.67rem;font-weight:700;color:#6c3483;margin-bottom:4px">&#x1F504; BLENDED OIL ACTIVE</div>
+        <div id="blendActiveSummary" style="font-size:.74rem;color:#3a1a5a;line-height:1.7"></div>
+        <button onclick="clearBlend()" style="margin-top:5px;background:#fff;border:1px solid #c090e0;color:#6c3483;border-radius:5px;padding:3px 10px;font-size:.67rem;font-weight:700;cursor:pointer">&#x2715; Clear Blend</button>
       </div>
     </div>
   </div>
@@ -1412,6 +1445,14 @@ function itemDisplayName(item){
   if(item.additiveType)base+=' ['+item.additiveType+']';
   return base;}
 
+// Blend description line for reports — empty string if no blend
+function itemBlendDesc(item){
+  if(!item.blend||!item.blend.length)return'';
+  return'Blend: '+item.blend.map(function(c){
+    return c.name.replace(' (USD)','')+'('+c.ratio+'%)';
+  }).join(' + ');
+}
+
 function onAdditiveSelChange(){
   S.additiveType=el('additiveSel').value;
   rSum();}
@@ -1436,7 +1477,8 @@ function addToQuote(){
     portToSave.freight=S_MANUAL_FREIGHT; // override freight only; name/country unchanged
     portToSave.manualOverride=true;
   }
-  QITEMS.push({id:++QID,oilName:S.oilName,oilPrice:S.oilPrice,cp10:S.cp10,sku:sku,fcl:fcl,add:S.additive,additiveType:S.additiveType||'',mgn:S.margin,mode:S.mode,port:portToSave,priceMode:PRICE_MODE||'fob'});
+  QITEMS.push({id:++QID,oilName:S.oilName,oilPrice:S.oilPrice,cp10:S.cp10,sku:sku,fcl:fcl,add:S.additive,additiveType:S.additiveType||'',mgn:S.margin,mode:S.mode,port:portToSave,priceMode:PRICE_MODE||'fob',
+    blend:BLEND_MODE&&BLEND_COMPS.length>0?JSON.parse(JSON.stringify(BLEND_COMPS)):null});
   rQuote();rSum();
   var i=el('atqInfo');i.textContent='Added! ('+QITEMS.length+'/50)';i.style.color='var(--grn)';
   setTimeout(function(){rSum();if(i)i.style.color='';},1500);}
@@ -1482,7 +1524,7 @@ function rQuote(){
       var totalLabel=(showIC&&!showIF)?'CIF':(showIF&&showIC)?'FOB+CIF':'FOB';
       div.innerHTML='<div class="q-item-num">'+(idx+1)+'</div>'
         +'<div class="q-item-body"><div class="q-item-title">'+itemDisplayName(item)+'</div>'
-        +'<div class="q-item-details"><span>Oil: <b>'+item.oilName.replace(' (USD)','')+'</b></span><span>Net: <b>'+item.sku.net_wt+'kg</b></span><span>SKU/FCL: <b>'+fmt(item.sku.sku_fcl,0)+'</b></span>'+(item.add>0?'<span>Add: <b>USD '+fmt(item.add,2)+'/MT</b>'+(item.additiveType?' ('+item.additiveType+')':'')+'</b></span>':'')+'<span>'+portB+'</span></div>'
+        +'<div class="q-item-details"><span>Oil: <b>'+item.oilName.replace(' (USD)','')+'</b></span><span>Net: <b>'+item.sku.net_wt+'kg</b></span><span>SKU/FCL: <b>'+fmt(item.sku.sku_fcl,0)+'</b></span>'+(item.add>0?'<span>Add: <b>USD '+fmt(item.add,2)+'/MT</b>'+(item.additiveType?' ('+item.additiveType+')':'')+'</b></span>':'')+'<span>'+portB+'</span></div>'+(item.blend?'<div style="font-size:.67rem;color:#6c3483;margin-top:3px;line-height:1.6">&#x1F504; '+itemBlendDesc(item)+'</div>':'')
         +'<div class="q-price-row">'+priceHtml+'<div class="qprice"><span class="ql">Units</span><span class="qv">'+fmt(tu,0)+'</span></div><div class="qprice"><span class="ql">Vol (MT)</span><span class="qv">'+fmt(tm,3)+'</span></div><div class="qprice tot"><span class="ql">Total '+totalLabel+'</span><span class="qv">USD '+fmt(tdis,2)+'</span></div></div></div>'
         +'<div class="q-item-right"><div class="q-fcl-wrap"><label style="font-size:.6rem;color:var(--mut)">FCL (locked)</label><div style="font-size:1.2rem;font-weight:800;color:var(--brand);text-align:center;padding:4px 0">'+item.fcl+'</div></div><button class="btn-rm" onclick="rmItem('+item.id+')">Remove</button></div>';
       cards.appendChild(div);})(QITEMS[i],i);
@@ -1739,6 +1781,7 @@ function renderVTable(){
         ['SKU/FCL',fmt(item.sku.sku_fcl,0)+'  |  No. FCL: '+item.fcl],
         ['Total Units',fmt(tu,0)+'  |  Vol: '+fmt(tm,3)+' MT'],
       ];
+      if(item.blend)rows.splice(1,0,['Blend Composition',item.blend.map(function(c){return c.name.replace(' (USD)','')+'('+c.ratio+'%)';}).join(' + ')]);
       if(item.add>0)rows.push(['Additive','USD '+fmt(item.add,2)+'/MT']);
       for(var j=0;j<rows.length;j++){
         wrap+='<div style="display:flex;justify-content:space-between;font-size:.77rem;padding:4px 0;border-bottom:1px dashed #eef2f8">';
@@ -1925,6 +1968,7 @@ function buildRpt(){
     var ipm=item.priceMode||'fob';
     r+='*Item '+(i+1)+'*'+NL;
     if(!allSameOil)r+='Type of Oil: '+item.oilName.replace(' (USD)','')+NL;
+    if(item.blend)r+='Blend: '+item.blend.map(function(c){return c.name.replace(' (USD)','')+'('+c.ratio+'%)';}).join(' + ')+NL;
     r+='Packaging: '+itemDisplayName(item)+NL;
     r+='No. of FCL: '+item.fcl+NL;
     r+='SKU/FCL: '+fmt(item.sku.sku_fcl,0)+NL;
@@ -2904,6 +2948,165 @@ function srRenderLog(){
 }
 
 // ============================================================
+// BLEND OIL BUILDER — additive feature, no existing code modified
+// ============================================================
+var BLEND_MODE = false;
+var BLEND_COMPS = []; // [{name, ratio, price, manualPrice}]
+var BLEND_MAX = 5;
+
+// Build flat list of all oil names from OIL_DEF for dropdowns
+function getBlendOilList(){
+  var list=[];
+  for(var k in OIL_DEF) list.push(k);
+  return list.sort();
+}
+
+// Weighted average price of current blend components
+function getBlendedPrice(){
+  var total=0;
+  BLEND_COMPS.forEach(function(c){
+    var p=c.manualPrice>0?c.manualPrice:getOilPrice(c.name,S.cp10);
+    total+=(c.ratio/100)*p;
+  });
+  return total;
+}
+
+// Short display string for blend
+function blendSummaryStr(){
+  return BLEND_COMPS.map(function(c){
+    return c.name.replace(' (USD)','')+'&nbsp;('+c.ratio+'%)';
+  }).join(' + ');
+}
+
+function blendSummaryPlain(){
+  return BLEND_COMPS.map(function(c){
+    return c.name.replace(' (USD)','')+'('+c.ratio+'%)';
+  }).join(' + ');
+}
+
+// ── Open / close ──────────────────────────────────────────────────────────────
+function openBlendBuilder(){
+  el('blendModal').classList.add('open');
+  if(BLEND_COMPS.length===0) addBlendRow();
+  renderBlendRows();
+}
+function closeBlendModal(){
+  el('blendModal').classList.remove('open');
+}
+
+// ── Row management ────────────────────────────────────────────────────────────
+function addBlendRow(){
+  if(BLEND_COMPS.length>=BLEND_MAX){showCustToast('Maximum 5 oils in a blend');return;}
+  BLEND_COMPS.push({name:'P.Olein-CP10 (USD)',ratio:0,manualPrice:0});
+  renderBlendRows();
+}
+
+function removeBlendRow(i){
+  BLEND_COMPS.splice(i,1);
+  if(BLEND_COMPS.length===0) BLEND_MODE=false;
+  renderBlendRows();
+  recalcBlend();
+}
+
+function renderBlendRows(){
+  var oils=getBlendOilList();
+  var container=el('blendRows'); if(!container)return;
+  var html='';
+  BLEND_COMPS.forEach(function(c,i){
+    var autoPrice=getOilPrice(c.name,S.cp10);
+    var opts=oils.map(function(o){
+      return '<option value="'+o+'"'+(o===c.name?' selected':'')+'>'+o.replace(' (USD)','')+'</option>';
+    }).join('');
+    html+='<div class="blend-row" id="brow-'+i+'">'
+      +'<div class="blend-row-top">'
+        +'<span class="blend-idx">'+(i+1)+'</span>'
+        +'<select onchange="onBlendOilChange('+i+',this.value)">'+opts+'</select>'
+        +(BLEND_COMPS.length>1?'<button class="blend-rm" onclick="removeBlendRow('+i+')">&#x2715;</button>':'')
+      +'</div>'
+      +'<div class="blend-row-bot">'
+        +'<div class="blend-ratio-wrap"><label>Ratio&nbsp;%</label>'
+          +'<input type="number" class="blend-ratio-inp" min="0" max="100" step="0.1" value="'+(c.ratio||'')+'"'
+          +' oninput="onBlendRatioChange('+i+',this.value)" placeholder="0">'
+        +'</div>'
+        +'<div class="blend-price-wrap"><label>Price USD/MT</label>'
+          +'<div><input type="number" class="blend-price-inp" step="0.01" value="'+(c.manualPrice>0?c.manualPrice:'')+'"'
+          +' oninput="onBlendPriceChange('+i+',this.value)" placeholder="'+autoPrice.toFixed(2)+' (auto)">'
+          +'<div class="blend-price-auto">Auto: USD '+fmt(autoPrice,2)+'</div>'
+          +'</div>'
+        +'</div>'
+      +'</div>'
+    +'</div>';
+  });
+  container.innerHTML=html;
+  el('blendAddBtn').style.display=BLEND_COMPS.length>=BLEND_MAX?'none':'';
+  recalcBlend();
+}
+
+function onBlendOilChange(i,val){
+  BLEND_COMPS[i].name=val;
+  BLEND_COMPS[i].manualPrice=0; // reset manual when oil changes
+  renderBlendRows();
+}
+function onBlendRatioChange(i,val){
+  BLEND_COMPS[i].ratio=parseFloat(val)||0;
+  recalcBlend();
+}
+function onBlendPriceChange(i,val){
+  BLEND_COMPS[i].manualPrice=parseFloat(val)||0;
+  recalcBlend();
+}
+
+function recalcBlend(){
+  var total=BLEND_COMPS.reduce(function(s,c){return s+(c.ratio||0);},0);
+  var pctEl=el('blendTotalPct'); if(!pctEl)return;
+  pctEl.textContent='Total: '+total.toFixed(1)+'%';
+  pctEl.className='blend-pct'+(Math.abs(total-100)<0.01?' ok':total>100?' over':'');
+  var ok=Math.abs(total-100)<0.01 && BLEND_COMPS.length>=2;
+  var price=ok?getBlendedPrice():0;
+  el('blendTotalPrice').textContent=ok?'Blended price: USD '+fmt(price,2)+'/MT':'Blended price: ratios must total 100%';
+  el('blendHdPrice').textContent=ok?'USD '+fmt(price,2)+'/MT':'--';
+  var btn=el('blendConfirmBtn');
+  if(btn){btn.disabled=!ok;btn.style.opacity=ok?'1':'.4';btn.style.cursor=ok?'pointer':'default';}
+}
+
+// ── Confirm blend → set S state ───────────────────────────────────────────────
+function confirmBlend(){
+  var total=BLEND_COMPS.reduce(function(s,c){return s+(c.ratio||0);},0);
+  if(Math.abs(total-100)>0.01){showCustToast('Ratios must total exactly 100%');return;}
+  if(BLEND_COMPS.length<2){showCustToast('Add at least 2 oils to blend');return;}
+
+  BLEND_MODE=true;
+  S.oilManual=true; // prevent updateOilPrice() from overwriting
+  S.oilPrice=getBlendedPrice();
+  S.oilName='Blended Oil';
+
+  // Update Step 2 UI
+  el('oilPrice').value=S.oilPrice.toFixed(4);
+  el('oilFormula').textContent='Weighted average of '+BLEND_COMPS.length+' oils';
+
+  // Show active badge
+  el('blendActiveBadge').style.display='';
+  el('blendActiveSummary').innerHTML=blendSummaryStr()
+    +'<br><b>Blended price: USD '+fmt(S.oilPrice,2)+'/MT</b>';
+
+  closeBlendModal();
+  rTable();rSum();
+  showCustToast('Blend active — '+BLEND_COMPS.length+' oils at USD '+fmt(S.oilPrice,2)+'/MT');
+}
+
+function clearBlend(){
+  BLEND_MODE=false;
+  BLEND_COMPS=[];
+  S.oilManual=false;
+  S.oilName='P.Olein-CP10 (USD)';
+  updateOilPrice();
+  el('blendActiveBadge').style.display='none';
+  el('blendActiveSummary').innerHTML='';
+  rOilTabs();rOilSel();rTable();rSum();
+  showCustToast('Blend cleared — standard oil mode restored');
+}
+
+// ============================================================
 // OIL PRICE MANAGER — independent non-palm oils via localStorage
 // ============================================================
 
@@ -3481,10 +3684,16 @@ function copyAsImage(){
     // Details
     var dy=y+48;
     row2('Oil',item.oilName.replace(' (USD)',''),0,dy);
-    row2('Net Weight',item.sku.net_wt+' kg  |  Units/SKU: '+item.sku.units,18,dy);
-    row2('SKU/FCL',fmt(item.sku.sku_fcl,0)+'  |  No. FCL: '+item.fcl,36,dy);
-    row2('Total Units',fmt(tu,0)+'  |  Volume: '+fmt(tm,3)+' MT',54,dy);
-    var py=dy+72;
+    var blendOffset=0;
+    if(item.blend){
+      var bdesc=item.blend.map(function(c){return c.name.replace(' (USD)','')+'('+c.ratio+'%)';}).join(' + ');
+      row2('Blend',bdesc,18,dy);
+      blendOffset=18;
+    }
+    row2('Net Weight',item.sku.net_wt+' kg  |  Units/SKU: '+item.sku.units,18+blendOffset,dy);
+    row2('SKU/FCL',fmt(item.sku.sku_fcl,0)+'  |  No. FCL: '+item.fcl,36+blendOffset,dy);
+    row2('Total Units',fmt(tu,0)+'  |  Volume: '+fmt(tm,3)+' MT',54+blendOffset,dy);
+    var py=dy+72+blendOffset;
     // FOB pricing block — only when THIS item's priceMode includes FOB
     var ipm_ci=item.priceMode||'fob';
     var drawFob=(ipm_ci==='fob'||ipm_ci==='both');
@@ -4074,6 +4283,29 @@ function generatePDF(){
         <span class="sr-dirty" id="srDirty">Unsaved</span>
         <button onclick="srSaveGuarded()" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:7px 0;font-size:.78rem;font-weight:700;cursor:pointer;flex:1">&#x1F4BE; Save &amp; Log</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- BLEND OIL BUILDER MODAL -->
+<div id="blendModal">
+  <div id="blendHd">
+    <span style="font-size:1.4rem">&#x1F504;</span>
+    <h2>Blended Oil Builder</h2>
+    <span id="blendHdPrice" style="background:rgba(255,255,255,.2);padding:3px 12px;border-radius:20px;font-size:.73rem;font-weight:700"></span>
+    <button onclick="confirmBlend()" id="blendConfirmBtn" disabled style="background:#27ae60;color:#fff;border:none;border-radius:7px;padding:8px 17px;font-size:.8rem;font-weight:700;cursor:pointer;opacity:.5">&#x2705; Use This Blend</button>
+    <button onclick="closeBlendModal()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:7px;padding:8px 14px;font-size:.88rem;font-weight:800;cursor:pointer">&#x2715;</button>
+  </div>
+  <div id="blendBd">
+    <div class="blend-total-bar">
+      <span class="blend-pct" id="blendTotalPct">Total: 0%</span>
+      <span style="font-size:.72rem;color:#888">must equal 100%</span>
+      <span class="blend-price-out" id="blendTotalPrice" style="margin-left:auto">Blended price: — USD/MT</span>
+    </div>
+    <div id="blendRows"></div>
+    <button onclick="addBlendRow()" id="blendAddBtn" style="width:100%;padding:10px;background:#f0e8ff;border:2px dashed #c090e0;border-radius:8px;color:#6c3483;font-size:.82rem;font-weight:700;cursor:pointer;margin-top:4px">&#x2B; Add Oil (max 5)</button>
+    <div style="margin-top:12px;padding:9px 11px;background:#fdf8ff;border-radius:7px;border:1px solid #d8b0f0;font-size:.7rem;color:#6c3483;line-height:1.7">
+      <b>How it works:</b> Select up to 5 oils, enter their ratios (must total 100%). The blended oil price = weighted average of each oil&rsquo;s price. Override any individual price if needed. All packaging SKU prices will reflect the blended cost automatically.
     </div>
   </div>
 </div>
