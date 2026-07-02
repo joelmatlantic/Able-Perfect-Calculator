@@ -2445,6 +2445,144 @@ function doFileDownload(){
 
 
 // ============================================================
+// BLEND OIL BUILDER — additive feature, no existing code modified
+// ============================================================
+var BLEND_MODE = false;
+var BLEND_COMPS = []; // [{name, ratio, manualPrice}]
+var BLEND_MAX = 5;
+
+function getBlendOilList(){
+  var list=[];
+  for(var k in OIL_DEF) list.push(k);
+  return list.sort();
+}
+
+function getBlendedPrice(){
+  var total=0;
+  BLEND_COMPS.forEach(function(c){
+    var p=c.manualPrice>0?c.manualPrice:getOilPrice(c.name,S.cp10);
+    total+=(c.ratio/100)*p;
+  });
+  return total;
+}
+
+function blendSummaryStr(){
+  return BLEND_COMPS.map(function(c){
+    return c.name.replace(' (USD)','')+'&nbsp;('+c.ratio+'%)';
+  }).join(' + ');
+}
+
+function blendSummaryPlain(){
+  return BLEND_COMPS.map(function(c){
+    return c.name.replace(' (USD)','')+'('+c.ratio+'%)';
+  }).join(' + ');
+}
+
+function openBlendBuilder(){
+  el('blendModal').classList.add('open');
+  if(BLEND_COMPS.length===0) addBlendRow();
+  renderBlendRows();
+}
+function closeBlendModal(){el('blendModal').classList.remove('open');}
+
+function addBlendRow(){
+  if(BLEND_COMPS.length>=BLEND_MAX){showCustToast('Maximum 5 oils in a blend');return;}
+  BLEND_COMPS.push({name:'P.Olein-CP10 (USD)',ratio:0,manualPrice:0});
+  renderBlendRows();
+}
+
+function removeBlendRow(i){
+  BLEND_COMPS.splice(i,1);
+  if(BLEND_COMPS.length===0) BLEND_MODE=false;
+  renderBlendRows();
+  recalcBlend();
+}
+
+function renderBlendRows(){
+  var oils=getBlendOilList();
+  var container=el('blendRows'); if(!container)return;
+  var html='';
+  BLEND_COMPS.forEach(function(c,i){
+    var autoPrice=getOilPrice(c.name,S.cp10);
+    var opts=oils.map(function(o){
+      return '<option value="'+o+'"'+(o===c.name?' selected':'')+'>'+o.replace(' (USD)','')+'</option>';
+    }).join('');
+    html+='<div class="blend-row" id="brow-'+i+'">'
+      +'<div class="blend-row-top">'
+        +'<span class="blend-idx">'+(i+1)+'</span>'
+        +'<select onchange="onBlendOilChange('+i+',this.value)">'+opts+'</select>'
+        +(BLEND_COMPS.length>1?'<button class="blend-rm" onclick="removeBlendRow('+i+')">&#x2715;</button>':'')
+      +'</div>'
+      +'<div class="blend-row-bot">'
+        +'<div class="blend-ratio-wrap"><label>Ratio&nbsp;%</label>'
+          +'<input type="number" class="blend-ratio-inp" min="0" max="100" step="0.1" value="'+(c.ratio||'')+'"'
+          +' oninput="onBlendRatioChange('+i+',this.value)" placeholder="0">'
+        +'</div>'
+        +'<div class="blend-price-wrap"><label>Price USD/MT</label>'
+          +'<div><input type="number" class="blend-price-inp" step="0.01" value="'+(c.manualPrice>0?c.manualPrice:'')+'"'
+          +' oninput="onBlendPriceChange('+i+',this.value)" placeholder="'+autoPrice.toFixed(2)+' (auto)">'
+          +'<div class="blend-price-auto">Auto: USD '+fmt(autoPrice,2)+'</div>'
+          +'</div>'
+        +'</div>'
+      +'</div>'
+    +'</div>';
+  });
+  container.innerHTML=html;
+  el('blendAddBtn').style.display=BLEND_COMPS.length>=BLEND_MAX?'none':'';
+  recalcBlend();
+}
+
+function onBlendOilChange(i,val){
+  BLEND_COMPS[i].name=val;
+  BLEND_COMPS[i].manualPrice=0;
+  renderBlendRows();
+}
+function onBlendRatioChange(i,val){BLEND_COMPS[i].ratio=parseFloat(val)||0;recalcBlend();}
+function onBlendPriceChange(i,val){BLEND_COMPS[i].manualPrice=parseFloat(val)||0;recalcBlend();}
+
+function recalcBlend(){
+  var total=BLEND_COMPS.reduce(function(s,c){return s+(c.ratio||0);},0);
+  var pctEl=el('blendTotalPct'); if(!pctEl)return;
+  pctEl.textContent='Total: '+total.toFixed(1)+'%';
+  pctEl.className='blend-pct'+(Math.abs(total-100)<0.01?' ok':total>100?' over':'');
+  var ok=Math.abs(total-100)<0.01&&BLEND_COMPS.length>=2;
+  var price=ok?getBlendedPrice():0;
+  el('blendTotalPrice').textContent=ok?'Blended price: USD '+fmt(price,2)+'/MT':'Blended price: ratios must total 100%';
+  el('blendHdPrice').textContent=ok?'USD '+fmt(price,2)+'/MT':'--';
+  var btn=el('blendConfirmBtn');
+  if(btn){btn.disabled=!ok;btn.style.opacity=ok?'1':'.4';btn.style.cursor=ok?'pointer':'default';}
+}
+
+function confirmBlend(){
+  var total=BLEND_COMPS.reduce(function(s,c){return s+(c.ratio||0);},0);
+  if(Math.abs(total-100)>0.01){showCustToast('Ratios must total exactly 100%');return;}
+  if(BLEND_COMPS.length<2){showCustToast('Add at least 2 oils to blend');return;}
+  BLEND_MODE=true;
+  S.oilManual=true;
+  S.oilPrice=getBlendedPrice();
+  S.oilName='Blended Oil';
+  el('oilPrice').value=S.oilPrice.toFixed(4);
+  el('oilFormula').textContent='Weighted average of '+BLEND_COMPS.length+' oils';
+  el('blendActiveBadge').style.display='';
+  el('blendActiveSummary').innerHTML=blendSummaryStr()+'<br><b>Blended price: USD '+fmt(S.oilPrice,2)+'/MT</b>';
+  closeBlendModal();
+  rTable();rSum();
+  showCustToast('Blend active — '+BLEND_COMPS.length+' oils at USD '+fmt(S.oilPrice,2)+'/MT');
+}
+
+function clearBlend(){
+  BLEND_MODE=false;
+  BLEND_COMPS=[];
+  S.oilManual=false;
+  S.oilName='P.Olein-CP10 (USD)';
+  updateOilPrice();
+  el('blendActiveBadge').style.display='none';
+  el('blendActiveSummary').innerHTML='';
+  rOilTabs();rOilSel();rTable();rSum();
+  showCustToast('Blend cleared — standard oil mode restored');
+}
+
+// ============================================================
 // OIL PRICE MANAGER — independent non-palm oils via localStorage
 // ============================================================
 
