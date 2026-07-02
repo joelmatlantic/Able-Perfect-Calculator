@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="version" content="20260524-1007">
+<meta charset="UTF-8"><meta name="version" content="20260702-0905-20260524-1007">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vietnam Expo 2026 - Price Calculator</title>
 <style>
@@ -1405,21 +1405,26 @@ function setPriceMode(m){
   rReport();}
 
 function addToQuote(){
-  if(!S.sel){showCustToast('\u26a0 Please select a SKU from the list first');return;}
-  if(!isOK(S.sel)){showCustToast('\u26a0 This packaging type is not compatible with the selected oil');return;}
-  if(QITEMS.length>=50){alert('Maximum 50 items per quote.');return;}
-  var sku=S.sel,fcl=parseInt(el('quoteFcl').value)||1;
-  // Save port: keep real name, but apply manual freight override if active
-  var portToSave=S.portObj?JSON.parse(JSON.stringify(S.portObj)):null;
-  if(portToSave&&FREIGHT_TAB==='manual'&&S_MANUAL_FREIGHT>0){
-    portToSave.freight=S_MANUAL_FREIGHT; // override freight only; name/country unchanged
-    portToSave.manualOverride=true;
+  try{
+    if(!S.sel){showCustToast('\u26a0 Please select a SKU from the list first');return;}
+    if(!isOK(S.sel)){showCustToast('\u26a0 This packaging type is not compatible with the selected oil');return;}
+    if(QITEMS.length>=50){alert('Maximum 50 items per quote.');return;}
+    var sku=S.sel,fcl=parseInt(el('quoteFcl').value)||1;
+    var portToSave=S.portObj?JSON.parse(JSON.stringify(S.portObj)):null;
+    if(portToSave&&FREIGHT_TAB==='manual'&&S_MANUAL_FREIGHT>0){
+      portToSave.freight=S_MANUAL_FREIGHT;
+      portToSave.manualOverride=true;
+    }
+    QITEMS.push({id:++QID,oilName:S.oilName,oilPrice:S.oilPrice,cp10:S.cp10,sku:sku,fcl:fcl,add:S.additive,additiveType:S.additiveType||'',mgn:S.margin,mode:S.mode,port:portToSave,priceMode:PRICE_MODE||'fob',
+      blend:BLEND_MODE&&BLEND_COMPS.length>0?JSON.parse(JSON.stringify(BLEND_COMPS)):null});
+    rQuote();rSum();
+    var i=el('atqInfo');i.textContent='Added! ('+QITEMS.length+'/50)';i.style.color='var(--grn)';
+    setTimeout(function(){rSum();if(i)i.style.color='';},1500);
+  }catch(err){
+    showCustToast('\u26a0 Error adding to quote: '+err.message);
+    console.error('addToQuote error:',err);
   }
-  QITEMS.push({id:++QID,oilName:S.oilName,oilPrice:S.oilPrice,cp10:S.cp10,sku:sku,fcl:fcl,add:S.additive,additiveType:S.additiveType||'',mgn:S.margin,mode:S.mode,port:portToSave,priceMode:PRICE_MODE||'fob',
-    blend:BLEND_MODE&&BLEND_COMPS.length>0?JSON.parse(JSON.stringify(BLEND_COMPS)):null});
-  rQuote();rSum();
-  var i=el('atqInfo');i.textContent='Added! ('+QITEMS.length+'/50)';i.style.color='var(--grn)';
-  setTimeout(function(){rSum();if(i)i.style.color='';},1500);}
+}
 function updItemFcl(id,v){
   var f=parseInt(v)||1;
   for(var i=0;i<QITEMS.length;i++){if(QITEMS[i].id===id){QITEMS[i].fcl=f;break;}}
