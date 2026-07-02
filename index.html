@@ -4061,6 +4061,9 @@ function generatePDF(){
       }
 
       var oilSub='<br><small style="color:#888;font-size:8px">'+item.oilName.replace(' (USD)','')+' (USD)</small>';
+      if(item.blend&&item.blend.length){
+        oilSub+='<br><small style="color:#6c3483;font-size:8px">&#x1F504; '+item.blend.map(function(c){return c.name.replace(' (USD)','')+'('+c.ratio+'%)';}).join(' + ')+'</small>';
+      }
       tbody+='<tr style="background:'+rowBg+'">';
       tbody+='<td class="c">'+(i+1)+'</td>';
       tbody+='<td class="c">'+mBadge+'</td>';
