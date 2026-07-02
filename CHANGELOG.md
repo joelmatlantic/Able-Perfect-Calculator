@@ -255,3 +255,48 @@ Updated from **USD 1,215/MT** → **USD 1,175/MT** (new selling price from Excel
 - **Save & Log**: saves all data to localStorage (`ablecalc_supplier_rates`), records timestamped diff log in `ablecalc_supplier_logs`
 - **Log panel**: shows last 100 save events with timestamps, tabs affected, field-by-field changes
 - Notes on known Excel formula issues (Q2 empty, unused inputs) shown inline
+
+## v2026-06-30a — Blended Oil Builder
+
+### New Feature: Blended Oil Calculator
+Adds the ability to price a custom blend of up to 5 oils and apply that blended price across all packaging SKUs — no existing functions modified.
+
+#### Access
+**Step 2** → purple **🔄 Blend** button (right of Oil Prices)
+
+#### How it works
+1. Open Blend Builder → tap **+ Add Oil** to add up to 5 components
+2. For each component: select oil from the full OIL_DEF list, enter ratio %, optionally override the auto-price
+3. Ratios must total **exactly 100%** before "Use This Blend" activates
+4. Blended price = weighted average: Σ(ratio/100 × price)
+5. All 114 packaging SKU prices update automatically
+6. Active blend badge in Step 2 shows composition; **Clear Blend** restores single-oil mode
+
+#### Storage per cart item
+Each quoted item stores `item.blend` array `[{name, ratio, manualPrice}]` so blend is preserved in customer profiles and recalled on load.
+
+#### Blend composition shown in all reports
+| Location | What appears |
+|----------|-------------|
+| Quotation cart | Purple line: "🔄 P.Olein-IV60(80%) + Soybean Oil(20%)" |
+| PDF card view | "Blend Composition" row in item details |
+| PDF table | Small purple sub-line under oil name in Product & SKU column |
+| PDF canvas | "Blend" row with full component list |
+| WhatsApp text | "Blend: ..." line after oil name |
+
+---
+
+## v2026-06-30b — Remove Supplier Rates panel
+
+Removed the Supplier Rates (Apical/Wingagro/KLK) panel and all associated code from Able Perfect Calculator. This feature was built for the wrong repository — it belongs in the Oillio OPMS.
+
+**Removed:**
+- `📊 Supplier Rates` button from the header
+- `#srModal` full-screen modal (Apical/Wingagro/KLK tabs)
+- `SR_DEF` data object (26 Apical + 4 Wingagro + 80 KLK product definitions)
+- All SR_ functions: `openSupplierRates`, `closeSR`, `srTab`, `srRender`, `srSave`, `srRenderLog`, `srInpChg`, `srProdChg`, `srRefreshPrices`, `srSaveGuarded`, `applyRoleUI`
+- All `.sr-*` CSS classes
+- `applyRoleUI()` call in `renderAll()`
+- Role helper functions: `getUserRole`, `canSeeSR`, `canEditSR`
+
+**Not affected:** All existing features (oil pricing, customer profiles, blended oil, manual freight, T&C, FOB/CIF/Both, port selection, Oil Price Manager, PDF/WhatsApp reports) remain unchanged.
