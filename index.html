@@ -1405,7 +1405,8 @@ function setPriceMode(m){
   rReport();}
 
 function addToQuote(){
-  if(!S.sel||!isOK(S.sel))return;
+  if(!S.sel){showCustToast('\u26a0 Please select a SKU from the list first');return;}
+  if(!isOK(S.sel)){showCustToast('\u26a0 This packaging type is not compatible with the selected oil');return;}
   if(QITEMS.length>=50){alert('Maximum 50 items per quote.');return;}
   var sku=S.sel,fcl=parseInt(el('quoteFcl').value)||1;
   // Save port: keep real name, but apply manual freight override if active
@@ -1979,7 +1980,7 @@ function tcFob(sd){
 
 el('cp10').addEventListener('input',function(){S.cp10=parseFloat(this.value)||0;S.oilManual=false;updateOilPrice();rOilSel();rTable();rSum();});
 el('oilSel').addEventListener('change',function(){S.oilName=this.value;S.oilManual=false;updateOilPrice();updBanner();rCats();rSub();rTable();rSum();checkOilStale(S.oilName);});
-el('oilPrice').addEventListener('input',function(){var v=parseFloat(this.value);if(!isNaN(v)&&v>=0){S.oilPrice=v;S.oilManual=true;rTable();rSum();}});
+el('oilPrice').addEventListener('input',function(){var v=parseFloat(this.value);if(!isNaN(v)&&v>=0){S.oilPrice=v;S.oilManual=true;var w=el('oilStaleWarn');if(w)w.style.display='none';rTable();rSum();}});
 el('additive').addEventListener('input',function(){S.additive=parseFloat(this.value)||0;rTable();rSum();});
 el('margin').addEventListener('input',function(){S.margin=parseFloat(this.value)||0;rTable();rSum();});
 el('skuSearch').addEventListener('input',function(){S.skuSearch=this.value;rTable();});
