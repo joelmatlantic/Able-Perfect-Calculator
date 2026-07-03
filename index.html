@@ -3740,6 +3740,29 @@ function generatePDF(){
 
 
 
+<!-- BLEND OIL BUILDER MODAL -->
+<div id="blendModal">
+  <div id="blendHd">
+    <span style="font-size:1.4rem">&#x1F504;</span>
+    <h2>Blended Oil Builder</h2>
+    <span id="blendHdPrice" style="background:rgba(255,255,255,.2);padding:3px 12px;border-radius:20px;font-size:.73rem;font-weight:700"></span>
+    <button onclick="confirmBlend()" id="blendConfirmBtn" disabled style="background:#27ae60;color:#fff;border:none;border-radius:7px;padding:8px 17px;font-size:.8rem;font-weight:700;cursor:pointer;opacity:.5">&#x2705; Use This Blend</button>
+    <button onclick="closeBlendModal()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:7px;padding:8px 14px;font-size:.88rem;font-weight:800;cursor:pointer">&#x2715;</button>
+  </div>
+  <div id="blendBd">
+    <div class="blend-total-bar">
+      <span class="blend-pct" id="blendTotalPct">Total: 0%</span>
+      <span style="font-size:.72rem;color:#888">must equal 100%</span>
+      <span class="blend-price-out" id="blendTotalPrice" style="margin-left:auto">Blended price: — USD/MT</span>
+    </div>
+    <div id="blendRows"></div>
+    <button onclick="addBlendRow()" id="blendAddBtn" style="width:100%;padding:10px;background:#f0e8ff;border:2px dashed #c090e0;border-radius:8px;color:#6c3483;font-size:.82rem;font-weight:700;cursor:pointer;margin-top:4px">&#x2B; Add Oil (max 5)</button>
+    <div style="margin-top:12px;padding:9px 11px;background:#fdf8ff;border-radius:7px;border:1px solid #d8b0f0;font-size:.7rem;color:#6c3483;line-height:1.7">
+      <b>How it works:</b> Select up to 5 oils, enter their ratios (must total 100%). Blended price = weighted average. Override any individual price if needed.
+    </div>
+  </div>
+</div>
+
 <!-- OIL PRICE MANAGER MODAL -->
 <div id="oilMgrModal">
   <div id="oilMgrHead">
