@@ -2504,6 +2504,9 @@ function renderBlendRows(){
   var html='';
   BLEND_COMPS.forEach(function(c,i){
     var autoPrice=getOilPrice(c.name,S.cp10);
+    // Pre-fill with manual price if set, otherwise auto price — always editable
+    var displayPrice=c.manualPrice>0?c.manualPrice:autoPrice;
+    var isManual=c.manualPrice>0&&Math.abs(c.manualPrice-autoPrice)>0.01;
     var opts=oils.map(function(o){
       return '<option value="'+o+'"'+(o===c.name?' selected':'')+'>'+o.replace(' (USD)','')+'</option>';
     }).join('');
@@ -2518,10 +2521,12 @@ function renderBlendRows(){
           +'<input type="number" class="blend-ratio-inp" min="0" max="100" step="0.1" value="'+(c.ratio||'')+'"'
           +' oninput="onBlendRatioChange('+i+',this.value)" placeholder="0">'
         +'</div>'
-        +'<div class="blend-price-wrap"><label>Price USD/MT</label>'
-          +'<div><input type="number" class="blend-price-inp" step="0.01" value="'+(c.manualPrice>0?c.manualPrice:'')+'"'
-          +' oninput="onBlendPriceChange('+i+',this.value)" placeholder="'+autoPrice.toFixed(2)+' (auto)">'
-          +'<div class="blend-price-auto">Auto: USD '+fmt(autoPrice,2)+'</div>'
+        +'<div class="blend-price-wrap"><label>Price USD/MT'+(isManual?' <span style="color:#e67e22;font-size:.6rem">(manual)</span>':'')+'</label>'
+          +'<div>'
+            +'<input type="number" class="blend-price-inp" step="0.01" value="'+displayPrice.toFixed(2)+'"'
+            +' style="'+(isManual?'border-color:#e67e22;background:#fff9ec;':'')+'border:1.5px solid '+(isManual?'#e67e22':'#d0d0d0')+';border-radius:5px;padding:5px 7px;font-size:.82rem;font-weight:700;color:#0a3d62;text-align:right;width:88px;background:'+(isManual?'#fff9ec':'#f8fafc')+';"'
+            +' oninput="onBlendPriceChange('+i+',this.value)">'
+          +(isManual?'<button onclick="resetBlendPrice('+i+')" style="display:block;margin-top:2px;background:none;border:none;color:#888;font-size:.62rem;cursor:pointer;padding:0;text-decoration:underline">&#x21BA; reset to auto ('+fmt(autoPrice,2)+')</button>':'<div class="blend-price-auto">Market/auto: USD '+fmt(autoPrice,2)+'</div>')
           +'</div>'
         +'</div>'
       +'</div>'
@@ -2538,7 +2543,17 @@ function onBlendOilChange(i,val){
   renderBlendRows();
 }
 function onBlendRatioChange(i,val){BLEND_COMPS[i].ratio=parseFloat(val)||0;recalcBlend();}
-function onBlendPriceChange(i,val){BLEND_COMPS[i].manualPrice=parseFloat(val)||0;recalcBlend();}
+function onBlendPriceChange(i,val){
+  var v=parseFloat(val)||0;
+  var autoPrice=getOilPrice(BLEND_COMPS[i].name,S.cp10);
+  // Only treat as manual if it differs from auto price
+  BLEND_COMPS[i].manualPrice=Math.abs(v-autoPrice)>0.01?v:0;
+  recalcBlend();
+}
+function resetBlendPrice(i){
+  BLEND_COMPS[i].manualPrice=0;
+  renderBlendRows();
+}
 
 function recalcBlend(){
   var total=BLEND_COMPS.reduce(function(s,c){return s+(c.ratio||0);},0);
