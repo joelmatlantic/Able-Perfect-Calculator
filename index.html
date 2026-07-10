@@ -508,13 +508,23 @@ td{padding:9px 12px;vertical-align:middle}
           <span>&#x1F4CB; PDF Report Options</span>
           <span style="font-size:.7rem;color:var(--mut)">applies to downloaded report</span>
         </label>
-        <div style="display:flex;align-items:center;gap:10px;margin-top:6px;padding:10px 12px;background:#f8fafc;border-radius:8px;border:1px solid var(--bdr)">
-          <span style="font-size:.8rem;color:#1a2332;font-weight:600">Show Price/MT column in PDF?</span>
-          <button id="btnMtToggle" onclick="toggleMtPrice()"
-            style="padding:6px 18px;border-radius:20px;border:2px solid #27ae60;background:#27ae60;color:#fff;font-size:.78rem;font-weight:700;cursor:pointer;min-width:60px;transition:.15s">
-            YES
-          </button>
-          <span id="mtToggleNote" style="font-size:.72rem;color:#27ae60;font-weight:600">Price/MT will appear in report</span>
+        <div style="display:flex;flex-direction:column;gap:7px;margin-top:6px;padding:10px 12px;background:#f8fafc;border-radius:8px;border:1px solid var(--bdr)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:.8rem;color:#1a2332;font-weight:600;flex:1">Show Vol(MT) column in PDF?</span>
+            <button id="btnVolToggle" onclick="toggleVolMt()"
+              style="padding:6px 18px;border-radius:20px;border:2px solid #aaa;background:#aaa;color:#fff;font-size:.78rem;font-weight:700;cursor:pointer;min-width:60px;transition:.15s">
+              NO
+            </button>
+            <span id="volToggleNote" style="font-size:.72rem;color:#aaa;font-weight:600">Vol(MT) hidden</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:.8rem;color:#1a2332;font-weight:600;flex:1">Show Price/MT column in PDF?</span>
+            <button id="btnMtToggle" onclick="toggleMtPrice()"
+              style="padding:6px 18px;border-radius:20px;border:2px solid #aaa;background:#aaa;color:#fff;font-size:.78rem;font-weight:700;cursor:pointer;min-width:60px;transition:.15s">
+              NO
+            </button>
+            <span id="mtToggleNote" style="font-size:.72rem;color:#aaa;font-weight:600">Price/MT hidden</span>
+          </div>
         </div>
       </div>
       <div class="field"><label>&#x1F4CC; Step 4A — Choose Pricing Mode <span style="color:#e74c3c;font-size:.72rem">(set this first, drives entire report)</span></label>
@@ -1013,7 +1023,7 @@ var SKUS=[
 var S={cat:null,types:[],skuSearch:'',oilCat:'Palm Olein',oilName:'P.Olein-CP10 (USD)',
   cp10:1215,oilPrice:1215,oilManual:false,additive:0,additiveType:'',margin:0,
   mode:'FOB',portObj:null,portSearch:'',region:'ALL',country:'ALL',sel:null};
-var QITEMS=[],QID=0,PRICE_MODE='fob',SHOW_MT_PRICE=true;
+var QITEMS=[],QID=0,PRICE_MODE='fob',SHOW_MT_PRICE=false,SHOW_VOL_MT=false;
 
 function el(id){return document.getElementById(id);}
 function getOilPriceBase(n,c){var d=OIL_DEF[n];if(!d)return c;return d[1]?c+d[0]:d[0];}
@@ -1241,6 +1251,12 @@ function onManualFreightChange(val){
 }
 function onRegionChange(){S.region=el('regionSel').value;S.country='ALL';filterPorts();}
 function onCountryChange(){S.country=el('countrySel').value;filterPorts();}
+function toggleVolMt(){
+  SHOW_VOL_MT=!SHOW_VOL_MT;
+  var btn=el('btnVolToggle'),note=el('volToggleNote');
+  if(SHOW_VOL_MT){btn.style.background='#27ae60';btn.style.borderColor='#27ae60';btn.textContent='YES';note.style.color='#27ae60';note.textContent='Vol(MT) will appear in report';}
+  else{btn.style.background='#aaa';btn.style.borderColor='#aaa';btn.textContent='NO';note.style.color='#aaa';note.textContent='Vol(MT) hidden';}
+}
 function toggleMtPrice(){
   SHOW_MT_PRICE=!SHOW_MT_PRICE;
   var btn=document.getElementById('btnMtToggle');
@@ -1251,8 +1267,8 @@ function toggleMtPrice(){
     note.textContent='Price/MT will appear in report';note.style.color='#27ae60';
   }else{
     btn.textContent='NO';
-    btn.style.background='#fff';btn.style.borderColor='#e74c3c';btn.style.color='#e74c3c';
-    note.textContent='Price/MT hidden from report';note.style.color='#e74c3c';
+    btn.style.background='#aaa';btn.style.borderColor='#aaa';btn.style.color='#fff';
+    note.textContent='Price/MT hidden';note.style.color='#aaa';
   }
 }
 
@@ -1573,15 +1589,15 @@ function buildTableHTML(forWindow){
   s+='<th style="'+TH+'">Net wt(Kg)<br>/SKU</th>';
   s+='<th style="'+TH+'">SKU/FCL</th>';
   s+='<th style="'+TH+'">No. of FCL</th>';
-  s+='<th style="'+TH+'">Vol (MT)</th>';
+  if(SHOW_VOL_MT)s+='<th style="'+TH+'">Vol (MT)</th>';
   if(showFob){
     var fh=oilLabel?oilLabel+' FOB':'FOB';
     s+='<th style="'+TH+'min-width:110px">'+fh+'<br>Price/SKU (USD)</th>';
-    s+='<th style="'+TH+'min-width:100px">FOB Price/MT<br>(USD)</th>';
+    if(SHOW_MT_PRICE)s+='<th style="'+TH+'min-width:100px">FOB Price/MT<br>(USD)</th>';
   }
   if(showCif){
     s+='<th style="'+TH+'min-width:110px">CIF<br>Price/SKU (USD)</th>';
-    s+='<th style="'+TH+'min-width:100px">CIF Price/MT<br>(USD)</th>';
+    if(SHOW_MT_PRICE)s+='<th style="'+TH+'min-width:100px">CIF Price/MT<br>(USD)</th>';
   }
   s+='<th style="'+TH+'border-right:none;min-width:110px">Total (USD)</th>';
   s+='</tr></thead>';
@@ -1609,7 +1625,7 @@ function buildTableHTML(forWindow){
     s+='<td style="'+TDbase+'">'+item.sku.net_wt.toFixed(2)+'</td>';
     s+='<td style="'+TDbase+'">'+fmt(item.sku.sku_fcl,0)+'</td>';
     s+='<td style="'+TDbase+'font-weight:700">'+item.fcl+'</td>';
-    s+='<td style="'+TDbase+'">'+fmt(tm,3)+'</td>';
+    if(SHOW_VOL_MT)s+='<td style="'+TDbase+'">'+fmt(tm,3)+'</td>';
     if(showFob){
       var iShF=(ipmR==='fob'||ipmR==='both');
       s+='<td style="'+TDR+'color:'+(iShF?'#1a7a4a':'#bbb')+';font-weight:'+(iShF?700:400)+'">'
@@ -3510,7 +3526,7 @@ function generatePDF(){
     }
     thead+='<tr>';
     thead+='<th>No.</th><th>Mode</th><th>Product &amp; SKU</th><th>Net&nbsp;Wt(kg)</th>';
-    thead+='<th>SKU/FCL</th><th>No.FCL</th><th>Vol(MT)</th>';
+    thead+='<th>SKU/FCL</th><th>No.FCL</th>'+(SHOW_VOL_MT?'<th>Vol(MT)</th>':'')+'';
     if(showF){thead+='<th class="hfob">FOB<br>Price/Ctn</th>';if(showMT)thead+='<th class="hfob">FOB<br>Price/MT</th>';}
     if(showC){thead+='<th class="hcif">CIF Dest</th><th class="hcif">CIF<br>Price/Ctn</th>';if(showMT)thead+='<th class="hcif">CIF<br>Price/MT</th>';}
     thead+='<th class="htot">Total<br>(USD)</th></tr>';
@@ -3560,7 +3576,7 @@ function generatePDF(){
       tbody+='<td class="r">'+item.sku.net_wt+'</td>';
       tbody+='<td class="r">'+fmt(item.sku.sku_fcl,0)+'</td>';
       tbody+='<td class="c">'+item.fcl+'</td>';
-      tbody+='<td class="r">'+fmt(tm,3)+'</td>';
+      tbody+=(SHOW_VOL_MT?'<td class="r">'+fmt(tm,3)+'</td>':'');
 
       // FOB columns: show pricing ONLY if this item is FOB
       if(showF){
