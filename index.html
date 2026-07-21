@@ -1235,7 +1235,7 @@ function _updateManualBreakdown(ff){
       'Freight/FCL:&nbsp;&nbsp;&nbsp;&nbsp; USD '+fmt(ff,0)+'<br>'+
       'MT/FCL:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; '+fmt(mf,3)+' MT ('+sku.sku_fcl+' SKU × '+sku.net_wt+'kg)<br>'+
       'Freight/MT:&nbsp;&nbsp;&nbsp;&nbsp; USD '+fmt(fPerMt,2)+'/MT<br>'+
-      'Freight/SKU:&nbsp;&nbsp;&nbsp; USD '+fmt(fPerSku,4)+'/SKU<br>'+
+      'Freight/SKU:&nbsp;&nbsp;&nbsp; USD '+fmt(fPerSku,2)+'/SKU<br>'+
       '—————————————————<br>'+
       'FOB/MT:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; USD '+fmt(p.fm,2)+'/MT<br>'+
       'CIF/MT:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>USD '+fmt(p.cm,2)+'/MT</b>';
@@ -1342,8 +1342,8 @@ function rTable(){
       var tr=document.createElement('tr');
       if(S.sel&&S.sel.name===sku.name)tr.classList.add('sel');
       tr.onclick=function(){S.sel=sku;rTable();rSum();};
-      var fr=cif?'<td class="tp" style="color:var(--acc)">'+fmt(p.fs_,4)+'</td>':'';
-      tr.innerHTML='<td class="tn">'+sku.name+'</td><td><span class="tt">'+sku.type+'</span></td><td class="tpm">'+sku.net_wt+'</td><td class="tpm">'+fmt(sku.sku_fcl,0)+'</td><td class="tp">'+fmt(dS,4)+'</td><td class="tp">'+fmt(dM,2)+'</td><td class="tpm">'+fmt(p.pkgM,2)+'</td>'+fr;
+      var fr=cif?'<td class="tp" style="color:var(--acc)">'+fmt(p.fs_,2)+'</td>':'';
+      tr.innerHTML='<td class="tn">'+sku.name+'</td><td><span class="tt">'+sku.type+'</span></td><td class="tpm">'+sku.net_wt+'</td><td class="tpm">'+fmt(sku.sku_fcl,0)+'</td><td class="tp">'+fmt(dS,2)+'</td><td class="tp">'+fmt(dM,2)+'</td><td class="tpm">'+fmt(p.pkgM,2)+'</td>'+fr;
       tb.appendChild(tr);})(skus[i]);
   }}
 function rSum(){
@@ -1364,19 +1364,19 @@ function rSum(){
   el('sc2').textContent='USD '+fmt(dM,2);
   el('sc2s').textContent=sku.name.length>36?sku.name.slice(0,36)+'...':sku.name;
   el('sc3l').textContent=(cif?'CIF':'FOB')+' / SKU';
-  el('sc3').textContent='USD '+fmt(dS,4);
+  el('sc3').textContent='USD '+fmt(dS,2);
   el('sc3s').textContent=sku.net_wt+'kg | '+fmt(sku.sku_fcl,0)+' SKU/FCL';
   bk.style.display='';
   el('bkTitle').textContent='Breakdown: '+sku.name;
-  var cl=cif?'('+fmt(p.oil,2)+'+'+fmt(p.pkgM,2)+'+'+fmt(p.fm_,4)+'+'+fmt(p.add,2)+') x (1+'+fmt(p.mgn,2)+'%)':'('+fmt(p.oil,2)+'+'+fmt(p.pkgM,2)+'+'+fmt(p.add,2)+') x (1+'+fmt(p.mgn,2)+'%)';
-  var h='<div class="bkr sect">A - Oil</div><div class="bkr"><span class="bl">'+S.oilName.replace(' (USD)','')+'</span><span class="bv">USD '+fmt(p.oil,2)+'/MT</span></div><div class="bkr"><span class="bl">Oil/SKU</span><span class="bv">USD '+fmt(p.oilS,4)+'</span></div>'
-    +'<div class="bkr sect">B - Packaging</div><div class="bkr"><span class="bl">Pkg/SKU</span><span class="bv">USD '+fmt(p.pkgS,4)+'</span></div><div class="bkr"><span class="bl">Pkg/MT</span><span class="bv">USD '+fmt(p.pkgM,2)+'</span></div>';
-  if(cif)h+='<div class="bkr sect">C - Freight</div><div class="bkr"><span class="bl">'+(S.portObj?S.portObj.country+' - '+S.portObj.port:'--')+'</span><span class="bv">USD '+fmt(p.ff,0)+'/FCL</span></div><div class="bkr"><span class="bl">Freight/MT</span><span class="bv">USD '+fmt(p.fm_,4)+'</span></div><div class="bkr"><span class="bl">Freight/SKU</span><span class="bv">USD '+fmt(p.fs_,4)+'</span></div>';
+  var cl=cif?'('+fmt(p.oil,2)+'+'+fmt(p.pkgM,2)+'+'+fmt(p.fm_,2)+'+'+fmt(p.add,2)+') x (1+'+fmt(p.mgn,2)+'%)':'('+fmt(p.oil,2)+'+'+fmt(p.pkgM,2)+'+'+fmt(p.add,2)+') x (1+'+fmt(p.mgn,2)+'%)';
+  var h='<div class="bkr sect">A - Oil</div><div class="bkr"><span class="bl">'+S.oilName.replace(' (USD)','')+'</span><span class="bv">USD '+fmt(p.oil,2)+'/MT</span></div><div class="bkr"><span class="bl">Oil/SKU</span><span class="bv">USD '+fmt(p.oilS,2)+'</span></div>'
+    +'<div class="bkr sect">B - Packaging</div><div class="bkr"><span class="bl">Pkg/SKU</span><span class="bv">USD '+fmt(p.pkgS,2)+'</span></div><div class="bkr"><span class="bl">Pkg/MT</span><span class="bv">USD '+fmt(p.pkgM,2)+'</span></div>';
+  if(cif)h+='<div class="bkr sect">C - Freight</div><div class="bkr"><span class="bl">'+(S.portObj?S.portObj.country+' - '+S.portObj.port:'--')+'</span><span class="bv">USD '+fmt(p.ff,0)+'/FCL</span></div><div class="bkr"><span class="bl">Freight/MT</span><span class="bv">USD '+fmt(p.fm_,2)+'</span></div><div class="bkr"><span class="bl">Freight/SKU</span><span class="bv">USD '+fmt(p.fs_,2)+'</span></div>';
   var sl=cif?'D':'C';
   h+='<div class="bkr sect">'+sl+' - Additive & Margin</div><div class="bkr"><span class="bl">Additive</span><span class="bv">USD '+fmt(p.add,2)+'/MT</span></div><div class="bkr"><span class="bl">Margin</span><span class="bv">'+fmt(p.mgn,2)+'%</span></div>'
     +'<div class="bkr sect">'+(cif?'E':'D')+' - Final</div><div class="bkr"><span class="bl">Final/MT = '+cl+'</span><span class="bv">USD '+fmt(dM,2)+'</span></div>'
     +'<div class="bkr tot"><span class="bl">FINAL '+(cif?'CIF':'FOB')+' / MT</span><span class="bv">USD '+fmt(dM,2)+'</span></div>'
-    +'<div class="bkr tot"><span class="bl">FINAL '+(cif?'CIF':'FOB')+' / SKU</span><span class="bv">USD '+fmt(dS,4)+'</span></div>';
+    +'<div class="bkr tot"><span class="bl">FINAL '+(cif?'CIF':'FOB')+' / SKU</span><span class="bv">USD '+fmt(dS,2)+'</span></div>';
   el('bkContent').innerHTML=h;
   var cnt=QITEMS.length;
   el('btnAtq').disabled=cnt>=50;
@@ -1471,11 +1471,11 @@ function rQuote(){
       // Build price row based ONLY on item's locked priceMode
       var priceHtml='';
       if(showIF){
-        priceHtml+='<div class="qprice"><span class="ql">FOB/carton</span><span class="qv">USD '+fmt(p.fs,4)+'</span></div>';
+        priceHtml+='<div class="qprice"><span class="ql">FOB/carton</span><span class="qv">USD '+fmt(p.fs,2)+'</span></div>';
         if(SHOW_MT_PRICE)priceHtml+='<div class="qprice"><span class="ql">FOB/MT</span><span class="qv">USD '+fmt(p.fm,2)+'</span></div>';
       }
       if(showIC){
-        priceHtml+='<div class="qprice cif"><span class="ql">CIF/carton</span><span class="qv">USD '+fmt(p.cs,4)+'</span></div>';
+        priceHtml+='<div class="qprice cif"><span class="ql">CIF/carton</span><span class="qv">USD '+fmt(p.cs,2)+'</span></div>';
         if(SHOW_MT_PRICE)priceHtml+='<div class="qprice cif"><span class="ql">CIF/MT</span><span class="qv">USD '+fmt(p.cm,2)+'</span></div>';
       }
       var modeTag=ipm2==='both'?'<b style="color:#8e44ad">FOB+CIF</b>':ipm2==='cif'?'<b style="color:#1e5f8a">CIF</b>':'<b style="color:#1a7a4a">FOB</b>';
@@ -1751,7 +1751,7 @@ function renderVTable(){
       if(showItemFob){
         wrap+='<div style="background:#edf7f1;border-radius:6px;padding:8px 10px;margin-top:8px">';
         wrap+='<div style="font-size:.68rem;font-weight:700;color:#1a7a4a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">FOB Pricing</div>';
-        wrap+='<div style="display:flex;justify-content:space-between;font-size:.79rem;padding:2px 0"><span style="color:#6b7a95">Price / Carton</span><span style="font-weight:700;color:#1a7a4a">USD '+fmt(p.fs,4)+'</span></div>';
+        wrap+='<div style="display:flex;justify-content:space-between;font-size:.79rem;padding:2px 0"><span style="color:#6b7a95">Price / Carton</span><span style="font-weight:700;color:#1a7a4a">USD '+fmt(p.fs,2)+'</span></div>';
         wrap+='<div style="display:flex;justify-content:space-between;font-size:.79rem;padding:2px 0"><span style="color:#6b7a95">Price / MT</span><span style="font-weight:700;color:#1a7a4a">USD '+fmt(p.fm,2)+'</span></div>';
         wrap+='<div style="display:flex;justify-content:space-between;font-size:.79rem;padding:2px 0;border-top:1px solid #c8ebd8;margin-top:3px;padding-top:4px"><span style="color:#6b7a95">Total FOB</span><span style="font-weight:800;color:#1a7a4a">USD '+fmt(tfob,2)+'</span></div>';
         wrap+='</div>';
@@ -1760,7 +1760,7 @@ function renderVTable(){
       if(showItemCif){
         wrap+='<div style="background:#e8f0fa;border-radius:6px;padding:8px 10px;margin-top:6px">';
         wrap+='<div style="font-size:.68rem;font-weight:700;color:#1e5f8a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">CIF -- '+item.port.country+' ('+item.port.port+')</div>';
-        wrap+='<div style="display:flex;justify-content:space-between;font-size:.79rem;padding:2px 0"><span style="color:#6b7a95">Price / Carton</span><span style="font-weight:700;color:#1e5f8a">USD '+fmt(p.cs,4)+'</span></div>';
+        wrap+='<div style="display:flex;justify-content:space-between;font-size:.79rem;padding:2px 0"><span style="color:#6b7a95">Price / Carton</span><span style="font-weight:700;color:#1e5f8a">USD '+fmt(p.cs,2)+'</span></div>';
         wrap+='<div style="display:flex;justify-content:space-between;font-size:.79rem;padding:2px 0"><span style="color:#6b7a95">Price / MT</span><span style="font-weight:700;color:#1e5f8a">USD '+fmt(p.cm,2)+'</span></div>';
         // Freight/FCL not shown to customer
         wrap+='<div style="display:flex;justify-content:space-between;font-size:.79rem;padding:2px 0;border-top:1px solid #b8d4f0;margin-top:3px;padding-top:4px"><span style="color:#6b7a95">Total CIF</span><span style="font-weight:800;color:#1e5f8a">USD '+fmt(tcif,2)+'</span></div>';
@@ -1883,8 +1883,8 @@ function buildTxtTable(){
     var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
     gFob+=tfob;gCif+=(tcif!==null?tcif:tfob);gMt+=tm;gFcl+=item.fcl;
     var vals=[(i+1)+'',item.sku.type.slice(0,12),itemDisplayName(item).slice(0,24),item.fcl+'',fmt(tm,3)];
-    if(showFob){vals.push(fmt(p.fs,4));vals.push(fmt(p.fm,2));}
-    if(showCif){vals.push(isCif?fmt(p.cs,4):'-');vals.push(isCif?fmt(p.cm,2):'-');}
+    if(showFob){vals.push(fmt(p.fs,2));vals.push(fmt(p.fm,2));}
+    if(showCif){vals.push(isCif?fmt(p.cs,2):'-');vals.push(isCif?fmt(p.cm,2):'-');}
     vals.push(fmt((pm==='cif'&&isCif)?tcif:tfob,2));
     r+=row(vals)+NL;
   }
@@ -1933,8 +1933,8 @@ function buildRpt(){
     r+='SKU/FCL: '+fmt(item.sku.sku_fcl,0)+NL;
     r+='Volume: '+fmt(tm,3)+' MT'+NL;
     if(item.add>0)r+='Additive: USD '+fmt(item.add,2)+'/MT'+NL;
-    if(ipm==='fob'||ipm==='both')r+='FOB Price: USD '+fmt(p.fs,4)+'/carton'+(SHOW_MT_PRICE?'  |  USD '+fmt(p.fm,2)+'/MT':'')+NL;
-    if((ipm==='cif'||ipm==='both')&&isCif)r+='CIF '+item.port.country+' ('+item.port.port+'): USD '+fmt(p.cs,4)+'/carton'+(SHOW_MT_PRICE?'  |  USD '+fmt(p.cm,2)+'/MT':'')+NL;
+    if(ipm==='fob'||ipm==='both')r+='FOB Price: USD '+fmt(p.fs,2)+'/carton'+(SHOW_MT_PRICE?'  |  USD '+fmt(p.fm,2)+'/MT':'')+NL;
+    if((ipm==='cif'||ipm==='both')&&isCif)r+='CIF '+item.port.country+' ('+item.port.port+'): USD '+fmt(p.cs,2)+'/carton'+(SHOW_MT_PRICE?'  |  USD '+fmt(p.cm,2)+'/MT':'')+NL;
     if(ipm==='both'){
       r+='*Total FOB (USD): USD '+fmt(tfob,2)+'*'+NL;
       if(isCif)r+='*Total CIF (USD): USD '+fmt(tcif,2)+'*'+NL;
@@ -2101,7 +2101,7 @@ function renderFm(){
       // FOB pricing block
       html_+='<div class="q-price-section">';
       html_+='<h4>FOB Pricing</h4>';
-      html_+='<div class="q-price-row"><span class="lbl">Price / Carton</span><span class="val fob">USD '+fmt(p.fs,4)+'</span></div>';
+      html_+='<div class="q-price-row"><span class="lbl">Price / Carton</span><span class="val fob">USD '+fmt(p.fs,2)+'</span></div>';
       html_+='<div class="q-price-row"><span class="lbl">Price / MT</span><span class="val fob">USD '+fmt(p.fm,2)+'</span></div>';
       html_+='<div class="q-price-row"><span class="lbl">Total FOB</span><span class="val fob">USD '+fmt(tfob,2)+'</span></div>';
       html_+='</div>';
@@ -2109,7 +2109,7 @@ function renderFm(){
       if(isCif){
         html_+='<div class="q-price-section" style="background:#e8f0fa">';
         html_+='<h4>CIF Pricing &mdash; '+item.port.country+' ('+item.port.port+')</h4>';
-        html_+='<div class="q-price-row"><span class="lbl">Price / Carton</span><span class="val cif">USD '+fmt(p.cs,4)+'</span></div>';
+        html_+='<div class="q-price-row"><span class="lbl">Price / Carton</span><span class="val cif">USD '+fmt(p.cs,2)+'</span></div>';
         html_+='<div class="q-price-row"><span class="lbl">Price / MT</span><span class="val cif">USD '+fmt(p.cm,2)+'</span></div>';
         // Freight/FCL not shown to customer
         html_+='<div class="q-price-row"><span class="lbl">Total CIF</span><span class="val cif">USD '+fmt(tcif,2)+'</span></div>';
@@ -2195,14 +2195,14 @@ function generatePdfHtml(){
     if(showFob){
       s+='<div style="background:#edf7f1;margin:0 12px 8px;border-radius:6px;padding:7px 10px">';
       s+='<div style="font-size:.67rem;font-weight:700;color:#1a7a4a;text-transform:uppercase;margin-bottom:4px">FOB Pricing</div>';
-      s+='<div style="display:flex;justify-content:space-between;font-size:.78rem;padding:2px 0"><span style="color:#555">Price / Carton</span><b style="color:#1a7a4a">USD '+fmt(p.fs,4)+'</b></div>';
+      s+='<div style="display:flex;justify-content:space-between;font-size:.78rem;padding:2px 0"><span style="color:#555">Price / Carton</span><b style="color:#1a7a4a">USD '+fmt(p.fs,2)+'</b></div>';
       if(SHOW_MT_PRICE)s+='<div style="display:flex;justify-content:space-between;font-size:.78rem;padding:2px 0"><span style="color:#555">Price / MT</span><b style="color:#1a7a4a">USD '+fmt(p.fm,2)+'</b></div>';
       s+='<div style="display:flex;justify-content:space-between;font-size:.8rem;padding:3px 0;margin-top:3px;border-top:1px solid #c8ebd8"><span style="color:#555">Total FOB</span><b style="color:#1a7a4a">USD '+fmt(tfob,2)+'</b></div></div>';
     }
     if(showItemCif){
       s+='<div style="background:#e8f0fa;margin:0 12px 8px;border-radius:6px;padding:7px 10px">';
       s+='<div style="font-size:.67rem;font-weight:700;color:#1e5f8a;text-transform:uppercase;margin-bottom:4px">CIF -- '+item.port.country+' ('+item.port.port+')</div>';
-      s+='<div style="display:flex;justify-content:space-between;font-size:.78rem;padding:2px 0"><span style="color:#555">Price / Carton</span><b style="color:#1e5f8a">USD '+fmt(p.cs,4)+'</b></div>';
+      s+='<div style="display:flex;justify-content:space-between;font-size:.78rem;padding:2px 0"><span style="color:#555">Price / Carton</span><b style="color:#1e5f8a">USD '+fmt(p.cs,2)+'</b></div>';
       if(SHOW_MT_PRICE)s+='<div style="display:flex;justify-content:space-between;font-size:.78rem;padding:2px 0"><span style="color:#555">Price / MT</span><b style="color:#1e5f8a">USD '+fmt(p.cm,2)+'</b></div>';
       // Freight/FCL not shown to customer
       s+='<div style="display:flex;justify-content:space-between;font-size:.8rem;padding:3px 0;margin-top:3px;border-top:1px solid #b8d4f0"><span style="color:#555">Total CIF</span><b style="color:#1e5f8a">USD '+fmt(tcif,2)+'</b></div></div>';
@@ -2331,7 +2331,7 @@ function openPrintPreview(){
     if(showFob){
       html_+='<div style="background:#edf7f1;border-radius:7px;padding:10px 12px;margin-top:10px">';
       html_+='<div style="font-size:.7rem;font-weight:700;color:#1a7a4a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">FOB Pricing</div>';
-      html_+='<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:2px 0"><span style="color:#555">Price / Carton</span><b style="color:#1a7a4a">USD '+fmt(p.fs,4)+'</b></div>';
+      html_+='<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:2px 0"><span style="color:#555">Price / Carton</span><b style="color:#1a7a4a">USD '+fmt(p.fs,2)+'</b></div>';
       if(SHOW_MT_PRICE)html_+='<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:2px 0"><span style="color:#555">Price / MT</span><b style="color:#1a7a4a">USD '+fmt(p.fm,2)+'</b></div>';
       html_+='<div style="display:flex;justify-content:space-between;font-size:.84rem;border-top:1px solid #c8ebd8;margin-top:5px;padding-top:5px"><span style="color:#555">Total FOB</span><b style="color:#1a7a4a;font-size:.92rem">USD '+fmt(tfob,2)+'</b></div></div>';
     }
@@ -2339,7 +2339,7 @@ function openPrintPreview(){
     if(showCif&&isCif){
       html_+='<div style="background:#e8f0fa;border-radius:7px;padding:10px 12px;margin-top:8px">';
       html_+='<div style="font-size:.7rem;font-weight:700;color:#1e5f8a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">CIF &mdash; '+item.port.country+' ('+item.port.port+')</div>';
-      html_+='<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:2px 0"><span style="color:#555">Price / Carton</span><b style="color:#1e5f8a">USD '+fmt(p.cs,4)+'</b></div>';
+      html_+='<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:2px 0"><span style="color:#555">Price / Carton</span><b style="color:#1e5f8a">USD '+fmt(p.cs,2)+'</b></div>';
       if(SHOW_MT_PRICE)html_+='<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:2px 0"><span style="color:#555">Price / MT</span><b style="color:#1e5f8a">USD '+fmt(p.cm,2)+'</b></div>';
       html_+='<div style="display:flex;justify-content:space-between;font-size:.84rem;border-top:1px solid #b8d4f0;margin-top:5px;padding-top:5px"><span style="color:#555">Total CIF</span><b style="color:#1e5f8a;font-size:.92rem">USD '+fmt(tcif,2)+'</b></div></div>';
     }
@@ -2592,7 +2592,7 @@ function confirmBlend(){
   S.oilManual=true;
   S.oilPrice=getBlendedPrice();
   S.oilName='Blended Oil';
-  el('oilPrice').value=S.oilPrice.toFixed(4);
+  el('oilPrice').value=S.oilPrice.toFixed(2);
   el('oilFormula').textContent='Weighted average of '+BLEND_COMPS.length+' oils';
   el('blendActiveBadge').style.display='';
   el('blendActiveSummary').innerHTML=blendSummaryStr()+'<br><b>Blended price: USD '+fmt(S.oilPrice,2)+'/MT</b>';
@@ -3209,7 +3209,7 @@ function copyAsImage(){
       var fobH=SHOW_MT_PRICE?70:54;
       RR(MARG+8,py,W-2*MARG-16,fobH,6,'#edf7f1');
       T('FOB PRICING',MARG+16,py+12,{c:'#1a7a4a',b:true,sz:8});
-      T('Price / Carton',MARG+16,py+30,{c:'#555',sz:10});T('USD '+fmt(p.fs,4),W-MARG-16,py+30,{c:'#1a7a4a',b:true,sz:10,a:'right'});
+      T('Price / Carton',MARG+16,py+30,{c:'#555',sz:10});T('USD '+fmt(p.fs,2),W-MARG-16,py+30,{c:'#1a7a4a',b:true,sz:10,a:'right'});
       if(SHOW_MT_PRICE){T('Price / MT',MARG+16,py+46,{c:'#555',sz:10});T('USD '+fmt(p.fm,2),W-MARG-16,py+46,{c:'#1a7a4a',b:true,sz:10,a:'right'});}
       var totY=SHOW_MT_PRICE?64:48;
       ctx.strokeStyle='#c8ebd8';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(MARG+16,py+totY-10);ctx.lineTo(W-MARG-16,py+totY-10);ctx.stroke();
@@ -3220,7 +3220,7 @@ function copyAsImage(){
       var cifH=SHOW_MT_PRICE?86:70;
       RR(MARG+8,py,W-2*MARG-16,cifH,6,'#e8f0fa');
       T('CIF -- '+item.port.country+' ('+item.port.port+')',MARG+16,py+12,{c:'#1e5f8a',b:true,sz:8});
-      T('Price / Carton',MARG+16,py+30,{c:'#555',sz:10});T('USD '+fmt(p.cs,4),W-MARG-16,py+30,{c:'#1e5f8a',b:true,sz:10,a:'right'});
+      T('Price / Carton',MARG+16,py+30,{c:'#555',sz:10});T('USD '+fmt(p.cs,2),W-MARG-16,py+30,{c:'#1e5f8a',b:true,sz:10,a:'right'});
       if(SHOW_MT_PRICE){T('Price / MT',MARG+16,py+46,{c:'#555',sz:10});T('USD '+fmt(p.cm,2),W-MARG-16,py+46,{c:'#1e5f8a',b:true,sz:10,a:'right'});}
       var totYc=SHOW_MT_PRICE?64:48;
       ctx.strokeStyle='#b8d4f0';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(MARG+16,py+totYc-10);ctx.lineTo(W-MARG-16,py+totYc-10);ctx.stroke();
@@ -3361,7 +3361,7 @@ function saveAsPDF(){
           var fobHS=SHOW_MT_PRICE?70:54;
           RR(MARG+8,py,W-2*MARG-16,fobHS,6,'#edf7f1');
           T('FOB PRICING',MARG+16,py+12,{c:'#1a7a4a',b:true,sz:8});
-          T('Price / Carton',MARG+16,py+30,{c:'#555',sz:10});T('USD '+fmt(p.fs,4),W-MARG-16,py+30,{c:'#1a7a4a',b:true,sz:10,a:'right'});
+          T('Price / Carton',MARG+16,py+30,{c:'#555',sz:10});T('USD '+fmt(p.fs,2),W-MARG-16,py+30,{c:'#1a7a4a',b:true,sz:10,a:'right'});
           if(SHOW_MT_PRICE){T('Price / MT',MARG+16,py+46,{c:'#555',sz:10});T('USD '+fmt(p.fm,2),W-MARG-16,py+46,{c:'#1a7a4a',b:true,sz:10,a:'right'});}
           var totYS=SHOW_MT_PRICE?64:48;
           ctx.strokeStyle='#c8ebd8';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(MARG+16,py+totYS-10);ctx.lineTo(W-MARG-16,py+totYS-10);ctx.stroke();
@@ -3372,7 +3372,7 @@ function saveAsPDF(){
           var cifHS=SHOW_MT_PRICE?86:70;
           RR(MARG+8,py,W-2*MARG-16,cifHS,6,'#e8f0fa');
           T('CIF -- '+item.port.country+' ('+item.port.port+')',MARG+16,py+12,{c:'#1e5f8a',b:true,sz:8});
-          T('Price / Carton',MARG+16,py+30,{c:'#555',sz:10});T('USD '+fmt(p.cs,4),W-MARG-16,py+30,{c:'#1e5f8a',b:true,sz:10,a:'right'});
+          T('Price / Carton',MARG+16,py+30,{c:'#555',sz:10});T('USD '+fmt(p.cs,2),W-MARG-16,py+30,{c:'#1e5f8a',b:true,sz:10,a:'right'});
           if(SHOW_MT_PRICE){T('Price / MT',MARG+16,py+46,{c:'#555',sz:10});T('USD '+fmt(p.cm,2),W-MARG-16,py+46,{c:'#1e5f8a',b:true,sz:10,a:'right'});}
           var totYCS=SHOW_MT_PRICE?64:48;
           ctx.strokeStyle='#b8d4f0';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(MARG+16,py+totYCS-10);ctx.lineTo(W-MARG-16,py+totYCS-10);ctx.stroke();
@@ -3580,14 +3580,14 @@ function generatePDF(){
 
       // FOB columns: show pricing ONLY if this item is FOB
       if(showF){
-        tbody+='<td class="r '+(itemIsFob?'fob':'dash')+'">'+(itemIsFob?fmt(p.fs,4):'--')+'</td>';
+        tbody+='<td class="r '+(itemIsFob?'fob':'dash')+'">'+(itemIsFob?fmt(p.fs,2):'--')+'</td>';
         if(showMT)tbody+='<td class="r '+(itemIsFob?'fob':'dash')+'">'+(itemIsFob?fmt(p.fm,2):'--')+'</td>';
       }
 
       // CIF columns: show pricing ONLY if this item is CIF
       if(showC){
         tbody+='<td class="c '+(itemIsCif?'':'dash')+'">'+(itemIsCif?destTxt:'--')+'</td>';
-        tbody+='<td class="r '+(itemIsCif?'cif':'dash')+'">'+(itemIsCif?fmt(p.cs,4):'--')+'</td>';
+        tbody+='<td class="r '+(itemIsCif?'cif':'dash')+'">'+(itemIsCif?fmt(p.cs,2):'--')+'</td>';
         if(showMT)tbody+='<td class="r '+(itemIsCif?'cif':'dash')+'">'+(itemIsCif?fmt(p.cm,2):'--')+'</td>';
       }
 
