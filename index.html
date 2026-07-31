@@ -1034,9 +1034,11 @@ function updateOilPrice(){
   if(!S.oilManual){S.oilPrice=getOilPrice(S.oilName,S.cp10);el('oilPrice').value=S.oilPrice;}
   el('oilFormula').textContent=getOilFormula(S.oilName,S.cp10);}
 function getSkuOilPrice(sku){
+  if(BLEND_MODE)return S.oilPrice; // blended oil price applies regardless of packaging type
   if(sku.type==='SHORTENING')return SHORTENING_OILS[S.oilName]?S.oilPrice:getOilPrice('Shortening 36-39deg (USD)',S.cp10);
   return S.oilPrice;}
 function isOK(sku){
+  if(BLEND_MODE)return true; // user has deliberately chosen a custom blend — allow any packaging
   var o=S.oilName;
   if(SHORT_PKG_TYPES[sku.type])return !!(SHORTENING_OILS[o]||GHEE_OILS[o]);
   if(!SHORTENING_OILS[o]&&!GHEE_OILS[o]&&SHORT_PKG_TYPES[sku.type])return false;
