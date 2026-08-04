@@ -300,3 +300,17 @@ Removed the Supplier Rates (Apical/Wingagro/KLK) panel and all associated code f
 - Role helper functions: `getUserRole`, `canSeeSR`, `canEditSR`
 
 **Not affected:** All existing features (oil pricing, customer profiles, blended oil, manual freight, T&C, FOB/CIF/Both, port selection, Oil Price Manager, PDF/WhatsApp reports) remain unchanged.
+
+## v2026-08-03 — Header Freight Date Badge (On-Screen Reference Only)
+
+### Header date badge now shows actual latest freight update date
+The header badge (top right, 📅 icon) and subtitle previously showed a stale hardcoded date ("23 May 2026") that never updated across multiple data refreshes. This was misleading.
+
+**Fixed:** Header now shows **"Freight: 31 Jul 2026"** — the true latest `updated` timestamp found across all 637 ports in the freight data.
+
+**Important — for the user's eyes only:**
+- This badge is purely an on-screen reference for quick visual checking
+- It does **NOT** appear anywhere in the PDF report, PDF card view, WhatsApp text, or any generated quotation document
+- Confirmed: the date string only exists in the `<header>` HTML block, completely separate from all report-generation functions (`generatePDF`, `generatePdfHtml`, `buildTableHTML`, WhatsApp builder)
+- For checking a *specific* port's own freshness, use the color-coded dot next to each port in Step 4 → Port List (🟢 fresh ≤3mo / 🟡 warn ≤6mo / 🔴 stale >6mo) — that reflects each port's individual `updated` date, not this global header date
+- This header date will need manual updating whenever a future Excel freight refresh is applied, to keep it accurate
