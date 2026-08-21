@@ -1504,6 +1504,13 @@ function addToQuote(){
     if(!S.sel){showCustToast('\u26a0 Please select a SKU from the list first');return;}
     if(!isOK(S.sel)){showCustToast('\u26a0 This packaging type is not compatible with the selected oil');return;}
     if(QITEMS.length>=50){alert('Maximum 50 items per quote.');return;}
+    // Guard: manual freight typed in but no port selected -> freight would be
+    // silently dropped (need a real port for the report). Warn instead of losing it.
+    var needsCif=(S.mode==='CIF'||PRICE_MODE==='cif'||PRICE_MODE==='both');
+    if(needsCif&&FREIGHT_TAB==='manual'&&S_MANUAL_FREIGHT>0&&!S.portObj){
+      showCustToast('\u26a0 Select a port first (Port List tab), then your manual freight will apply correctly');
+      return;
+    }
     var sku=S.sel,fcl=parseInt(el('quoteFcl').value)||1;
     var portToSave=S.portObj?JSON.parse(JSON.stringify(S.portObj)):null;
     if(portToSave&&FREIGHT_TAB==='manual'&&S_MANUAL_FREIGHT>0){
