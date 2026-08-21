@@ -1087,9 +1087,11 @@ function isOK(sku){
   // RumiLac Pro/Gold: each product only pairs with its own exact packaging (cost differs per product)
   if(RUMILAC_PKG_TYPES[sku.type])return!!(RUMILAC_OIL_PKG_MAP[o]&&RUMILAC_OIL_PKG_MAP[o].indexOf(sku.type)>=0);
   if(RUMILAC_OILS[o]&&!RUMILAC_PKG_TYPES[sku.type])return false;
-  // Isotank: shows only the row matching the current oil's solid/liquid state
+  // Isotank: shows only the row matching the current product's solid/liquid state.
+  // Hydrogenated additive makes ANY base oil solid/semi-solid (physically), so it
+  // forces the solid classification even for a normally-liquid oil like Palm Olein.
   if(ISOTANK_TYPES[sku.type]){
-    var isSolidOil=!!SOLID_SEMISOLID_OILS[o];
+    var isSolidOil=!!SOLID_SEMISOLID_OILS[o]||S.additiveType==='Hydrogenated';
     return sku.st===(isSolidOil?'solid':'liquid');
   }
   if(SHORT_PKG_TYPES[sku.type])return !!(SHORTENING_OILS[o]||GHEE_OILS[o]);
@@ -1487,7 +1489,7 @@ function itemBlendDesc(item){
 
 function onAdditiveSelChange(){
   S.additiveType=el('additiveSel').value;
-  rSum();}
+  rTable();rSum();}
 
 function setPriceMode(m){
   PRICE_MODE=m;
