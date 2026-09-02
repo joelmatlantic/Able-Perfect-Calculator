@@ -1571,12 +1571,12 @@ function rQuote(){
       // Build price row based ONLY on item's locked priceMode
       var priceHtml='';
       if(showIF){
-        priceHtml+='<div class="qprice"><span class="ql">FOB/carton</span><span class="qv">USD '+fmt(p.fs,2)+'</span></div>';
-        if(SHOW_MT_PRICE)priceHtml+='<div class="qprice"><span class="ql">FOB/MT</span><span class="qv">USD '+fmt(p.fm,2)+'</span></div>';
+        priceHtml+='<div class="qprice"><span class="ql">FOB/carton</span><span class="qv" id="qFS-'+item.id+'">USD '+fmt(p.fs,2)+'</span></div>';
+        if(SHOW_MT_PRICE)priceHtml+='<div class="qprice"><span class="ql">FOB/MT</span><span class="qv" id="qFM-'+item.id+'">USD '+fmt(p.fm,2)+'</span></div>';
       }
       if(showIC){
-        priceHtml+='<div class="qprice cif"><span class="ql">CIF/carton</span><span class="qv">USD '+fmt(p.cs,2)+'</span></div>';
-        if(SHOW_MT_PRICE)priceHtml+='<div class="qprice cif"><span class="ql">CIF/MT</span><span class="qv">USD '+fmt(p.cm,2)+'</span></div>';
+        priceHtml+='<div class="qprice cif"><span class="ql">CIF/carton</span><span class="qv" id="qCS-'+item.id+'">USD '+fmt(p.cs,2)+'</span></div>';
+        if(SHOW_MT_PRICE)priceHtml+='<div class="qprice cif"><span class="ql">CIF/MT</span><span class="qv" id="qCM-'+item.id+'">USD '+fmt(p.cm,2)+'</span></div>';
       }
       var modeTag=ipm2==='both'?'<b style="color:#8e44ad">FOB+CIF</b>':ipm2==='cif'?'<b style="color:#1e5f8a">CIF</b>':'<b style="color:#1a7a4a">FOB</b>';
       var portB=isCif?modeTag+': <b>'+item.port.country+' - '+item.port.port+'</b>':modeTag;
@@ -1592,6 +1592,11 @@ function rQuote(){
             +'<input type="number" min="1" max="'+itemFullQty(item)+'" value="'+tu+'" oninput="liveUpdateQty('+item.id+',this.value)" onchange="onActualQtyChange('+item.id+',this.value)" title="Change to a partial quantity for LCL arrangements — leave at full amount for a complete container"'
             +' style="width:78px;text-align:center;padding:5px;font-size:.85rem;font-weight:700;border:1.5px solid '+(isLcl(item)?'#e67e22':'var(--bdr)')+';border-radius:6px;color:'+(isLcl(item)?'#e67e22':'var(--brand)')+';background:'+(isLcl(item)?'#fff8f0':'#fff')+'">'
             +(isLcl(item)?'<button onclick="resetActualQty('+item.id+')" style="background:none;border:none;color:#888;font-size:.6rem;cursor:pointer;padding:0;text-decoration:underline;margin-top:1px">Reset (full: '+fmt(itemFullQty(item),0)+')</button>':'<span style="font-size:.6rem;color:var(--mut)">= Full FCL</span>')
+          +'</div>'
+          +'<div style="margin-top:8px;display:flex;flex-direction:column;align-items:center;gap:2px">'
+            +'<label style="font-size:.6rem;color:var(--mut);text-transform:uppercase">Margin %</label>'
+            +'<input type="number" min="0" max="100" step="0.1" value="'+item.mgn+'" oninput="liveUpdateMargin('+item.id+',this.value)" onchange="onMarginChange('+item.id+',this.value)" title="Edit this item\'s margin — no need to delete and re-add"'
+            +' style="width:78px;text-align:center;padding:5px;font-size:.85rem;font-weight:700;border:1.5px solid var(--bdr);border-radius:6px;color:var(--brand)">'
           +'</div>'
         +'</div><button class="btn-rm" onclick="rmItem('+item.id+')">Remove</button></div>';
       cards.appendChild(div);})(QITEMS[i],i);
@@ -1645,6 +1650,37 @@ function liveUpdateQty(id,val){
   // Keep item.actualQty in sync so the totals bar (computed from all items) is correct
   item.actualQty=(v>0&&v<full)?v:null;
   refreshQTotals();
+}
+// Live preview while typing a new margin — updates this item's per-carton/per-MT
+// rates and line total, plus the totals bar, without rebuilding the card list.
+function liveUpdateMargin(id,val){
+  var item=QITEMS.find(function(x){return x.id===id;});
+  if(!item)return;
+  var v=parseFloat(val);
+  if(isNaN(v)||v<0)return;
+  var p=calcP(item.sku,item.oilPrice,item.add,v,item.mode,item.port);
+  var tu=itemQty(item),tm=tu*item.sku.net_wt/1000;
+  var isCif=item.priceMode==='cif'||item.priceMode==='both';
+  var ipm2=item.priceMode||'fob';
+  var showIC=(ipm2==='cif'||ipm2==='both')&&isCif;
+  var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
+  var tdis=showIC&&tcif!==null?tcif:tfob;
+  var fsEl=el('qFS-'+id),fmEl=el('qFM-'+id),csEl=el('qCS-'+id),cmEl=el('qCM-'+id),tEl=el('qT-'+id);
+  if(fsEl)fsEl.textContent='USD '+fmt(p.fs,2);
+  if(fmEl)fmEl.textContent='USD '+fmt(p.fm,2);
+  if(csEl)csEl.textContent='USD '+fmt(p.cs,2);
+  if(cmEl)cmEl.textContent='USD '+fmt(p.cm,2);
+  if(tEl)tEl.textContent='USD '+fmt(tdis,2);
+  item.mgn=v; // keep in sync so refreshQTotals (aggregate across all items) is correct
+  refreshQTotals();
+}
+function onMarginChange(id,val){
+  var item=QITEMS.find(function(x){return x.id===id;});
+  if(!item)return;
+  var v=parseFloat(val);
+  if(isNaN(v)||v<0)v=0;
+  item.mgn=v;
+  rQuote();rSum();
 }
 function refreshQTotals(){
   var tot=el('qTotals');if(!tot||!QITEMS.length)return;
