@@ -1585,11 +1585,11 @@ function rQuote(){
       div.innerHTML='<div class="q-item-num">'+(idx+1)+'</div>'
         +'<div class="q-item-body"><div class="q-item-title">'+itemDisplayName(item)+lclBadge+'</div>'
         +'<div class="q-item-details"><span>Oil: <b>'+item.oilName.replace(' (USD)','')+'</b></span><span>Net: <b>'+item.sku.net_wt+'kg</b></span><span>SKU/FCL: <b>'+fmt(item.sku.sku_fcl,0)+'</b></span>'+(item.add>0?'<span>Add: <b>USD '+fmt(item.add,2)+'/MT</b>'+(item.additiveType?' ('+item.additiveType+')':'')+'</b></span>':'')+'<span>'+portB+'</span></div>'+(item.blend?'<div style="font-size:.67rem;color:#6c3483;margin-top:3px;line-height:1.6">&#x1F504; '+itemBlendDesc(item)+'</div>':'')
-        +'<div class="q-price-row">'+priceHtml+'<div class="qprice"><span class="ql">Units</span><span class="qv">'+fmt(tu,0)+'</span></div><div class="qprice"><span class="ql">Vol (MT)</span><span class="qv">'+fmt(tm,2)+'</span></div><div class="qprice tot"><span class="ql">Total '+totalLabel+'</span><span class="qv">USD '+fmt(tdis,2)+'</span></div></div></div>'
+        +'<div class="q-price-row">'+priceHtml+'<div class="qprice"><span class="ql">Units</span><span class="qv" id="qU-'+item.id+'">'+fmt(tu,0)+'</span></div><div class="qprice"><span class="ql">Vol (MT)</span><span class="qv" id="qV-'+item.id+'">'+fmt(tm,2)+'</span></div><div class="qprice tot"><span class="ql">Total '+totalLabel+'</span><span class="qv" id="qT-'+item.id+'">USD '+fmt(tdis,2)+'</span></div></div></div>'
         +'<div class="q-item-right"><div class="q-fcl-wrap"><label style="font-size:.6rem;color:var(--mut)">FCL (locked)</label><div style="font-size:1.2rem;font-weight:800;color:var(--brand);text-align:center;padding:4px 0">'+item.fcl+'</div></div>'
           +'<div style="margin-top:8px;display:flex;flex-direction:column;align-items:center;gap:2px">'
             +'<label style="font-size:.6rem;color:var(--mut);text-transform:uppercase">Actual Qty'+(isLcl(item)?' <span style="color:#e67e22;font-weight:800">(LCL)</span>':'')+'</label>'
-            +'<input type="number" min="1" max="'+itemFullQty(item)+'" value="'+tu+'" onchange="onActualQtyChange('+item.id+',this.value)" title="Change to a partial quantity for LCL arrangements — leave at full amount for a complete container"'
+            +'<input type="number" min="1" max="'+itemFullQty(item)+'" value="'+tu+'" oninput="liveUpdateQty('+item.id+',this.value)" onchange="onActualQtyChange('+item.id+',this.value)" title="Change to a partial quantity for LCL arrangements — leave at full amount for a complete container"'
             +' style="width:78px;text-align:center;padding:5px;font-size:.85rem;font-weight:700;border:1.5px solid '+(isLcl(item)?'#e67e22':'var(--bdr)')+';border-radius:6px;color:'+(isLcl(item)?'#e67e22':'var(--brand)')+';background:'+(isLcl(item)?'#fff8f0':'#fff')+'">'
             +(isLcl(item)?'<button onclick="resetActualQty('+item.id+')" style="background:none;border:none;color:#888;font-size:.6rem;cursor:pointer;padding:0;text-decoration:underline;margin-top:1px">Reset (full: '+fmt(itemFullQty(item),0)+')</button>':'<span style="font-size:.6rem;color:var(--mut)">= Full FCL</span>')
           +'</div>'
@@ -1621,6 +1621,52 @@ function rQuote(){
 
 // LCL: let user override an item's actual loading quantity (pieces/cartons)
 // below the full FCL amount. Values >= full capacity or <=0 revert to full.
+// Live preview while typing — updates only this item's numbers + the totals bar,
+// without rebuilding the card list (which would steal focus mid-keystroke).
+// The full rebuild (via onActualQtyChange) still runs on blur/Enter for a clean,
+// fully-formatted, badge-accurate final state.
+function liveUpdateQty(id,val){
+  var item=QITEMS.find(function(x){return x.id===id;});
+  if(!item)return;
+  var v=parseInt(val)||0;
+  var full=itemFullQty(item);
+  var tu=(v>0&&v<=full)?v:full;
+  var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
+  var tm=tu*item.sku.net_wt/1000;
+  var isCif=item.priceMode==='cif'||item.priceMode==='both';
+  var ipm2=item.priceMode||'fob';
+  var showIC=(ipm2==='cif'||ipm2==='both')&&isCif;
+  var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
+  var tdis=showIC&&tcif!==null?tcif:tfob;
+  var uEl=el('qU-'+id),vEl=el('qV-'+id),tEl=el('qT-'+id);
+  if(uEl)uEl.textContent=fmt(tu,0);
+  if(vEl)vEl.textContent=fmt(tm,2);
+  if(tEl)tEl.textContent='USD '+fmt(tdis,2);
+  // Keep item.actualQty in sync so the totals bar (computed from all items) is correct
+  item.actualQty=(v>0&&v<full)?v:null;
+  refreshQTotals();
+}
+function refreshQTotals(){
+  var tot=el('qTotals');if(!tot||!QITEMS.length)return;
+  var gFob=0,gCif=0,gMt=0,gFcl=0;
+  QITEMS.forEach(function(item){
+    var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
+    var tu=itemQty(item),tm=tu*item.sku.net_wt/1000;
+    var isCif=item.priceMode==='cif'||item.priceMode==='both';
+    var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
+    gFob+=tfob;gCif+=(tcif!==null?tcif:tfob);gMt+=tm;gFcl+=item.fcl;
+  });
+  var hasFobItems=QITEMS.some(function(x){return x.priceMode==='fob'||x.priceMode==='both';});
+  var hasCifItems=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+  var totHtml='<div class="qtot-item"><span class="ql">Items</span><span class="qv">'+QITEMS.length+'</span></div>'
+    +'<div class="qtot-item"><span class="ql">Total FCL</span><span class="qv">'+gFcl+'</span></div>'
+    +'<div class="qtot-item"><span class="ql">Volume</span><span class="qv">'+fmt(gMt,2)+' MT</span></div>';
+  if(hasFobItems){totHtml+='<div class="qtot-item" style="margin-left:auto"><span class="ql">Total FOB</span><span class="qv" style="color:#a8f0c0">USD '+fmt(gFob,2)+'</span></div>';}
+  if(hasCifItems){totHtml+='<div class="qtot-item"'+(hasFobItems?'':' style="margin-left:auto"')+'><span class="ql">Total CIF</span><span class="qv" style="color:#aed6f1">USD '+fmt(gCif,2)+'</span></div>';}
+  if(!hasFobItems&&!hasCifItems){totHtml+='<div class="qtot-item" style="margin-left:auto"><span class="ql">Total FOB</span><span class="qv" style="color:#a8f0c0">USD '+fmt(gFob,2)+'</span></div>';}
+  if(hasFobItems&&hasCifItems){totHtml+='<div class="qtot-item" style="border-left:2px solid rgba(255,255,255,.3);padding-left:14px;margin-left:8px"><span class="ql" style="color:#ffd700;font-size:.72rem">EST. GRAND TOTAL OF SALES</span><span class="qv" style="color:#ffd700;font-size:1.1rem">USD '+fmt(gFob+gCif,2)+'</span></div>';}
+  tot.innerHTML=totHtml;
+}
 function onActualQtyChange(id,val){
   var item=QITEMS.find(function(x){return x.id===id;});
   if(!item)return;
