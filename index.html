@@ -367,15 +367,15 @@ td{padding:9px 12px;vertical-align:middle}
 <body>
 <script>
 // ── 3-Level Authentication ────────────────────────────────────────────────────
-// User 0 (admin)  : Joelishandsome1234  → full access incl. edit Supplier Rates
-// User 1 (viewer) : ViewOnly2026        → can VIEW Supplier Rates, cannot edit
-// User 2 (guest)  : Guest2026           → full calc access, Supplier Rates hidden
+// User 0 (admin)  : Bobby1  → full access incl. edit Supplier Rates
+// User 1 (viewer) : Bobby2  → can VIEW Supplier Rates, cannot edit
+// User 2 (guest)  : Bobby3  → full calc access, Supplier Rates hidden
 // (Passwords can be changed here in the source)
 (function(){
   var USERS = {
-    'Joelishandsome1234': '0',   // admin
-    'ViewOnly2026':       '1',   // viewer
-    'Guest2026':          '2'    // guest
+    'Bobby1': '0',   // admin
+    'Bobby2': '1',   // viewer
+    'Bobby3': '2'    // guest
   };
   var SESSION_KEY = 'able_auth';
   var ROLE_KEY    = 'able_role';
