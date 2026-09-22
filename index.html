@@ -1568,7 +1568,7 @@ function rQuote(){
     (function(item,idx){
       var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
       var tu=itemQty(item),tm=tu*item.sku.net_wt/1000;
-      var isCif=item.priceMode==='cif'||item.priceMode==='both';
+      var isCif=(item.priceMode==='cif'||item.priceMode==='both')&&!!item.port;
       var ipm2=item.priceMode||'fob';
       var showIF=(ipm2==='fob'||ipm2==='both');
       var showIC=(ipm2==='cif'||ipm2==='both')&&isCif;
@@ -1646,7 +1646,7 @@ function liveUpdateQty(id,val){
   var tu=(v>0&&v<=full)?v:full;
   var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
   var tm=tu*item.sku.net_wt/1000;
-  var isCif=item.priceMode==='cif'||item.priceMode==='both';
+  var isCif=(item.priceMode==='cif'||item.priceMode==='both')&&!!item.port;
   var ipm2=item.priceMode||'fob';
   var showIC=(ipm2==='cif'||ipm2==='both')&&isCif;
   var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
@@ -1668,7 +1668,7 @@ function liveUpdateMargin(id,val){
   if(isNaN(v)||v<0)return;
   var p=calcP(item.sku,item.oilPrice,item.add,v,item.mode,item.port);
   var tu=itemQty(item),tm=tu*item.sku.net_wt/1000;
-  var isCif=item.priceMode==='cif'||item.priceMode==='both';
+  var isCif=(item.priceMode==='cif'||item.priceMode==='both')&&!!item.port;
   var ipm2=item.priceMode||'fob';
   var showIC=(ipm2==='cif'||ipm2==='both')&&isCif;
   var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
@@ -1696,7 +1696,7 @@ function refreshQTotals(){
   QITEMS.forEach(function(item){
     var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
     var tu=itemQty(item),tm=tu*item.sku.net_wt/1000;
-    var isCif=item.priceMode==='cif'||item.priceMode==='both';
+    var isCif=(item.priceMode==='cif'||item.priceMode==='both')&&!!item.port;
     var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
     gFob+=tfob;gCif+=(tcif!==null?tcif:tfob);gMt+=tm;gFcl+=item.fcl;
   });
@@ -1824,7 +1824,7 @@ function buildTableHTML(forWindow){
     var item=QITEMS[i];
     var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
     var tu=itemQty(item),tm=tu*item.sku.net_wt/1000;
-    var isCif=item.priceMode==='cif'||item.priceMode==='both';
+    var isCif=(item.priceMode==='cif'||item.priceMode==='both')&&!!item.port;
     var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
     var ipmR=item.priceMode||'fob';
     var tdis=(ipmR==='cif'&&isCif&&tcif!==null)?tcif:(ipmR==='both'&&isCif&&tcif!==null?tcif:tfob);
@@ -1915,7 +1915,7 @@ function renderVTable(){
     var item=QITEMS[i];
     var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
     var tu=itemQty(item),tm=tu*item.sku.net_wt/1000;
-    var isCif=item.priceMode==='cif'||item.priceMode==='both';
+    var isCif=(item.priceMode==='cif'||item.priceMode==='both')&&!!item.port;
     var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
     gFob+=tfob;gCif+=(tcif!==null?tcif:tfob);gMt+=tm;gFcl+=item.fcl;
     itemsData.push({item:item,p:p,tu:tu,tm:tm,isCif:isCif,tfob:tfob,tcif:tcif});
@@ -2094,7 +2094,7 @@ function buildTxtTable(){
     var item=QITEMS[i];
     var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
     var tu=itemQty(item),tm=tu*item.sku.net_wt/1000;
-    var isCif=item.priceMode==='cif'||item.priceMode==='both';
+    var isCif=(item.priceMode==='cif'||item.priceMode==='both')&&!!item.port;
     var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
     gFob+=tfob;gCif+=(tcif!==null?tcif:tfob);gMt+=tm;gFcl+=item.fcl;
     var vals=[(i+1)+'',item.sku.type.slice(0,12),itemDisplayName(item).slice(0,24),item.fcl+'',fmt(tm,2)];
@@ -2136,7 +2136,7 @@ function buildRpt(){
     var item=QITEMS[i];
     var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
     var tu=itemQty(item),tm=tu*item.sku.net_wt/1000;
-    var isCif=item.priceMode==='cif'||item.priceMode==='both';
+    var isCif=(item.priceMode==='cif'||item.priceMode==='both')&&!!item.port;
     var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
     gFob+=tfob;gCif+=(tcif!==null?tcif:tfob);gMt+=tm;
     var ipm=item.priceMode||'fob';
@@ -2285,7 +2285,7 @@ function renderFm(){
       var item=QITEMS[i];
       var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
       var tu=itemQty(item),tm=tu*item.sku.net_wt/1000;
-      var isCif=item.priceMode==='cif'||item.priceMode==='both';
+      var isCif=(item.priceMode==='cif'||item.priceMode==='both')&&!!item.port;
       var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
       var tdis=(pm==='cif'&&isCif)?tcif:tfob;
       if(pm==='both'&&isCif)tdis=tcif;
@@ -2393,7 +2393,7 @@ function generatePdfHtml(){
     var item=QITEMS[i];
     var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
     var tu=itemQty(item),tm=tu*item.sku.net_wt/1000;
-    var isCif=item.priceMode==='cif'||item.priceMode==='both';
+    var isCif=(item.priceMode==='cif'||item.priceMode==='both')&&!!item.port;
     var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
     gFob+=tfob;gCif+=(tcif!==null?tcif:tfob);gMt+=tm;gFcl+=item.fcl;
     var showItemCif=showCif&&isCif;
@@ -2516,7 +2516,7 @@ function openPrintPreview(){
     var item=QITEMS[i];
     var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
     var tu=itemQty(item),tm=tu*item.sku.net_wt/1000;
-    var isCif=item.priceMode==='cif'||item.priceMode==='both';
+    var isCif=(item.priceMode==='cif'||item.priceMode==='both')&&!!item.port;
     var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
     gFob+=tfob;gCif+=(tcif!==null?tcif:tfob);gMt+=tm;gFcl+=item.fcl;
 
@@ -3327,7 +3327,7 @@ function copyAsImage(){
   var W=900, MARG=24, sc=2;
   // Per-item card height calculation
   var CARD_H=function(item){
-    var isCif=item.priceMode==='cif'||item.priceMode==='both';
+    var isCif=(item.priceMode==='cif'||item.priceMode==='both')&&!!item.port;
     var ipm_=item.priceMode||'fob';
     var hasFob=(ipm_==='fob'||ipm_==='both');
     var hasCif=(ipm_==='cif'||ipm_==='both')&&isCif;
@@ -3392,7 +3392,7 @@ function copyAsImage(){
     var item=QITEMS[i];
     var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
     var tu=itemQty(item),tm=tu*item.sku.net_wt/1000;
-    var isCif=item.priceMode==='cif'||item.priceMode==='both';
+    var isCif=(item.priceMode==='cif'||item.priceMode==='both')&&!!item.port;
     var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
     var tdis=(pm==='cif'&&isCif)?tcif:(pm==='both'&&isCif?tcif:tfob);
     gFob+=tfob;gCif+=(tcif?tcif:tfob);gMt+=tm;gFcl+=item.fcl;
@@ -3517,7 +3517,7 @@ function saveAsPDF(){
       var oilLabel=allSameOil&&QITEMS.length>0?QITEMS[0].oilName.replace(' (USD)',''):'';
       var W=900,MARG=24,sc=2;
       var CARD_H=function(item){
-        var isCif=item.priceMode==='cif'||item.priceMode==='both';
+        var isCif=(item.priceMode==='cif'||item.priceMode==='both')&&!!item.port;
         var ipm_s=item.priceMode||'fob';
         var hasFobS=(ipm_s==='fob'||ipm_s==='both');
         var hasCifS=(ipm_s==='cif'||ipm_s==='both')&&isCif;
@@ -3555,7 +3555,7 @@ function saveAsPDF(){
         var item=QITEMS[i];
         var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
         var tu=itemQty(item),tm=tu*item.sku.net_wt/1000;
-        var isCif=item.priceMode==='cif'||item.priceMode==='both';
+        var isCif=(item.priceMode==='cif'||item.priceMode==='both')&&!!item.port;
         var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
         gFob+=tfob;gCif+=(tcif?tcif:tfob);gMt+=tm;gFcl+=item.fcl;
         var ch=CARD_H(item);
@@ -3757,7 +3757,7 @@ function generatePDF(){
       // Use item's OWN locked values — not affected by current calculator inputs
       var p=calcP(item.sku,item.oilPrice,item.add,item.mgn,item.mode,item.port);
       var tu=itemQty(item),tm=tu*item.sku.net_wt/1000;
-      var isCif=item.priceMode==='cif'||item.priceMode==='both';
+      var isCif=(item.priceMode==='cif'||item.priceMode==='both')&&!!item.port;
       var tfob=tu*p.fs,tcif=isCif?tu*p.cs:null;
 
       // Per-item: which pricing applies to THIS item based on ITS OWN locked priceMode
