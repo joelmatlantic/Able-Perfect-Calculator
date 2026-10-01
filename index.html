@@ -1529,11 +1529,17 @@ function addToQuote(){
     if(!S.sel){showCustToast('\u26a0 Please select a SKU from the list first');return;}
     if(!isOK(S.sel)){showCustToast('\u26a0 This packaging type is not compatible with the selected oil');return;}
     if(QITEMS.length>=50){alert('Maximum 50 items per quote.');return;}
-    // Guard: manual freight typed in but no port selected -> freight would be
-    // silently dropped (need a real port for the report). Warn instead of losing it.
-    var needsCif=(S.mode==='CIF'||PRICE_MODE==='cif'||PRICE_MODE==='both');
-    if(needsCif&&FREIGHT_TAB==='manual'&&S_MANUAL_FREIGHT>0&&!S.portObj){
-      showCustToast('\u26a0 Select a port first (Port List tab), then your manual freight will apply correctly');
+    // Guard: PRICE_MODE intends CIF/Both columns to show in the report, but no
+    // port has been selected -> the item would silently save with port:null,
+    // showing blank CIF columns and 'Total CIF: USD 0.00' in every report even
+    // though the quote header still says CIF. Block and guide instead.
+    var needsCif=(PRICE_MODE==='cif'||PRICE_MODE==='both');
+    if(needsCif&&!S.portObj){
+      if(FREIGHT_TAB==='manual'&&S_MANUAL_FREIGHT>0){
+        showCustToast('\u26a0 Select a port first (Port List tab), then your manual freight will apply correctly');
+      }else{
+        showCustToast('\u26a0 CIF pricing is selected but no port is chosen — please pick a port (Step 4 \u2192 Port List) before adding to quote');
+      }
       return;
     }
     var sku=S.sel,fcl=parseInt(el('quoteFcl').value)||1;
@@ -1564,7 +1570,7 @@ function rQuote(){
   sec.style.display='block';
   var ub=el('btnUpdatePrices');if(ub)ub.style.display='flex';
   el('qBadge').textContent=QITEMS.length+' item'+(QITEMS.length>1?'s':'');
-  var hasCif=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+  var hasCif=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
   var cards=el('qCards');cards.innerHTML='';
   var gFob=0,gCif=0,gMt=0,gFcl=0;
   for(var i=0;i<QITEMS.length;i++){
@@ -1616,7 +1622,7 @@ function rQuote(){
   // Summary bar respects PRICE_MODE
   // Use per-item priceMode for summary bar
   var hasFobItems=QITEMS.some(function(x){return x.priceMode==='fob'||x.priceMode==='both';});
-  var hasCifItems=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+  var hasCifItems=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
   var totHtml='<div class="qtot-item"><span class="ql">Items</span><span class="qv">'+QITEMS.length+'</span></div>'
     +'<div class="qtot-item"><span class="ql">Total FCL</span><span class="qv">'+gFcl+'</span></div>'
     +'<div class="qtot-item"><span class="ql">Volume</span><span class="qv">'+fmt(gMt,2)+' MT</span></div>';
@@ -1704,7 +1710,7 @@ function refreshQTotals(){
     gFob+=tfob;gCif+=(tcif!==null?tcif:tfob);gMt+=tm;gFcl+=item.fcl;
   });
   var hasFobItems=QITEMS.some(function(x){return x.priceMode==='fob'||x.priceMode==='both';});
-  var hasCifItems=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+  var hasCifItems=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
   var totHtml='<div class="qtot-item"><span class="ql">Items</span><span class="qv">'+QITEMS.length+'</span></div>'
     +'<div class="qtot-item"><span class="ql">Total FCL</span><span class="qv">'+gFcl+'</span></div>'
     +'<div class="qtot-item"><span class="ql">Volume</span><span class="qv">'+fmt(gMt,2)+' MT</span></div>';
@@ -1773,10 +1779,10 @@ function fallbackCopy(text){
 
 function buildTableHTML(forWindow){
   var pm=PRICE_MODE||'fob';
-  var hasCifItem=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+  var hasCifItem=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
   // Derive columns from each item's locked priceMode
   var showFob=QITEMS.some(function(x){return x.priceMode==='fob'||x.priceMode==='both';});
-  var showCif=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+  var showCif=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
   var cust=el('qCust').value||'',del_=el('qDel').value||'',sd=el('qDel')?el('qDel').value||'':'',ref_='';
   var d=new Date(),ds=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
   var allSameOil=QITEMS.length>0&&QITEMS.every(function(x){return x.oilName===QITEMS[0].oilName;});
@@ -1900,7 +1906,7 @@ function buildTableHTML(forWindow){
 function renderVTable(){
   var isMobile=window.innerWidth<750;
   var pm=PRICE_MODE||'fob';
-  var hasCifItem=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+  var hasCifItem=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
   var showCif=hasCifItem;
   var cust=el('qCust').value||'',del_=el('qDel').value||'',sd=el('qDel')?el('qDel').value||'':'',ref_='';
   var d=new Date(),ds=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
@@ -2018,7 +2024,7 @@ function renderVTable(){
   // Terms & Conditions -- auto-select based on price mode
   var sdVal=el('qDel')?el('qDel').value||'To be advised':'To be advised';
   var hasFobItems=QITEMS.some(function(x){return x.mode!=='CIF';});
-  var hasCifItems2=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+  var hasCifItems2=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
   var showTcFob=(pm==='fob'||pm==='both');
   var showTcCif=(pm==='cif'||pm==='both')&&hasCifItems2;
   if(showTcFob||showTcCif){
@@ -2068,7 +2074,7 @@ function renderVTable(){
 
 function buildTxtTable(){
   var pm=PRICE_MODE||'fob';
-  var hasCifItem=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+  var hasCifItem=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
   var showFob=(pm==='fob'||pm==='both');
   var showCif=hasCifItem;
   var cust=el('qCust').value||'',del_=el('qDel').value||'',sd=el('qDel')?el('qDel').value||'':'',ref_='';
@@ -2123,7 +2129,7 @@ function buildRpt(){
   var cust=el('qCust').value||'';
   var del_=el('qDel').value||'To be advised';
   var sd=el('qDel')?el('qDel').value||'To be advised':'To be advised',ref_='';
-  var hasCif=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+  var hasCif=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
   var d=new Date(),ds=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
   var NL=String.fromCharCode(10),DIV='-----------------------------------------------';
   var r='*ABLE PERFECT SDN BHD*'+NL+'*PRICE QUOTATION*'+NL;
@@ -2178,7 +2184,7 @@ function buildRpt(){
   r+=DIV+NL+'*TERMS & CONDITIONS*'+NL;
   r+='**Price subject to final confirmation'+NL;
   var hasFobItems=QITEMS.some(function(x){return x.priceMode==='fob'||x.priceMode==='both';});
-  var hasCifItems=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+  var hasCifItems=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
   if(hasFobItems)r+=tcFob(sd)+NL;
   if(hasFobItems&&hasCifItems)r+=DIV+NL+'[CIF TERMS]'+NL;
   if(hasCifItems)r+=tcCif(sd);
@@ -2249,7 +2255,7 @@ function setFmView(v){
 
 function renderFm(){
   var pm=PRICE_MODE||'fob';
-  var hasCifItem=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+  var hasCifItem=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
   var showCif=hasCifItem;
   var cust=el('qCust').value||'',del_=el('qDel').value||'',sd=el('qDel')?el('qDel').value||'':'',ref_='';
   var d=new Date(),ds=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
@@ -2371,7 +2377,7 @@ document.getElementById('fullModal').addEventListener('click',function(e){if(e.t
 
 function generatePdfHtml(){
   var pm=PRICE_MODE||'fob';
-  var hasCifItem=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+  var hasCifItem=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
   var showFob=(pm==='fob'||pm==='both');
   var showCif=hasCifItem;
   var cust=el('qCust').value||'',del_=el('qDel').value||'',sd=el('qDel')?el('qDel').value||'':'',ref_='';
@@ -2447,7 +2453,7 @@ function generatePdfHtml(){
   s+='&bull; Pricing does not include 3rd party documentation, testing and certification charges.</div>';
   var sdVal=el('qDel')?el('qDel').value||'To be advised':'To be advised';
   var showTcFob=(pm==='fob'||pm==='both');
-  var hasCifItems2=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+  var hasCifItems2=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
   var showTcCif=(pm==='cif'||pm==='both')&&hasCifItems2;
   if(showTcFob||showTcCif){
     s+='<div style="background:#fff8e0;border:1px solid #ffe0b2;border-radius:7px;padding:10px 12px;font-size:.72rem;color:#5d4037;line-height:1.85;page-break-inside:avoid">';
@@ -2488,7 +2494,7 @@ function generatePdfHtml(){
 function openPrintPreview(){
   if(!QITEMS.length){alert('Add items to the quote first.');return;}
   var pm=PRICE_MODE||'fob';
-  var hasCifItem=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+  var hasCifItem=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
   var showFob=(pm==='fob'||pm==='both');
   var showCif=hasCifItem;
   var cust=el('qCust').value||'';
@@ -2588,7 +2594,7 @@ function openPrintPreview(){
 
   // T&C
   var showTcFob=(pm==='fob'||pm==='both');
-  var hasCifItems2=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+  var hasCifItems2=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
   var showTcCif=(pm==='cif'||pm==='both')&&hasCifItems2;
   if(showTcFob||showTcCif){
     html_+='<div style="background:#fff8e0;border:1px solid #ffe0b2;border-radius:10px;padding:12px 14px;margin-bottom:10px;font-size:.73rem;color:#5d4037;line-height:1.85">';
@@ -3314,7 +3320,7 @@ function downloadPdf(){
 function copyAsImage(){
   if(!QITEMS.length){alert('Add items to the quote first.');return;}
   var pm=PRICE_MODE||'fob';
-  var hasCifItem=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+  var hasCifItem=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
   var showFob=(pm==='fob'||pm==='both');
   var showCif=hasCifItem;
   var modeLabel=pm==='cif'?'CIF':pm==='both'?'FOB & CIF':'FOB';
@@ -3507,7 +3513,7 @@ function saveAsPDF(){
   setTimeout(function(){
     try{
       var pm=PRICE_MODE||'fob';
-      var hasCifItem=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+      var hasCifItem=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
       var showFob=(pm==='fob'||pm==='both');
       var showCif=hasCifItem;
       var modeLabel=pm==='cif'?'CIF':pm==='both'?'FOB & CIF':'FOB';
@@ -3716,7 +3722,7 @@ function generatePDF(){
 
     // Determine columns STRICTLY from each item's own locked priceMode
     var hasItemFob=QITEMS.some(function(x){return x.priceMode==='fob'||x.priceMode==='both';});
-    var hasItemCif=QITEMS.some(function(x){return x.priceMode==='cif'||x.priceMode==='both';});
+    var hasItemCif=QITEMS.some(function(x){return (x.priceMode==='cif'||x.priceMode==='both')&&!!x.port;});
 
     var showF=hasItemFob;
     var showC=hasItemCif;
