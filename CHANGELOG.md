@@ -314,3 +314,8 @@ The header badge (top right, 📅 icon) and subtitle previously showed a stale h
 - Confirmed: the date string only exists in the `<header>` HTML block, completely separate from all report-generation functions (`generatePDF`, `generatePdfHtml`, `buildTableHTML`, WhatsApp builder)
 - For checking a *specific* port's own freshness, use the color-coded dot next to each port in Step 4 → Port List (🟢 fresh ≤3mo / 🟡 warn ≤6mo / 🔴 stale >6mo) — that reflects each port's individual `updated` date, not this global header date
 - This header date will need manual updating whenever a future Excel freight refresh is applied, to keep it accurate
+
+## v2026-10-09 — Login Password Change (Able Perfect only)
+
+- Level-0 (admin) password changed from `Bobby1` to `bobby1` (login is case-sensitive).
+- Level-1 (`Bobby2`) and Level-2 (`Bobby3`) passwords unchanged. No other function touched.
