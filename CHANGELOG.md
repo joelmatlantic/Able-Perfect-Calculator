@@ -319,3 +319,8 @@ The header badge (top right, 📅 icon) and subtitle previously showed a stale h
 
 - Level-0 (admin) password changed from `Bobby1` to `bobby1` (login is case-sensitive).
 - Level-1 (`Bobby2`) and Level-2 (`Bobby3`) passwords unchanged. No other function touched.
+
+## v2026-10-17 — Additive Type: Low MCPD GE
+
+- Added **Low MCPD GE** to the Additive Type dropdown (alongside RSPO MB, RSPO SG, Low GE 3 MCPD).
+- Uses the same existing additive mechanism: the label is locked to the cart item and appears via `itemDisplayName()` in the cart, PDF card view, PDF table, image export and WhatsApp text. Pricing formulas untouched.
