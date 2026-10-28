@@ -324,3 +324,20 @@ The header badge (top right, 📅 icon) and subtitle previously showed a stale h
 
 - Added **Low MCPD GE** to the Additive Type dropdown (alongside RSPO MB, RSPO SG, Low GE 3 MCPD).
 - Uses the same existing additive mechanism: the label is locked to the cart item and appears via `itemDisplayName()` in the cart, PDF card view, PDF table, image export and WhatsApp text. Pricing formulas untouched.
+
+## v2026-10-28 — Data Update from "ABLE UPDATED EXHIBITION CALCULATOR VIETNAM EXPO 2026" (27 Oct 2026)
+
+### Oil prices
+- CP10 base changed from 1,215 to **1,145** (default Step-1 price).
+- Updated differentials/prices: RBD -5, CPO 80, P.Stearin -50, Shortening 50-52deg -50, Kernel Oil 995, Kernel Olein 675, CBSFAT 33-35 1,395, CBSFAT 33.5-36 1,375, PFAD -75, PKFAD 685; SBR 1,530, SBR w/o FTA 1,450, SBC 1,520, CAR 1,620, CAR w/o FTA 1,565, SFR 1,740, SFR w/o FTA 1,650, MZR 1,750, CNR 2,000, CNC 1,900, Cotton 1,650, GroundNut 2,180, Ghee (AMF) 6,350, CFAD 1,600.
+
+### Packaging costs
+- 93 SKUs updated to the Excel packaging cost (USD/MT). Most moved about -0.25%. Larger moves: 10ltr Jerrycan 157.17 -> 162.31; 10ltr Jerrycan (Big Mouth) 159.70 -> 179.99 with net weight 9.7 -> 9 kg; 48x250ml PET (Square 2pc Cap) 518.21 -> 494.78; 48x250ml PET (Square) 482.26 -> 458.92.
+- **No SKU removed.** 23 SKUs that are not listed in the Excel were kept, with cost estimated from the matching change of similar SKUs of the same type (-0.25%): 12x1kg, 24x500gm, 4x5ltr small lid, 4x5kgs big lid, 8x2kg (PL), 8x2kg (Press-in lid) round tins; 4x5ltr rectangular; 15kg SM tin (3 variants); 16kg BM tin; 6x1.8ltr PET (2); BIB 10kg/20kg specialty; Flexible bag 22MT and +HP 22MT; 20ltr metal round drum.
+- 5 round tins that appear in the Excel with spacing changes (e.g. "12 x 900 gm") keep their existing names and take the Excel cost.
+- RumiLac and Isotank unchanged (not part of this Excel).
+
+### Freight
+- 180 port freight rates updated; each port's "updated" date is the Excel's own Last Updated value.
+- New port: ASIA / JAPAN / NAHA. Manually added port SHANGHAI YANGSHAN (Ex-Belawan) preserved. Total 639 ports.
+- Header text and badge now read "Freight: 27 Oct 2026" (on-screen only, not in any report).
