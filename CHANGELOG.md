@@ -341,3 +341,6 @@ The header badge (top right, 📅 icon) and subtitle previously showed a stale h
 - 180 port freight rates updated; each port's "updated" date is the Excel's own Last Updated value.
 - New port: ASIA / JAPAN / NAHA. Manually added port SHANGHAI YANGSHAN (Ex-Belawan) preserved. Total 639 ports.
 - Header text and badge now read "Freight: 27 Oct 2026" (on-screen only, not in any report).
+
+### Fix (28 Oct 2026): CP10 input box
+- The CP10 Base input box on Step 1 was hard-coded to 1175 in the page HTML, so it still showed the old value. It now shows **1145**, matching the internal default.
